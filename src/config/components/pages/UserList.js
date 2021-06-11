@@ -10,13 +10,13 @@ const List = () => {
   const [datas, setdata] = useState({
     role: "1",
     page:1,
-    per_page:2,
+    per_page:5,
     serach:'',
     sort:''
 
   });
   const [users, setusers] = useState([]);
-  const [paginationInfo, setPaginationInfo] = useState({current: 1, pageSize: 2 });
+  const [paginationInfo, setPaginationInfo] = useState({current: 1, pageSize: 5 });
 
   const handlechange = async(pagination, filters, sort) => {
     const pagiante = { ...datas, page: pagination.current || datas.page,  };
@@ -28,7 +28,7 @@ const List = () => {
       //console.log(res.data.data.docs)
 
       setusers(res.data.data.docs);
-      setPaginationInfo({current: res.data.data.page, pageSize: 2, total:res.data.data.totalDocs})
+      setPaginationInfo({current: res.data.data.page, pageSize: 5, total:res.data.data.totalDocs})
     });
   };
 
