@@ -16,7 +16,6 @@ exports.get_users = async (req, res, next) => {
     limit: per_page,
     collation: { locale: "en" },
     sort: { createdAt: -1 },
-    //populate: ["user_address_detail"],
   };
   const match = {
     role: requests.role,

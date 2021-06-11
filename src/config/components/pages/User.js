@@ -12,7 +12,7 @@ const User = () => {
 
   const getdata=()=>{
     console.log("id: -----> ", id);
-      Apicall({role:'1', id: id},`/user/get_user`).then(res=>{
+      Apicall({role:'1', id: id},`/user/get_user_detail`).then(res=>{
         console.log("usersid",res.data.data.user_detail)
         setuser(res.data.data.user_detail)
       })
@@ -23,7 +23,10 @@ const User = () => {
   
   return (
     <div>
-        {user && user.name}
+      <p>{user.name}</p>
+      <p>{user.email}</p>
+      <p>{user.phone}</p>
+
     </div>
   );
 }

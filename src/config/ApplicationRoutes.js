@@ -13,6 +13,7 @@ import SideNav from "../config/components/layouts/sidebar";
 import CaregiverList from "./components/pages/CaregiverList";
 import Caregiver from "./components/pages/Caregiver";
 import DriverEdit from './components/pages/DriverEdit'
+import Form from './components/pages/form'
 
 import { Layout } from "antd";
 import { MenuUnfoldOutlined, MenuFoldOutlined } from "@ant-design/icons";
@@ -58,7 +59,7 @@ const ApplicationRoutes = () => {
               }}
             >
               <Switch>
-                <Route path="/dashboard/user/:id" component={User} />
+                <Route exact path="/dashboard" component={Form}/>
                 <Route path="/dashboard/user" component={UserList} />
                 <Route path="/dashboard/caregiver/:id" component={Caregiver} />
                 <Route path="/dashboard/driver/:id" component={Driver} />

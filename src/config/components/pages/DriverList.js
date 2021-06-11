@@ -19,9 +19,11 @@ const List = () => {
     current: 1,
     pageSize: 5,
   });
+  const [serach,setsearch]=useState('')
+
 
   const handlechange = async (pagination, filters, sort) => {
-    const pagiante = { ...datas, page: pagination.current || datas.page };
+    const pagiante = { ...datas, page: pagination.current || datas.page ,search:serach};
     await Apicall(pagiante, "/user/get_users").then((res) => {
       setusers(res.data.data.docs);
       setPaginationInfo({
@@ -32,12 +34,13 @@ const List = () => {
     });
   };
 
-  const Filter = async (value) => {
-    await Apicall(datas, "/user/get_users").then((res) => {
-      console.log("search================>", res.data.data.docs);
-      setusers(res.data.data.docs);
-    });
+  const onSearch = value => {
+    console.log("--->",value.target.value)
+    setsearch(value.target.value)
+    handlechange(paginationInfo)
   };
+
+ 
 
   useEffect(() => {
     handlechange(datas);
@@ -94,10 +97,10 @@ const List = () => {
           <Title level={2}>Driver List</Title>
         </Col>
         <Col span={6}>
-          <Search
+        <Search
             placeholder="input search text"
             allowClear
-            onKeyUp={Filter}
+            onKeyUp={onSearch}
             style={{ width: 200 }}
           />
         </Col>

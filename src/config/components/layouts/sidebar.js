@@ -21,20 +21,27 @@ const SideNav = () => {
     const handleCaregiverClick = () => {
         history.push('/dashboard/caregiver');
     }
+    const handledashboardClick = () => {
+        history.push('/dashboard');
+    }
 
   return (
       <div>
         <div style={{height: "32px", background: "rgba(255, 255, 255, 0.2)", margin: "16px"}}></div>
             <Menu theme="dark" mode="inline" >
-                <Menu.Item key="1" onClick={handleUserClick}>
+            <Menu.Item key="1" onClick={handledashboardClick}>
+                    <UserOutlined />
+                    <span> dashboard</span>
+                </Menu.Item>
+                <Menu.Item key="2" onClick={handleUserClick}>
                     <UserOutlined />
                     <span> Users</span>
                 </Menu.Item>
-                <Menu.Item key="2" onClick={handleDriverClick}>
+                <Menu.Item key="3" onClick={handleDriverClick}>
                     <VideoCameraOutlined />
                     <span> Drivers</span>
                 </Menu.Item>
-                <Menu.Item key="3" onClick={handleCaregiverClick}>
+                <Menu.Item key="4" onClick={handleCaregiverClick}>
                     <UploadOutlined />
                     <span> Caregivers</span>
                 </Menu.Item>
