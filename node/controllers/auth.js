@@ -1,5 +1,8 @@
 const User = require("../models/user")
+const Admin=require("../models/admin")
 const moment = require('moment');
+const crypto = require("crypto");
+const nodemailer = require('../config/nodemailer');
 const commonHelper = require('../helpers/commonhelpers')
 const _ = require("lodash");
 const util = require("util");
@@ -11,7 +14,7 @@ exports.sign_up = async (req, res, next) => {
     var checkUser = await User.findOne({ role: requests.role, phone: requests.phone, email: requests.email });
     if (checkUser) {
         if (checkUser.phone) {
-            return res.apiResponse(false, "Mobile Number already eruku.")
+            return res.apiResponse(false, "Mobile Number already exists.")
         }
         else {
             if (requests.email) {
@@ -43,8 +46,11 @@ exports.sign_up = async (req, res, next) => {
                     });
                 });
             }
+
+
         }
     }
+    
     else {
         if (requests.email) {
             var checkUseremail = await User.findOne({ role: requests.role, email: requests.email });
@@ -53,7 +59,7 @@ exports.sign_up = async (req, res, next) => {
             var checkUseremail = false;
         }
         if (checkUseremail) {
-            return res.apiResponse(false, "Email already eruku.")
+            return res.apiResponse(false, "Email already exists.")
         }
         else {
             let location = {
@@ -238,3 +244,49 @@ exports.upload_document = async (req, res, next) => {
     }
 }
 
+exports.createDefaultAdminuser = async (req, res, next) => {
+    var super_admin_data = {
+        role:0,
+        email:'admin@gmail.com',
+        password:'123'
+    }
+    let location = {
+        type: "Point",
+        coordinates: [0,0]
+    }
+    super_admin_data.location = location;
+    var newUser = new Admin(super_admin_data);
+    await newUser.save()   
+    return res.apiResponse(true, "Super Admin Created",newUser);
+}
+exports.adminlogin = async (req, res, next) => {
+    const requests = req.bodyParams;
+    const adminRowFromDB = await Admin.findOne({email: requests.email, password: requests.password});
+    if (adminRowFromDB){
+        return res.apiResponse(true, "Logged in", adminRowFromDB)
+    } else {
+        return res.apiResponse(false, "User name password wrong")
+    }
+}
+exports.forgotPassword = async(req, res, next) => {
+    var requests=req.bodyParams
+
+    var user=await User.findOne({ role: requests.role,email : requests.email });
+
+    if (!user) {
+        return res.apiResponse(false, "Email does not exists") 
+    }
+    else 
+    { 
+        var token = crypto.randomBytes(3).toString('hex');
+        var mail_data = {}
+        mail_data.user_name=user.name;
+        mail_data.site_name=commonHelper.siteName();
+        mail_data.site_url=commonHelper.getBaseurl();
+        mail_data.new_password = token;
+        nodemailer.sendMail({'to':requests.email,'slug':'forgot_password','data':mail_data});
+        user.password=token;
+        await user.save();
+        return res.apiResponse(true, "Reset password link sent to your email",token)
+    }
+}

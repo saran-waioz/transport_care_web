@@ -1,5 +1,23 @@
 .logo_image{
     width: 250px;
     object-fit: contain;
-    margin-bottom: 30px;
+    margin: 46px 0px 25px 1px
 }
+.sidebar_image img{
+    width: 130px;
+    object-fit: contain;
+    margin: 0px 0px -41px 20px;
+}
+.login{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#components-layout-demo-fixed-sider .logo {
+    height: 32px;
+    margin: 16px;
+    background: rgba(255, 255, 255, 0.2);
+  }
+  .site-layout .site-layout-background {
+    background: #fff;
+  }

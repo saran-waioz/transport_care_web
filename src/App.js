@@ -1,19 +1,13 @@
-import { ThemeProvider } from '@material-ui/core';
-import GlobalStyles from './component/login/globalstyle';
-import theme from './component/theme/index'
-import { useRoutes } from 'hookrouter';
-import routes from './routes';
-import "./App.css"
-const App=()=>{
-  const routing=useRoutes(routes)
-  return(
-    <>
-    <ThemeProvider theme={theme}>
-      <GlobalStyles/>
-      {routing}
-    </ThemeProvider>
-    </>
-  )
-}
-export default App
+import "./App.css";
+import 'antd/dist/antd.css';
+import Routes from './router/router'
+const App = () => {
+  
+  return (
+    <div className="container">
+      <Routes/>
+    </div>
+  );
+};
 
+export default App;

@@ -136,8 +136,10 @@ app.get('/api', function(req, res) {
 })
 
 const authroutes=require('./routes/auth')
+const usersroutes=require("./routes/users")
 
 app.use('/api/auth' ,authroutes)
+app.use('/api/user',usersroutes)
 
 app.use((req, res, next) => {
     console.log(req)
