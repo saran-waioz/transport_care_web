@@ -9,26 +9,26 @@ const List = () => {
   const history = useHistory();
   const [datas, setdata] = useState({
     role: "1",
-    page:1,
-    per_page:5,
-    serach:'',
-    sort:''
-
+    page: 1,
+    per_page: 5,
+    serach: "",
+    sort: "",
   });
   const [users, setusers] = useState([]);
-  const [paginationInfo, setPaginationInfo] = useState({current: 1, pageSize: 5 });
+  const [paginationInfo, setPaginationInfo] = useState({
+    current: 1,
+    pageSize: 5,
+  });
 
-  const handlechange = async(pagination, filters, sort) => {
-    const pagiante = { ...datas, page: pagination.current || datas.page,  };
+  const handlechange = async (pagination, filters, sort) => {
+    const pagiante = { ...datas, page: pagination.current || datas.page };
     await Apicall(pagiante, "/user/get_users").then((res) => {
-      // console.log("pagination------->", res.data.data);
-      //pagiante.total = res.data.data.totalDocs;
-      //pagiante.current = res.data.data.page;
-      //console.log("------------", pagiante);
-      //console.log(res.data.data.docs)
-
       setusers(res.data.data.docs);
-      setPaginationInfo({current: res.data.data.page, pageSize: 5, total:res.data.data.totalDocs})
+      setPaginationInfo({
+        current: res.data.data.page,
+        pageSize: 5,
+        total: res.data.data.totalDocs,
+      });
     });
   };
 
@@ -45,8 +45,7 @@ const List = () => {
 
   const deletedata = (id) => {
     console.log(id);
-    Apicall({ id }, `/user/delete_user`).then((res) => {
-      console.log("delete============>", res.data.data.docs);
+    Apicall( {id} , `/user/delete_user`).then((res) => {
       handlechange();
     });
   };
@@ -75,7 +74,7 @@ const List = () => {
       render: (tezt, record) => {
         return (
           <Space size="middle">
-            <Button onClick={() => deletedata(record._id)}>Delete</Button>
+            <Button>Delete</Button>
             <Button onClick={() => openUserView(record._id)}>View</Button>
           </Space>
         );
