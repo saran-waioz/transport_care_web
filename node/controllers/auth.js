@@ -6,21 +6,22 @@ const nodemailer = require('../config/nodemailer');
 const commonHelper = require('../helpers/commonhelpers')
 const _ = require("lodash");
 const util = require("util");
+const { request } = require("http");
 
 
 exports.sign_up = async (req, res, next) => {
     var requests = req.bodyParams
     console.log(req.files)
-    var checkUser = await User.findOne({ role: requests.role, phone: requests.phone, email: requests.email });
+    var checkUser = await User.findOne({ role: requests.role, phone: requests.phone,country_code:requests.country_code});
     if (checkUser) {
-        if (checkUser.phone) {
-            return res.apiResponse(false, "Mobile Number already exists.")
-        }
-        else {
-            if (requests.email) {
-                var checkUseremail = await User.findOne({ role: requests.role, email: requests.email });
-            }
-            else {
+        // if (checkUser.phone) {
+        //     return res.apiResponse(false, "Mobile Number already exists.")
+        // }
+        // else {
+            // if (requests.email) {
+            //     var checkUseremail = await User.findOne({ role: requests.role, email: requests.email });
+            // }
+            // else {
                 var mail_data = {}
                 mail_data.user_name = requests.name;
                 mail_data.site_name = commonHelper.siteName();
@@ -45,13 +46,14 @@ exports.sign_up = async (req, res, next) => {
                         return res.apiResponse(true, "User Updated Successfully", { user_detail })
                     });
                 });
-            }
+            // }
 
 
-        }
+        // }
     }
     
     else {
+
         if (requests.email) {
             var checkUseremail = await User.findOne({ role: requests.role, email: requests.email });
         }
@@ -127,7 +129,7 @@ exports.sent_otp = async (req, res, next) => {
     var requests = req.bodyParams
     console.log(requests)
 
-    var checkUser = await User.findOne({ role: requests.role, phone: requests.phone });
+    var checkUser = await User.findOne({ role: requests.role, phone: requests.phone ,country_code:requests.country_code});
     console.log(checkUser)
     if (checkUser) {
         var verify_code = checkUser.verify_code;
@@ -177,6 +179,7 @@ exports.sent_otp = async (req, res, next) => {
             last_verified: moment(),
             role: requests.role,
             phone: requests.phone,
+            country_code:requests.country_code,
             location: location
         });
         newUser.save();
@@ -188,7 +191,7 @@ exports.sent_otp = async (req, res, next) => {
 exports.update_otp = async (req, res, next) => {
     var requests = req.bodyParams
     var data = {};
-    var checkUser = await User.findOne({ role: requests.role, phone: requests.phone, verify_code: requests.verify_code });
+    var checkUser = await User.findOne({ role: requests.role, phone: requests.phone, verify_code: requests.verify_code,country_code:requests.country_code });
     if (checkUser) {
         var set = {
             phone_verify: 1

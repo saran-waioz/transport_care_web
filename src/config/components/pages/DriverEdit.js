@@ -19,7 +19,7 @@ const DriverEdit = () => {
 
   const getdata = () => {
     console.log("id: -----> ", id);
-    Apicall({ id: id }, `/user/get_user`).then((res) => {
+    Apicall({ id: id }, `/user/get_user_detail`).then((res) => {
       console.log("usersid=>>>>>", res.data);
       setuser(res.data.data.user_detail);
     });
