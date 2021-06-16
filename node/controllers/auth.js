@@ -10,6 +10,7 @@ const { request } = require("http");
 
 
 exports.sign_up = async (req, res, next) => {
+    console.log("sign_up");
     var requests = req.bodyParams
     console.log(req.files)
     var checkUser = await User.findOne({ role: requests.role, phone: requests.phone,country_code:requests.country_code});
