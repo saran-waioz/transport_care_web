@@ -22,7 +22,7 @@ var schemaOptions = {
  * User schema
  */
 const userSchema = new mongoose.Schema({
-    role: Number, // 1 - User, 2 - caregiver, 3 - Driver
+    role: Number, // 1 - User, 2 - Driver, 3 - caregiver
     name: String,
     email: String,
     phone: String,
