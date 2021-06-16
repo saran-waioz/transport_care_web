@@ -44,3 +44,4 @@ userCareGiverSchema.virtual('caregiver_detail', {
 
 userCareGiverSchema.plugin(mongoosePaginate);
 module.exports = mongoose.model('user_caregiver', userCareGiverSchema);
+

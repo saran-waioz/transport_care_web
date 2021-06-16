@@ -47,6 +47,13 @@ const userSchema = new mongoose.Schema({
         default: 'pending'
     },
   
+    // Default ride type & vehicle category
+    default_ride_type: String,
+    default_vehicle_category: String,
+
+    //only for driver
+    availability_status: String,
+
     verify_code: String,  //otp
     device_id: Array,
     last_verified: Date,
