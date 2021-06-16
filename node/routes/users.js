@@ -7,6 +7,18 @@ router.post('/export_get_user',Usercontroller.get_export_user)
 router.post('/get_user_detail',Usercontroller.get_user_detail)
 router.post('/delete_user',Usercontroller.delete_user)
 router.post('/update_driver_status',Usercontroller.update_driver_status)
+router.post('/get_caregiver', Usercontroller.get_caregiver);
+router.post('/add_user_caregiver', Usercontroller.add_user_caregiver);
+router.post('/get_user_caregiver', Usercontroller.get_user_caregiver);
+router.post('/delete_user_caregiver', Usercontroller.delete_user_caregiver);
+router.post('/add_driver_attender', Usercontroller.add_driver_attender);
+router.post('/get_driver_attender', Usercontroller.get_driver_attender);
+router.post('/add_user_feedback', Usercontroller.add_user_feedback);
+router.post('/update_profile', Usercontroller.update_profile);
+router.post('/update_driver_attender', Usercontroller.update_driver_attender);
+router.post('/delete_driver_attender', Usercontroller.delete_driver_attender);
+router.post('/update_availability_status', Usercontroller.update_availability_status);
+router.post('/update_default_settings', Usercontroller.update_default_settings);
 // router.post('/get_pagination',Usercontroller.get_pagination)
 // router.post('/get_users',Usercontroller.get_users)
 
