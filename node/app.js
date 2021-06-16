@@ -138,10 +138,12 @@ app.get('/api', function(req, res) {
 const authroutes=require('./routes/auth')
 const usersroutes=require("./routes/users")
 const categoryroutes=require("./routes/category")
+const setting=require("./routes/setting")
 
 app.use('/api/auth' ,authroutes)
 app.use('/api/user',usersroutes)
 app.use('/api/category',categoryroutes)
+app.use("/api/setting",setting)
 
 
 app.use((req, res, next) => {
