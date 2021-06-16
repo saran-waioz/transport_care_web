@@ -47,6 +47,13 @@ const userSchema = new mongoose.Schema({
         default: 'pending'
     },
   
+    // Default ride type & vehicle category
+    default_ride_type: String,
+    default_vehicle_category: String,
+
+    //only for driver
+    availability_status: String,
+
     verify_code: String,  //otp
     device_id: Array,
     last_verified: Date,
@@ -128,63 +135,7 @@ userSchema.virtual('original_attender_proof').get(function () {
 /**
  * Create instance method for authenticating user
  */
- userSchema.virtual('show_ready_date').get(function () {
-    var utc = moment(this.ready_at);
-    if(moment(utc).tz(process.env.TIME_ZONE).format('YYYY-MM-DD')==moment().tz(process.env.TIME_ZONE).format('YYYY-MM-DD'))
-    {
-      return moment(utc).tz(process.env.TIME_ZONE).format('YYYY-MM-DD hh:mm A')
-    }
-    else
-    {
-      return moment(utc).tz(process.env.TIME_ZONE).format('YYYY-MM-DD hh:mm A')
-    }
-  })
-  userSchema.virtual('show_interview_at_date').get(function () {
-    var utc = moment(this.interviewd_at);
-    if(moment(utc).tz(process.env.TIME_ZONE).format('YYYY-MM-DD')==moment().tz(process.env.TIME_ZONE).format('YYYY-MM-DD'))
-    {
-      return moment(utc).tz(process.env.TIME_ZONE).format('YYYY-MM-DD hh:mm A')
-    }
-    else
-    {
-      return moment(utc).tz(process.env.TIME_ZONE).format('YYYY-MM-DD hh:mm A')
-    }
-  })
-  
-  userSchema.virtual('show_trained_at').get(function () {
-    var utc = moment(this.trained_at);
-    if(moment(utc).tz(process.env.TIME_ZONE).format('YYYY-MM-DD')==moment().tz(process.env.TIME_ZONE).format('YYYY-MM-DD'))
-    {
-      return moment(utc).tz(process.env.TIME_ZONE).format('YYYY-MM-DD hh:mm A')
-    }
-    else
-    {
-      return moment(utc).tz(process.env.TIME_ZONE).format('YYYY-MM-DD hh:mm A')
-    }
-  });
-  userSchema.virtual('show_approved_at').get(function () {
-    var utc = moment(this.approved_at);
-    if(moment(utc).tz(process.env.TIME_ZONE).format('YYYY-MM-DD')==moment().tz(process.env.TIME_ZONE).format('YYYY-MM-DD'))
-    {
-      return moment(utc).tz(process.env.TIME_ZONE).format('YYYY-MM-DD hh:mm A')
-    }
-    else
-    {
-      return moment(utc).tz(process.env.TIME_ZONE).format('YYYY-MM-DD hh:mm A')
-    }
-  });
-  
-  userSchema.virtual('show_rejected_at').get(function () {
-    var utc = moment(this.rejected_at);
-    if(moment(utc).tz(process.env.TIME_ZONE).format('YYYY-MM-DD')==moment().tz(process.env.TIME_ZONE).format('YYYY-MM-DD'))
-    {
-      return moment(utc).tz(process.env.TIME_ZONE).format('YYYY-MM-DD hh:mm A')
-    }
-    else
-    {
-      return moment(utc).tz(process.env.TIME_ZONE).format('YYYY-MM-DD hh:mm A')
-    }
-  });
+ 
 
 
 userSchema.methods.comparePassword = function (password) {

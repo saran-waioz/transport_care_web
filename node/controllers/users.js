@@ -92,12 +92,19 @@ exports.get_user_detail = async (req, res) => {
 };
 
 exports.delete_user = async (req, res, next) => {
+  console.log("delete_user: ")
   var requests = req.bodyParams;
-  await User.findById(requests.id, async (err, user) => {
+  await User.findOneAndUpdate(
+    { _id: requests.id },
+    { $set: {is_deleted: true} },
+  ).exec();
+  
+  /*await User.findById(requests.id, async (err, user) => {
     if (user) {
       await user.remove();
     }
-  });
+  });*/
+
   return res.apiResponse(true, " Deleted Successfully");
 };
 
@@ -427,36 +434,20 @@ exports.update_availability_status = async (req, res, next) => {
     var requests = req.bodyParams;
   }
 
-  var old_user_detail = await User.findOne({ _id: requests.id });
+  var old_user_detail = await User.findOne({ _id: requests.id, role: 2 });
   if(old_user_detail) {
     await User.findOneAndUpdate(
       { _id: requests.id },
       { $set: 
         {
-          'status': requests.status
+          'availability_status': requests.status
         } 
       },
       { new: true }
     ).exec();
     return res.apiResponse(true, "Record Updated Successfully");
   }
-};
-
-exports.update_default_settings = async (req, res, next) => {
-  if (typeof req.bodyParams == "undefined") {
-    var requests = req;
-  } 
   else {
-    var requests = req.bodyParams;
-  }
-
-  var old_user_detail = await User.findOne({ _id: requests.id });
-  if(old_user_detail) {
-    await User.findOneAndUpdate(
-      { _id: requests.id },
-      { $set: requests },
-      { new: true }
-    ).exec();
-    return res.apiResponse(true, "Record Updated Successfully");
+    return res.apiResponse(false, "Driver not Found");
   }
 };

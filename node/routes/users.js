@@ -18,7 +18,6 @@ router.post('/update_profile', Usercontroller.update_profile);
 router.post('/update_driver_attender', Usercontroller.update_driver_attender);
 router.post('/delete_driver_attender', Usercontroller.delete_driver_attender);
 router.post('/update_availability_status', Usercontroller.update_availability_status);
-router.post('/update_default_settings', Usercontroller.update_default_settings);
 // router.post('/get_pagination',Usercontroller.get_pagination)
 // router.post('/get_users',Usercontroller.get_users)
 

@@ -35,3 +35,4 @@ attenderSchema.virtual('driver_detail', {
 
 attenderSchema.plugin(mongoosePaginate);
 module.exports = mongoose.model('attender', attenderSchema);
+
