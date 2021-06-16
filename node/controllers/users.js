@@ -88,12 +88,19 @@ exports.get_user_detail = async (req, res) => {
 };
 
 exports.delete_user = async (req, res, next) => {
+  console.log("delete_user: ")
   var requests = req.bodyParams;
-  await User.findById(requests.id, async (err, user) => {
+  await User.findOneAndUpdate(
+    { _id: requests.id },
+    { $set: {is_deleted: true} },
+  ).exec();
+  
+  /*await User.findById(requests.id, async (err, user) => {
     if (user) {
       await user.remove();
     }
-  });
+  });*/
+
   return res.apiResponse(true, " Deleted Successfully");
 };
 exports.update_driver_status = async (req, res, next) => {

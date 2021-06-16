@@ -1,13 +1,22 @@
-import "./App.css";
-import 'antd/dist/antd.css';
-import Routes from './router/router'
-const App = () => {
-  
+import Routes from "./router/router";
+import "antd/dist/antd.css";
+import Admin from './pages/login/login'
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+
+
+function App() {
   return (
-    <div className="container">
-      <Routes/>
-    </div>
+    <Router>
+      <Switch>
+        <Route exact path="/admin">
+          <Admin />
+        </Route>
+        <Route exact path="/">
+          <Routes />
+        </Route>
+      </Switch>
+    </Router>
   );
-};
+}
 
 export default App;
