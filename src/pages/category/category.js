@@ -22,6 +22,7 @@ const Category = () => {
     per_page: 5,
     search: "",
     sort: "",
+
   });
   const [users, setusers] = useState([]);
   const [paginationInfo, setPaginationInfo] = useState({
@@ -31,36 +32,37 @@ const Category = () => {
   const [serach, setsearch] = useState("");
 
   const handlechange = async (pagination, filters, sort) => {
-    // const pagiante = {
-    //   ...datas,
-    //   page: pagination.current || datas.page,
-    //   search: serach,
-    // };
-    await Apicall(datas, "/category/get_category").then((res) => {
-      setusers(res.data.data.category);
-      console.log(res.data.data.category);
-      //   setPaginationInfo({
-      //     current: res.data.data.page,
-      //     pageSize: 5,
-      //     total: res.data.data.totalDocs,
-      //   });
+    const pagiante = {
+      ...datas,
+      page: pagination.current || datas.page,
+      search: serach,
+    };
+    await Apicall(pagiante, "/category/get_category").then((res) => {
+      setusers(res.data.data.docs);
+      console.log(res.data.data.docs);
+        setPaginationInfo({
+          current: res.data.data.page,
+          pageSize: 5,
+          total: res.data.data.totalDocs,
+        });
     });
   };
 
-  //   const onSearch = (value) => {
-  //     console.log("--->", value.target.value);
-  //     setsearch(value.target.value);
-  //     handlechange(paginationInfo);
-  //   };
+    const onSearch = (value) => {
+      console.log("--->", value.target.value);
+      setsearch(value.target.value);
+      handlechange(paginationInfo);
+    };
 
   useEffect(() => {
     handlechange(datas);
   }, [datas]);
 
   const deleteuser = (id) => {
-    console.log("----- here we are");
-    Apicall({ id }, "/category/delete_category");
-    handlechange(datas);
+    console.log("----- here we are",id);
+    Apicall( {id} , "/category/delete_category").then(res=>{
+      handlechange(datas);
+    })
   };
   const columns = [
     {
@@ -84,7 +86,7 @@ const Category = () => {
     {
       title: "Image",
       render: (text, record) => {
-        return <span title="Image">{record.image}</span>;
+        return <span className="image_size" title="Image"><img src={record.original_image}/></span>;
       },
     },
     {
@@ -94,7 +96,7 @@ const Category = () => {
         return (
           <Space size="middle">
             <Button onClick={() => openEditcategory(record._id)}>Edit</Button>
-            <Button onClick={() => deleteuser(record.id)}>Delete</Button>
+            <Button onClick={() => deleteuser(record._id)}>Delete</Button>
           </Space>
         );
       },
@@ -135,7 +137,7 @@ const Category = () => {
           <Search
             placeholder="input search text"
             allowClear
-            // onKeyUp={onSearch}
+            onKeyUp={onSearch}
             style={{ width: 200 }}
           />
         </Col>

@@ -17,14 +17,6 @@ var schemaOptions={
 const categorySchema=new mongoose.Schema({
     name:String,
     parent_id:String,
-    is_parent:{
-        type:Number,
-        default:0
-    },
-    is_last:{
-        type:Boolean,
-        default:false
-    },
     category_path:{
         type:Array,
         default:[]
@@ -46,42 +38,13 @@ const categorySchema=new mongoose.Schema({
         default:false
     }
 },schemaOptions)
-categorySchema.virtual('child_count', {
-    ref: 'Category',
-    localField: '_id',
-    foreignField: 'parent_id',
-    justOne: false,
-    count:true
-  })
-  categorySchema.virtual('category_with_childs', {
-    ref: 'Category',
-    localField: '_id',
-    foreignField: 'parent_id',
-    justOne: false
-  })
-  categorySchema.virtual('childs', {
-    ref: 'Category',
-    localField: '_id',
-    foreignField: 'parent_id',
-    justOne: false
-  })
-  categorySchema.virtual('category_path_detail', {
-    ref: 'Category',
-    localField: 'category_path',
-    foreignField: '_id',
-    justOne: false
-  })
+
 categorySchema.virtual('original_image').get(function(){
-    if(this.image){
-        if(this.image_type=='normal'){
-            return commonHelper.getBaseurl()+"/media/assets/uploads"+this.image
-        }
-        else{
-            return  this.image
-        }
+    if (this.image) {
+        return commonHelper.getBaseurl() + "/media/assets/uploads/" + this.image;
     }
-    else{
-        return commonHelper.getBaseurl()+"/media/assets/image/default_image.jpg"
+    else {
+        return commonHelper.getBaseurl() + "/media/assets/uploads/default_image.jpg";
     }
 })
 categorySchema.plugin(mongoosePaginate);

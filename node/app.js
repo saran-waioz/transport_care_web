@@ -9,7 +9,7 @@ const app = express();
 const cwd = process.cwd();
 const env = process.env
 mongoose.set('useCreateIndex', true); // mongoose default config settings
-mongoose.connect(env.MONGO_DB_URL, { useNewUrlParser: true,useUnifiedTopology: true }); // mention database name
+mongoose.connect(env.MONGO_DB_URL, { useNewUrlParser: true,useUnifiedTopology: true, useCreateIndex: true, }); // mention database name
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(fileUpload());
@@ -95,7 +95,6 @@ app.use(
  
 /* Api Response Middleware */
 app.use((req, res, next) => {
-    console.log(req.files)
 
     res.apiResponse = (status, message, data = null) => {
         // var message = __(message);
@@ -112,7 +111,7 @@ app.use((req, res, next) => {
         return res.apiResponse(false, "Params is required")
     }
     var params = req.body.params
-    console.log(req.files)
+
     if ((typeof params).toLowerCase() !== 'object') {
         try {
             if (params != undefined) {
@@ -139,11 +138,14 @@ const authroutes=require('./routes/auth')
 const usersroutes=require("./routes/users")
 const categoryroutes=require("./routes/category")
 const setting=require("./routes/setting")
+const static=require("./routes/staticpage")
 
 app.use('/api/auth' ,authroutes)
 app.use('/api/user',usersroutes)
 app.use('/api/category',categoryroutes)
 app.use("/api/setting",setting)
+app.use("/api/static",static)
+
 
 
 app.use((req, res, next) => {

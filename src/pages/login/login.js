@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Formik } from "formik";
+import './login.css'
 import {
   Box,
   Button,
@@ -7,8 +8,10 @@ import {
   TextField,
   Typography,
 } from "@material-ui/core";
+import { Form, Input, Layout, message } from "antd";
 import Apicall from "../../component/Api/Apicall";
 import { useHistory } from "react-router";
+import Logo from '../../images/logo.png'
 
 
 const LoginPage = () => {
@@ -30,19 +33,20 @@ const LoginPage = () => {
 
   const onClick = async () => {
     if (email === "" || password === "") {
-      console.log("Please fill data");
+      message.info('Valid data');
     } else {
       const res = await Apicall({ email, password }, "/auth/admin_login");
       console.log(res.data);
       if (res.data.status) {
         localStorage.setItem("adminLogin", email);
+        message.info('Login succssfully');
         history.push("/");
       } else {
       }
     }
   };
   return (
-    <div>
+    <div className="login">
       <Box
         sx={{
           backgroundColor: "background.default",
@@ -53,11 +57,11 @@ const LoginPage = () => {
         }}
       >
         <Container maxWidth="sm">
-          {/* <img className="logo_image" src={Logo} alt="your Place" /> */}
+          <img className="logo_image" src={Logo} alt="your Place" />
           <Formik>
-            <form>
+            <form className="login_form">
               <Box sx={{ mb: 3 }}>
-                <Typography color="textPrimary" variant="h2">
+                <Typography color="textPrimary" variant="h4">
                   Sign in
                 </Typography>
                 <Typography color="textSecondary" gutterBottom variant="body2">
@@ -66,7 +70,7 @@ const LoginPage = () => {
               </Box>
               <TextField
                 fullWidth
-                label="Email Address.."
+                label="Email Address"
                 margin="normal"
                 name="email"
                 type="email"

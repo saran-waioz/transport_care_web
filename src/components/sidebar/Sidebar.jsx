@@ -71,14 +71,19 @@ export default function Sidebar() {
         <div className="sidebarMenu">
           <h3 className="sidebarTitle">Notifications</h3>
           <ul className="sidebarList">
+            <Link to="/settings">
             <li className="sidebarListItem">
               <MailOutline className="sidebarIcon" />
-              Mail
+              Settings
             </li>
+            </Link>
+            <Link to="/static">
             <li className="sidebarListItem">
               <DynamicFeed className="sidebarIcon" />
-              Feedback
+              Static Page
             </li>
+            </Link>
+            
             <li className="sidebarListItem">
               <ChatBubbleOutline className="sidebarIcon" />
               Messages
