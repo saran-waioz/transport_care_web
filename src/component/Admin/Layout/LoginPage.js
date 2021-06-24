@@ -41,7 +41,7 @@ export const LoginPage = () => {
 
   const onClick = async () => {
     if (email === "" || password === "") {
-      message.info("Valid data");
+      Alert_msg({ msg: "Please Fill All Data", status: 'failed' });
     } else {
       const res = await Apicall({ email, password }, "/auth/admin_login");
       console.log(res.data);
@@ -50,6 +50,7 @@ export const LoginPage = () => {
         message.info("Login succssfully");
         history.push("/admin-dashboard");
       } else {
+        Alert_msg(res.data.message);
       }
     }
   };
