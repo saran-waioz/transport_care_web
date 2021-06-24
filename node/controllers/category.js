@@ -122,3 +122,48 @@ exports.delete_category = async (req, res, next) => {
   ).exec();
   return res.apiResponse(true, " Deleted Successfully");
 };
+
+
+exports.get_vehicle_category = async (req, res, next) => {
+  var requests = req.bodyParams;
+  console.log(requests);
+  var page = requests.page || 1
+  var per_page = requests.per_page || 10
+  var pagination = requests.pagination || "false"
+  const match = {
+    is_deleted: false
+  };
+
+  var sort = { createdAt: -1 }
+  if (requests.search && requests.search != "") {
+      match.name = { $regex: new RegExp("^" + requests.search, "i") }
+  }
+  if (requests.sort != "") {
+      switch (requests.sort) {
+          case 'makes_asc':
+              sort = { name: 1 }
+              break;
+          case 'makes_desc':
+              sort = { name: -1 }
+              break;
+          default:
+          // code block
+      }
+  }
+  const options = {
+      page: page,
+      limit: per_page,
+      sort: sort
+  };
+
+  if (pagination == "true") {
+      Category.paginate(match, options, function (err, category) {
+          return res.apiResponse(true, "Success", { category })
+      });
+  }
+  else {
+      var category = await Category.find(match).sort(sort);
+      return res.apiResponse(true, "Success", { category })
+  }
+
+};
