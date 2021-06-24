@@ -1,9 +1,6 @@
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import UserList from "../pages/userList/UserList";
 import UserEdit from "../pages/userList/UserEdit";
-import NewUser from "../pages/newUser/NewUser";
-import ProductList from "../pages/productList/ProductList";
-import Product from "../pages/product/Product";
 import Addcategory from "../pages/category/addcategory";
 import EditCategory from "../pages/category/editcategory";
 import DriverList from "../pages/driverList/driverList";
@@ -13,6 +10,10 @@ import Topbar from "../components/topbar/Topbar";
 import Sidebar from "../components/sidebar/Sidebar";
 import Home from "../pages/home/Home";
 import Category from "../pages/category/category";
+import Settings from "../pages/setting/setting"
+import Static from "../pages/staticpage/static";
+import AddStatic from "../pages/staticpage/addstatic";
+import Editstatic from "../pages/staticpage/editstatic";
 
 const Routes = () => {
   return (
@@ -47,6 +48,18 @@ const Routes = () => {
           </Route>
           <Route path="/newUser">
             <Addcategory/>
+          </Route>
+          <Route path="/settings">
+            <Settings/>
+          </Route>
+          <Route path="/static">
+            <Static/>
+          </Route>
+          <Route path="/statics">
+            <AddStatic/>
+          </Route>
+          <Route path="/editstatic/:id">
+            <Editstatic/>
           </Route>
         </Switch>
       </div>

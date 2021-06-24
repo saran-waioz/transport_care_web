@@ -1,17 +1,22 @@
 import { useState } from "react";
 import "./category.css";
-import { Upload, Button, Input } from "antd";
+import { Upload, Button, Input, Progress } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import Apicall from "../../component/Api/Apicall";
+import Apicallopy from "../../component/Api/Apicallcopy";
 import { useHistory } from "react-router";
+import axios from "axios";
 
 export default function Addcategory() {
-  const history=useHistory()
+  const history = useHistory();
+  const [defaultFileList, setDefaultFileList] = useState([]);
+  const [progress, setProgress] = useState(0);
+  const [selectedFile, setSelectedFile] = useState({});
+
   const [values, setvalues] = useState({
     name: "",
     price: "",
     commission: "",
-    photo: "",
     loading: false,
     error: "",
   });
@@ -22,10 +27,13 @@ export default function Addcategory() {
     setvalues({ ...values, [name]: value });
   };
   const onsubmit = async (e) => {
-    console.log("onsubmit")
     e.preventDefault();
-    setvalues({ ...values, error: "", loading: true });
-    await Apicall(values, "/category/update_category").then((res) => {
+    const formData = new FormData();
+    formData.append("name", values.name);
+    formData.append("price", values.price);
+    formData.append("commission", values.commission);
+    formData.append("file", selectedFile);
+    await Apicallopy(formData, "/category/update_category").then((res) => {
       console.log("add", res.data);
       if (res.error) {
         setvalues({ ...values, error: res.error });
@@ -34,40 +42,26 @@ export default function Addcategory() {
           ...values,
           name: "",
           price: "",
-          photo: "",
           commission: "",
         });
       }
     });
   };
-const openCategory=()=>{
-  console.log("cat")
+  const openCategory = () => {
+    history.push("/category");
+  };
 
-  history.push("/category");
-
-}
-const props = {
-  name: 'file',
-  action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
-  headers: {
-    authorization: 'authorization-text',
-  },
-  onChange(info) {
-    if (info.file.status !== 'uploading') {
-      console.log(info.file, info.fileList);
-    }
-    if (info.file.status === 'done') {
-      // message.success(`${info.file.name} file uploaded successfully`);
-    } else if (info.file.status === 'error') {
-      // message.error(`${info.file.name} file upload failed.`);
-    }
-  },
-};
+  const handleOnChange = ({ file, fileList, event }) => {
+    console.log(file);
+    setSelectedFile(file.originFileObj);
+    setDefaultFileList(fileList);
+  };
 
   return (
     <div className="newUser">
-      <h1 className="newUserTitle">New User</h1>
-      <form>
+      <form onSubmit={onsubmit}>
+        <h1 className="newUserTitle">New Category</h1>
+
         <div className="newUserItem">
           <label>Username</label>
           <Input
@@ -92,17 +86,30 @@ const props = {
             value={commission}
           />
         </div>
-        <div className="file_upload">
-          <Upload {...props}>
-          <Button icon={<UploadOutlined />}>Click to Upload</Button>
-          </Upload>
+        <div>
+          <div class="containers">
+            <Upload
+              accept="image/*"
+              onChange={handleOnChange}
+              listType="picture-card"
+              defaultFileList={defaultFileList}
+              className="image-upload-grid"
+            >
+              {defaultFileList.length >= 1 ? null : <div>Upload Button</div>}
+            </Upload>
+            {progress > 0 ? <Progress percent={progress} /> : null}
+          </div>
         </div>
-        <button onClick={onsubmit} className="newUserButton">
-          Create
-        </button> 
-         <button onClick={()=>openCategory()} className="newUserButton">Cancel</button> 
+        {/* <FileUploaded
+          onFileSelectSuccess={(file) => setSelectedFile(file)}
+          onFileSelectError={({ error }) => alert(error)}
+        /> */}
+        <button className="Button">Create</button>
+        {"  "}
+        <button onClick={() => openCategory()} className="Button">
+          Cancel
+        </button>
       </form>
-   
     </div>
   );
 }
