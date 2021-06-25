@@ -142,7 +142,7 @@ const Category = () => {
             <span
               className="cursor_point"
               onClick={() => {
-                history.push(`/admin-categories/${record._id}`);
+                history.push(`/admin/admin-categories/${record._id}`);
               }}
             >
               <Icon

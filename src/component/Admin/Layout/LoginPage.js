@@ -31,7 +31,7 @@ export const LoginPage = () => {
   const { email, password } = values;
   useEffect(() => {
     localStorage.getItem("adminLogin") === email
-      ? history.push({ pathname: "/admin-dashboard" })
+      ? history.push({ pathname: "/admin/admin-dashboard" })
       : history.push({ pathname: "/admin" });
   }, []);
 
@@ -48,7 +48,7 @@ export const LoginPage = () => {
       if (res.data.status) {
         localStorage.setItem("adminLogin", email);
         message.info("Login succssfully");
-        history.push("/admin-dashboard");
+        history.push("/admin/admin-dashboard");
       } else {
         Alert_msg(res.data.message);
       }

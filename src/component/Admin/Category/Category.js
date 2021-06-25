@@ -17,7 +17,7 @@ const Category=()=> {
         setcollaspsed({collapsed:val})
     };
     const openaddcategory=()=>{
-        history.push("/admin-categories")
+        history.push("/admin/admin-categories")
     }
         return (
             <Layout style={{ height: '100vh' }}>

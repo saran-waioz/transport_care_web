@@ -51,10 +51,10 @@ const Add_Static = () => {
         });
       }
     });
-    history.push("/admin-static");
+    history.push("/admin/admin-static");
   };
   const cancel = () => {
-    history.push("/admin-static");
+    history.push("/admin/admin-static");
   };
 
   return (

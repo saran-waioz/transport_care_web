@@ -52,10 +52,10 @@ const StaticTable = () => {
     });
   };
   const addstatic=()=>{
-      history.push(`/admin-statcs`)
+      history.push(`/admin/admin-statcs`)
   }
   const editstatic=(id)=>{
-    history.push(`/admin-statics/${id}`)
+    history.push(`/admin/admin-statics/${id}`)
 }
   const columns = [
     {

@@ -30,7 +30,7 @@ class AdminHeader extends React.Component {
         const menu = (
             <Menu onClick={(key) => { this.handleMenuClick(key) }}>
 
-                <Menu.Item key="/admin-settings" className=" d-flex align-items-center px-3">
+                <Menu.Item key="/admin/admin-settings" className=" d-flex align-items-center px-3">
                     <Icon type="setting" />
                     Setting
         </Menu.Item>

@@ -33,7 +33,7 @@ class AdminSider extends React.Component {
               src={main}
               alt={"transportcare"}
               onClick={() => {
-                this.props.history.push("/admin-dashboard");
+                this.props.history.push("/admin/admin-dashboard");
               }}
               className="w-75 object_fit cursor_point"
             />
@@ -44,36 +44,36 @@ class AdminSider extends React.Component {
             mode="inline"
           >
             <h3 className="sidebarTitle">Dashboard</h3>
-            <Menu.Item key="/admin-dashboard">
+            <Menu.Item key="/admin/admin-dashboard">
               <Icon type="dashboard" />
               <span>Dashboard</span>
-              <Link to="/admin-dashboard" />
+              <Link to="/admin/admin-dashboard" />
             </Menu.Item>
-            <Menu.Item key="/admin-user">
+            <Menu.Item key="/admin/admin-user">
             <FaUsers style={{ fontSize: '1.2em' }} />
               <span style={{margin:10}}>Users</span>
-              <Link to="/admin-user" />
+              <Link to="/admin/admin-user" />
             </Menu.Item>
-            <Menu.Item key="/admin-driver">
+            <Menu.Item key="/admin/admin-driver">
             <FaRedRiver style={{ fontSize: '1.2em' }} />
             <span style={{margin:10}}>Drivers</span>
-              <Link to="/admin-driver" />
+              <Link to="/admin/admin-driver" />
             </Menu.Item>
-            <Menu.Item key="/admin-caregiver">
+            <Menu.Item key="/admin/admin-caregiver">
             <FaUserMd style={{ fontSize: '1.2em' }} />
             <span style={{margin:10}}>Caregivers</span>
-              <Link to="/admin-caregiver" />
+              <Link to="/admin/admin-caregiver" />
             </Menu.Item>
             <h3 className="sidebarTitle">Quick Menu</h3>
-            <Menu.Item key="/admin-category">
+            <Menu.Item key="/admin/admin-category">
               <Icon type="deployment-unit" />
               <span>Categories</span>
-              <Link to="/admin-category" />
+              <Link to="/admin/admin-category" />
             </Menu.Item>            
             <Menu.Item key="/admin-location">
               <FaMapMarkerAlt style={{ fontSize: '1.2em' }} />
               <span style={{margin:10}}>Driver Map</span>
-              <Link to="/admin-location" />
+              <Link to="/admin/admin-location" />
             </Menu.Item>
             <Menu.Item key="/admin-request">
               <Icon type="appstore" />
@@ -84,7 +84,7 @@ class AdminSider extends React.Component {
             <Menu.Item key="/admin-booking">
               <FaTripadvisor style={{ fontSize: '1.2em' }} />
               <span style={{margin:10}}>Trip</span>
-              <Link to="/admin-booking" />
+              <Link to="/admin/admin-booking" />
             </Menu.Item>
             <Menu.Item key="/admin-review">
               <Icon type="star" />
@@ -97,20 +97,20 @@ class AdminSider extends React.Component {
               {/* <Link to="/admin-payouts" /> */}
             </Menu.Item>
             <h3 className="sidebarTitle">Settings</h3>
-            <Menu.Item key="/admin-certificate">
+            <Menu.Item key="/admin/admin-certificate">
               <Icon type="file-unknown" />
               <span>Certificates</span>
               {/* <Link to="/admin-certificate" /> */}
             </Menu.Item>
-            <Menu.Item key="/admin-static">
+            <Menu.Item key="/admin/admin-static">
               <Icon type="book" />
               <span>Static Pages</span>
-              <Link to="/admin-static" />
+              <Link to="/admin/admin-static" />
             </Menu.Item>
-            <Menu.Item key="/settings">
+            <Menu.Item key="/admin/settings">
               <Icon type="setting" />
               <span>Settings</span>
-              <Link to="/settings" />
+              <Link to="/admin/settings" />
             </Menu.Item>
             
           </Menu>

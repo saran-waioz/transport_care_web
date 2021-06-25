@@ -63,7 +63,7 @@ const Add_Category = () => {
         });
       }
     });
-    history.push("/admin-category")
+    history.push("/admin/admin-category")
   };
   const beforeUpload = (file) => {
     const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
@@ -82,7 +82,7 @@ const Add_Category = () => {
     setSelectedFile(file.originFileObj);
   };
   const cancel=()=>{
-    history.push("/admin-category")
+    history.push("/admin/admin-category")
   }
 
 

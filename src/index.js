@@ -65,22 +65,22 @@ ReactDOM.render(
     <Switch>
       {/* <Route exact path="/" component={Home_Page} /> */}
       <Route exact path="/admin" component={LoginPage} />
-      <Route path="/admin-dashboard" component={Dashboard} />
-      <Route path="/admin-driver" component={Driver} exact />
-      <Route path="/admin-driveredit/:id" component={Driver_Edit} exact />
-      <Route path="/admin-location" component={DriverLocation}/>
-      <Route path="/admin-user" component={User} exact />
-      <Route path="/admin-caregiver" component={Caregiver} exact />
-      <Route path="/admin-category" component={Category} exact />
-      <Route path="/admin-categories" component={Add_Category} exact />
-      <Route path="/admin-categories/:id" component={Edit_Category} exact />
-      <Route path="/settings" component={Settings} exact />
-      <Route path="/admin-static" component={Static} exact />
-      <Route path="/admin-statcs" component={Add_Static} exact />
-      <Route path="/admin-statics/:id" component={Edit_Static} exact />
-      <Route path="/admin-booking" component={Booking} />
-      <Route path="/admin-booking-detail" component={Booking_Details} />
-      <Route path="/admin-booking-invoice/:id" component={Invoice} exact />
+      <Route path="/admin/admin-dashboard" component={Dashboard} />
+      <Route path="/admin/admin-driver" component={Driver} exact />
+      <Route path="/admin/admin-driveredit/:id" component={Driver_Edit} exact />
+      <Route path="/admin/admin-location" component={DriverLocation}/>
+      <Route path="/admin/admin-user" component={User} exact />
+      <Route path="/admin/admin-caregiver" component={Caregiver} exact />
+      <Route path="/admin/admin-category" component={Category} exact />
+      <Route path="/admin/admin-categories" component={Add_Category} exact />
+      <Route path="/admin/admin-categories/:id" component={Edit_Category} exact />
+      <Route path="/admin/settings" component={Settings} exact />
+      <Route path="/admin/admin-static" component={Static} exact />
+      <Route path="/admin/admin-statcs" component={Add_Static} exact />
+      <Route path="/admin/admin-statics/:id" component={Edit_Static} exact />
+      <Route path="/admin/admin-booking" component={Booking} />
+      <Route path="/admin/admin-booking-detail" component={Booking_Details} />
+      <Route path="/admin/admin-booking-invoice/:id" component={Invoice} exact />
       <Route component={NotFound} />
     </Switch>
   </BrowserRouter>,

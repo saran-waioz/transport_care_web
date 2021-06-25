@@ -64,7 +64,7 @@ const Settingpage = () => {
         message.info("updated succssfully");
       }
     );
-    history.push('/settings')
+    history.push('/admin/settings')
   };
   useEffect(() => {
     settingsapi();

@@ -48,17 +48,17 @@ const Edit_Static = () => {
   const update = async (e) => {
     e.preventDefault();
     await Apicall({ ...values, id: id, type: "edit" }, "/static/update_static");
-    history.push("/admin-static");
+    history.push("/admin/admin-static");
   };
   useEffect(() => {
     preload();
   }, []);
 
   const openCategory = () => {
-    history.push("/category");
+    history.push("/admin/category");
   };
   const cancel = () => {
-    history.push("/admin-static");
+    history.push("/admin/admin-static");
   };
   const handlechange = (name) => (e) => {
     const value = name === "photo" ? e.target.files[0] : e.target.value;

@@ -140,7 +140,7 @@ const Driver_Table = () => {
     },
   ];
   const Editdriver=(id)=>{
-    history.push(`/admin-driveredit/${id}`)
+    history.push(`/admin/admin-driveredit/${id}`)
   }
 
   return (
