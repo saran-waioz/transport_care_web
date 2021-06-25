@@ -16,11 +16,11 @@ class SimpleMap extends Component {
 
   render() {
     return (
-      <div className="d-flex"> 
+      <div> 
         <div>
         <DriverList/>
         </div>
-      <div style={{ height: '90vh', width: '75%' ,margin:"0px 0px 0px 100px"}} >
+      <div style={{ height: '100vh', width: '100%',marginTop:5}} >
         <GoogleMapReact
           defaultCenter={this.props.center}
           defaultZoom={this.props.zoom}

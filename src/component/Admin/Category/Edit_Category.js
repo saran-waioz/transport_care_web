@@ -157,13 +157,13 @@ const Edit_Category = () => {
                   <Col span={24}>
                     <Form.Item className="float-right">
                       <Button
-                        type="primary"
+                        style={{backgroundColor:'#f7a400'}}
                         htmlType="submit"
                         onClick={update}
                       >
                         Update
                       </Button>{" "}
-                      <Button type="primary" htmlType="submit" onClick={cancel}>
+                      <Button style={{backgroundColor:'#f7a400'}} htmlType="submit" onClick={cancel}>
                         Cancel
                       </Button>
                     </Form.Item>

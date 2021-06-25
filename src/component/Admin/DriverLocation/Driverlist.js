@@ -6,7 +6,7 @@ import Search from "antd/lib/input/Search";
 
 import Apicall from "../../../Api/Api";
 const DriverList = () => {
-  const history = useHistory();
+  const history=useHistory()
 
   const [datas, setdata] = useState({
     role: "2",
@@ -16,7 +16,7 @@ const DriverList = () => {
     sort: "",
   });
   const [users, setusers] = useState([]);
-  const [loading, setloading] = useState(false);
+  const [loading,setloading]=useState(false)
   const [paginationInfo, setPaginationInfo] = useState({
     current: 1,
     pageSize: 5,
@@ -29,9 +29,9 @@ const DriverList = () => {
       page: pagination.current || datas.page,
       search: serach,
     };
-    setloading(true);
+    setloading(true)
     await Apicall(pagiante, "/user/get_users").then((res) => {
-      setloading(false);
+      setloading(false)
       setusers(res.data.data.docs);
       console.log(res.data.data.docs);
       setPaginationInfo({
@@ -42,25 +42,36 @@ const DriverList = () => {
     });
   };
 
+  const onSearch = (value) => {
+    console.log("--->", value.target.value);
+    setsearch(value.target.value);
+    handlechange(paginationInfo);
+  };
+
   useEffect(() => {
     handlechange(datas);
   }, [datas]);
 
+  const deleteuser = (id) => {
+    console.log("----- here we are");
+    Apicall({ id }, "/user/delete_user").then((res) => {
+      handlechange(datas);
+    });
+  };
+
   return (
     <div>
       <div>
-        <h4>Driver List</h4>
+        <h4>Driver Location</h4>
       </div>
       <div>
-        {users.map((i, s) => {
-          return (
-            <div key={s}>
-              <Button type="primary" htmlType="submit">
-                {i.name}
-              </Button>{" "}
-            </div>
-          );
-        })}
+      <Search
+          className="mt-3"
+          size="large"
+          placeholder="Search driver name"
+          onKeyUp={onSearch}
+          loading={false}
+        />
       </div>
     </div>
   );

@@ -110,7 +110,7 @@ const Add_Static = () => {
                   <Col span={24}>
                     <Form.Item className="float-right">
                       <Button
-                        type="primary"
+                        style={{ backgroundColor: "#f7a400", borderRadius: 10 }}
                         htmlType="submit"
                         className="mx-3"
                         onClick={() => cancel()}
@@ -118,8 +118,7 @@ const Add_Static = () => {
                         Cancel
                       </Button>{" "}
                       <Button
-                        type="primary"
-                        // className={this.state.update ? "" : "d-none"}
+                        style={{ backgroundColor: "#f7a400", borderRadius: 10 }} // className={this.state.update ? "" : "d-none"}
                         htmlType="submit"
                         onClick={onsubmit}
                       >

@@ -1,4 +1,4 @@
-import React,{useState,useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import {
   Layout,
   Form,
@@ -40,7 +40,7 @@ const Edit_Static = () => {
         page_name: res.data.data.docs[0].page_name,
         page_code: res.data.data.docs[0].page_code,
         title: res.data.data.docs[0].title,
-        description:res.data.data.docs[0].description
+        description: res.data.data.docs[0].description,
       });
     });
   };
@@ -81,19 +81,31 @@ const Edit_Static = () => {
                 <Row gutter={12}>
                   <Col span={12}>
                     <Form.Item label="Page Name">
-                      <Input placeholder="Name" value={page_name} onChange={handlechange("page_name")} />
+                      <Input
+                        placeholder="Name"
+                        value={page_name}
+                        onChange={handlechange("page_name")}
+                      />
                     </Form.Item>
                   </Col>
                   <Col className="" lg={12}>
                     <Form.Item label="Page Code">
-                      <Input placeholder="Code"  value={page_code} onChange={handlechange("page_code")} />
+                      <Input
+                        placeholder="Code"
+                        value={page_code}
+                        onChange={handlechange("page_code")}
+                      />
                     </Form.Item>
                   </Col>
                 </Row>
                 <Row>
                   <Col span={24}>
                     <Form.Item label="Title">
-                      <Input placeholder="Title" value={title} onChange={handlechange("title")}/>
+                      <Input
+                        placeholder="Title"
+                        value={title}
+                        onChange={handlechange("title")}
+                      />
                     </Form.Item>
                   </Col>
                 </Row>
@@ -105,17 +117,17 @@ const Edit_Static = () => {
                   <Col span={24}>
                     <Form.Item className="float-right">
                       <Button
-                        type="primary"
+                        style={{ backgroundColor: "#f7a400", 
+                       }}
                         htmlType="submit"
                         className="mx-3"
-                        onClick={()=>cancel()}
-                      
+                        onClick={() => cancel()}
                       >
                         Cancel
                       </Button>{" "}
                       <Button
-                        type="primary"
-                        // className={this.state.update ? "" : "d-none"}
+                        style={{ backgroundColor: "#f7a400", 
+                       }} // className={this.state.update ? "" : "d-none"}
                         htmlType="submit"
                         onClick={update}
                       >

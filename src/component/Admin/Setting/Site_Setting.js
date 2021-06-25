@@ -143,7 +143,7 @@ const Settingpage = () => {
                   <Input placeholder="Site currency" className="input_border"value={site_curency} onChange={handlechange("site_curency")} />
                 </Form.Item>
               </Col>
-              <Button type="primary" block onClick={update}>
+              <Button style={{backgroundColor:'#f7a400',borderRadius:10}} block onClick={update}>
                 Update Setting
               </Button>
             </Row>

@@ -51,7 +51,7 @@ class AdminHeader extends React.Component {
                         <Col span={11}>
                             <div className='float-right'>
                                 <Dropdown className='cursor_point' overlay={menu} placement="bottomCenter">
-                                    <Avatar style={{ backgroundColor: "Green", verticalAlign: 'middle' }} size="large">
+                                    <Avatar style={{ backgroundColor: "#1acbdb", verticalAlign: 'middle' }} size="large">
                                         Admin
                                      </Avatar>
                                 </Dropdown>

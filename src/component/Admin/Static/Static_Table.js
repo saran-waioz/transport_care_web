@@ -85,7 +85,7 @@ const StaticTable = () => {
             <Icon
               type="edit"
               theme="twoTone"
-              twoToneColor="#52c41a"
+              twoToneColor="#F7A400"
               className="mx-3 f_25"
             />
           </span>
@@ -96,7 +96,7 @@ const StaticTable = () => {
             <Icon
               type="delete"
               theme="twoTone"
-              twoToneColor="#52c41a"
+              twoToneColor="#F7A400"
               className="f_25"
             />
           </Popconfirm>
@@ -109,7 +109,7 @@ const StaticTable = () => {
   return (
     <div>
       <div className="my-3">
-        <Button type="primary" onClick={()=>addstatic()}>Add Static Pages</Button>
+        <Button style={{backgroundColor:'#F7A400'}}onClick={()=>addstatic()}>Add Static Pages</Button>
       </div>
       <div id="no-more-tables">
         <Table

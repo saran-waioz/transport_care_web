@@ -2,7 +2,7 @@ import React from 'react';
 import { OTHERS_CHART } from '../../../graphql/Admin/dashboard';
 import { client } from "../../../apollo";
 import {  Card } from 'antd';
-import { FaUsers, FaUsersCog } from "react-icons/fa";
+import { FaUsers, FaRedRiver,FaUserMd } from "react-icons/fa";
 import { GiTakeMyMoney,GiMoneyStack } from "react-icons/gi";
 
 
@@ -69,7 +69,7 @@ class Others extends React.Component {
                     style={{ boxShadow: 'rgb(154, 176, 167) 0px 1px 6px 0px' }}
                 >
                     <div className="d-flex justify-content-between">
-                        <FaUsersCog style={{ fontSize: '3em', marginTop: '5px', color: "#e47af0" }} />
+                        <FaRedRiver style={{ fontSize: '3em', marginTop: '5px', color: "#e47af0" }} />
                         <div className="d-block">
                             <div className="bold">
                                Drivers
@@ -87,13 +87,13 @@ class Others extends React.Component {
                     style={{ boxShadow: 'rgb(154, 176, 167) 0px 1px 6px 0px' }}
                 >
                     <div className="d-flex justify-content-between">
-                        <GiMoneyStack style={{ fontSize: '3em', marginTop: '5px', color: "#579afd" }} />
+                        <FaUserMd style={{ fontSize: '3em', marginTop: '5px', color: "#579afd" }} />
                         <div className="d-block">
                             <div className="bold">
                                 Caregivers
                             </div>
                             <div className="d-flex justify-content-end">
-                                {data[0] ? data[0].earning : 0}  
+                                20
                             </div>
                         </div>
                     </div>

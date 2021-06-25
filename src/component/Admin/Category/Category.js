@@ -26,7 +26,7 @@ const Category=()=> {
                     <AdminHeader />
                     <Content className="main_frame">
                         <Tabs tabBarExtraContent={
-                            <Button type="primary" onClick={()=>openaddcategory()}>
+                            <Button style={{backgroundColor:'#f7a400'}} onClick={()=>openaddcategory()}>
                                 Add Category
                           </Button>
                         }>

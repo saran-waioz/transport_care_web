@@ -148,7 +148,7 @@ const Category = () => {
               <Icon
                 type="edit"
                 theme="twoTone"
-                twoToneColor="#52c41a"
+                twoToneColor="#F7A400"
                 className="mx-3 f_25"
               />
             </span>
@@ -159,7 +159,7 @@ const Category = () => {
               <Icon
                 type="delete"
                 theme="twoTone"
-                twoToneColor="#52c41a"
+                twoToneColor="#F7A400"
                 className="f_25"
               />
             </Popconfirm>

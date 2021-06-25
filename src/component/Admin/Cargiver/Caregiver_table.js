@@ -112,7 +112,7 @@ const Caregiver_Table = () => {
               <Icon
                 type="edit"
                 theme="twoTone"
-                twoToneColor="#52c41a"
+                twoToneColor="#F7A400"
                 className="mx-3 f_25"
               />
             </span>
@@ -120,7 +120,7 @@ const Caregiver_Table = () => {
               <Icon
                 type="delete"
                 theme="twoTone"
-                twoToneColor="#52c41a"
+                twoToneColor="#F7A400"
                 className="f_25"
               />
             </Popconfirm>
@@ -133,7 +133,7 @@ const Caregiver_Table = () => {
   return (
     <div>
       <div className="mx-2 mx-sm-0 my-3">
-        <Button type="primary">Add User</Button>
+        <Button  style={{backgroundColor:'#f7a400'}}>Add User</Button>
         <Search
           className="mt-3"
           size="large"

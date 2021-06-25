@@ -140,13 +140,13 @@ const Add_Category = () => {
                   <Col span={24}>
                     <Form.Item className="float-right">
                       <Button
-                        type="primary"
+                      style={{backgroundColor:'#f7a400'}}
                         htmlType="submit"
                         onClick={onsubmit}
                       >
                         Submit
                       </Button>{" "}
-                      <Button type="primary" htmlType="submit">
+                      <Button style={{backgroundColor:'#f7a400'}} htmlType="submit">
                         Update
                       </Button>
                     </Form.Item>

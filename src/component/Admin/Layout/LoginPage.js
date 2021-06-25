@@ -100,9 +100,9 @@ export const LoginPage = () => {
             />
             <Button
               size="large"
-              type="primary"
               block
               className="admin_login_btn"
+              style={{backgroundColor:"#F7A400",color:'black'}}
               onClick={onClick}
             >
               Login

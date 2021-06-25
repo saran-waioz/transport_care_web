@@ -8,7 +8,7 @@ $screen-xs-min: 599px;
 $xsm-width: 700px;
 $zero:0px;
 .bg-gradient {
-    background: linear-gradient(87deg, #12a9e5, #12a9e5) !important;
+    background: linear-gradient(87deg, #f7a400, #f7a400) !important;
     // background: white;
 }
 
@@ -20,12 +20,13 @@ $zero:0px;
 
 .ant-menu.ant-menu-dark .ant-menu-item-selected,
 .ant-menu-submenu-popup.ant-menu-dark .ant-menu-item-selected {
-    background-color: #07cb79 !important;
+    background-color: #f7a400 !important;
     font-weight: bold;
+    border-radius: 5px;
 }
 
 .ant-menu-item .ant-menu-item-active .ant-menu-item-selected {
-    background-color: #07cb79 !important;
+    background-color: #f7a400 !important;
     color: black !important;
 }
 
@@ -332,13 +333,13 @@ html {
 
 .banner_section .ant-carousel .slick-dots-bottom li,
 .banner_section .ant-carousel .slick-dots-bottom li button {
-    background: #afeed4;
+    background: #f7a400;
     border-radius: 30px;
 }
 
 .banner_section .ant-carousel .slick-dots-bottom li.slick-active,
 .banner_section .ant-carousel .slick-dots-bottom li.slick-active button {
-    background: #07cb79;
+    background: #f7a400;
 }
 
 .h-100 {
@@ -1094,9 +1095,9 @@ html {
 }
 
 .bookings_page .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
-    background: #07cb79 !important;
+    background: #f7a400 !important;
     color: #fff !important;
-    border-color: #07cb79 !important;
+    border-color: #f7a400 !important;
 }
 
 .bookings_div {

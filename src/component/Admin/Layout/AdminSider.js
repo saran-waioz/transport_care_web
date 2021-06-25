@@ -1,6 +1,8 @@
 import React from "react";
 import { Menu, Icon, Layout } from "antd";
 import { BrowserRouter as Route, Link, withRouter } from "react-router-dom";
+import { FaUsers, FaRedRiver,FaUserMd,FaMapMarkerAlt,FaTripadvisor } from "react-icons/fa";
+
 import main from "../../../image/logo.png";
 import "../../../scss/template.scss";
 import "./Silider.css";
@@ -41,89 +43,76 @@ class AdminSider extends React.Component {
             selectedKeys={[this.props.location.pathname]}
             mode="inline"
           >
-            <div className="sidebar">
-              <div className="sidebarWrapper">
-                <div className="sidebarMenu">
-                  <h3 className="sidebarTitle">Dashboard</h3>
-                  <ul className="sidebarList">
-                    <Link to="/admin-dashboard" className="link">
-                      <li className="side_list" style={{ padding: "20px" }}>
-                       <span>Dashboard</span> 
-                      </li>
-                    </Link>
-                    <Link to="/admin-user" className="link">
-                      <li className="side_list" style={{ padding: "20px" }}>
-                        Users
-                      </li>
-                    </Link>
-                    <Link to="/admin-driver" className="link">
-                      <li className="side_list" style={{ padding: "20px" }}>
-                        Drivers
-                      </li>
-                    </Link>
-                    <Link to="/admin-caregiver" className="link">
-                      <li className="side_list" style={{ padding: "20px" }}>
-                        Caregivers
-                      </li>
-                    </Link>
-                  </ul>
-                </div>
-                <div className="sidebarMenu">
-                  <h3 className="sidebarTitle">Quick Menu</h3>
-                  <ul className="sidebarList">
-                    <Link to="/admin-category" className="link">
-                      <li className="side_list" style={{ padding: "20px" }}>
-                        Categories
-                      </li>
-                    </Link>
-                    <Link to="/admin-booking" className="link">
-                      <li className="side_list" style={{ padding: "20px" }}>
-                        Trip
-                      </li>
-                    </Link>
-                    <Link>
-                      <li className="side_list" style={{ padding: "20px" }}>
-                        Payout
-                      </li>
-                    </Link>
-                  </ul>
-                </div>
-                <div className="sidebarMenu">
-                  <h3 className="sidebarTitle">Notifications</h3>
-                  <ul className="sidebarList">
-                    <Link to="/admin-location">
-                      <li className="side_list" style={{ padding: "20px" }}>
-                        Driver Map
-                      </li>
-                    </Link>
-                    <Link to="/admin-static">
-                      <li className="side_list" style={{ padding: "20px" }}>
-                        Static Pages
-                      </li>
-                    </Link>
-                    <Link to="/settings">
-                      <li className="side_list" style={{ padding: "20px" }}>
-                        Settings
-                      </li>
-                    </Link>
-                  </ul>
-                </div>
-                {/* <div className="sidebarMenu">
-                  <h3 className="sidebarTitle">Staff</h3>
-                  <ul className="sidebarList">
-                    <li className="side_list" style={{ padding: "20px" }}>
-                      Home
-                    </li>
-                    <li className="side_list" style={{ padding: "20px" }}>
-                      Home
-                    </li>
-                    <li className="side_list" style={{ padding: "20px" }}>
-                      Home
-                    </li>
-                  </ul>
-                </div> */}
-              </div>
-            </div>
+            <h3 className="sidebarTitle">Dashboard</h3>
+            <Menu.Item key="/admin-dashboard">
+              <Icon type="dashboard" />
+              <span>Dashboard</span>
+              <Link to="/admin-dashboard" />
+            </Menu.Item>
+            <Menu.Item key="/admin-user">
+            <FaUsers style={{ fontSize: '1.2em' }} />
+              <span style={{margin:10}}>Users</span>
+              <Link to="/admin-user" />
+            </Menu.Item>
+            <Menu.Item key="/admin-driver">
+            <FaRedRiver style={{ fontSize: '1.2em' }} />
+            <span style={{margin:10}}>Drivers</span>
+              <Link to="/admin-driver" />
+            </Menu.Item>
+            <Menu.Item key="/admin-caregiver">
+            <FaUserMd style={{ fontSize: '1.2em' }} />
+            <span style={{margin:10}}>Caregivers</span>
+              <Link to="/admin-caregiver" />
+            </Menu.Item>
+            <h3 className="sidebarTitle">Quick Menu</h3>
+            <Menu.Item key="/admin-category">
+              <Icon type="deployment-unit" />
+              <span>Categories</span>
+              <Link to="/admin-category" />
+            </Menu.Item>            
+            <Menu.Item key="/admin-location">
+              <FaMapMarkerAlt style={{ fontSize: '1.2em' }} />
+              <span style={{margin:10}}>Driver Map</span>
+              <Link to="/admin-location" />
+            </Menu.Item>
+            <Menu.Item key="/admin-request">
+              <Icon type="appstore" />
+              <span>Job Request</span>
+              {/* <Link to="/admin-request" /> */}
+            </Menu.Item>
+            <h3 className="sidebarTitle">Notifications</h3>
+            <Menu.Item key="/admin-booking">
+              <FaTripadvisor style={{ fontSize: '1.2em' }} />
+              <span style={{margin:10}}>Trip</span>
+              <Link to="/admin-booking" />
+            </Menu.Item>
+            <Menu.Item key="/admin-review">
+              <Icon type="star" />
+              <span>Reviews</span>
+              {/* <Link to="/admin-review" /> */}
+            </Menu.Item>
+            <Menu.Item key="/admin-payouts">
+              <Icon type="transaction" />
+              <span>Payouts</span>
+              {/* <Link to="/admin-payouts" /> */}
+            </Menu.Item>
+            <h3 className="sidebarTitle">Settings</h3>
+            <Menu.Item key="/admin-certificate">
+              <Icon type="file-unknown" />
+              <span>Certificates</span>
+              {/* <Link to="/admin-certificate" /> */}
+            </Menu.Item>
+            <Menu.Item key="/admin-static">
+              <Icon type="book" />
+              <span>Static Pages</span>
+              <Link to="/admin-static" />
+            </Menu.Item>
+            <Menu.Item key="/settings">
+              <Icon type="setting" />
+              <span>Settings</span>
+              <Link to="/settings" />
+            </Menu.Item>
+            
           </Menu>
         </Sider>
       </div>

@@ -128,7 +128,7 @@ const Driver_Edit = () => {
                         Submit
                       </Button>
                       {"  "} */}
-                      <Button type="primary" htmlType="submit">
+                      <Button style={{backgroundColor:'#f7a400'}} htmlType="submit">
                         Update
                       </Button>
                     </Form.Item>
