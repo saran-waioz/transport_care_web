@@ -63,6 +63,7 @@ const Add_Category = () => {
         });
       }
     });
+    history.push("/admin-category")
   };
   const beforeUpload = (file) => {
     const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
@@ -80,13 +81,10 @@ const Add_Category = () => {
     console.log(file);
     setSelectedFile(file.originFileObj);
   };
+  const cancel=()=>{
+    history.push("/admin-category")
+  }
 
-  const uploadButton = (
-    <div>
-      <Icon type={loading ? "loading" : "plus"} />
-      <div className="ant-upload-text">Upload</div>
-    </div>
-  );
 
   return (
     <Layout style={{ height: "100vh" }}>
@@ -146,8 +144,8 @@ const Add_Category = () => {
                       >
                         Submit
                       </Button>{" "}
-                      <Button style={{backgroundColor:'#f7a400'}} htmlType="submit">
-                        Update
+                      <Button onClick={cancel} style={{backgroundColor:'#f7a400'}} htmlType="submit">
+                        Cancel
                       </Button>
                     </Form.Item>
                   </Col>
