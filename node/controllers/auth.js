@@ -103,7 +103,6 @@ exports.sign_in = async (req, res, next) => {
         var user_detail = await User.findOne({ role: requests.role, phone: requests.phone }).populate(['store_detail', 'category_id']);
     }
 
-
     if (!user_detail) {
         return res.apiResponse(false, "User does not exists")
     }
@@ -230,7 +229,7 @@ exports.upload_document = async (req, res, next) => {
         const media = req.files.file;
         const fileMove = util.promisify(media.mv)
         const path = 'media/assets/uploads/';       
-         const ext = media.name.split('.').pop()
+        const ext = media.name.split('.').pop()
         commonHelper.prepareUploadFolder(path)
         const iconName = 'document' + requests.user_id + moment().unix() + '.' + ext
         try {
@@ -238,7 +237,10 @@ exports.upload_document = async (req, res, next) => {
             var update_data = {};
             update_data[requests.document_type] = iconName;
             await User.findOneAndUpdate({ "_id": requests.user_id}, { "$set": update_data }).exec();
-            return res.apiResponse(true, "Document Uploaded Successful");
+            var document = await User.findOne({ "_id": requests.user_id });
+            var document_url = commonHelper.getBaseurl() + "/media/assets/uploads/" + document[requests.document_type];
+            console.log(document_url);
+            return res.apiResponse(true, "Document Uploaded Successful", document_url );
         } catch (e) {
             return res.apiResponse(false, e.message)
         }
@@ -275,7 +277,7 @@ exports.adminlogin = async (req, res, next) => {
 exports.forgotPassword = async(req, res, next) => {
     var requests=req.bodyParams
 
-    var user=await User.findOne({ role: requests.role,email : requests.email });
+    var user=await User.findOne({ role: requests.role, email : requests.email });
 
     if (!user) {
         return res.apiResponse(false, "Email does not exists") 
@@ -294,3 +296,5 @@ exports.forgotPassword = async(req, res, next) => {
         return res.apiResponse(true, "Reset password link sent to your email",token)
     }
 }
+
+

@@ -53,6 +53,10 @@ const userSchema = new mongoose.Schema({
 
     //only for driver
     availability_status: String,
+    user_rating: {
+        type: String,
+        default: "0"
+    },
 
     verify_code: String,  //otp
     device_id: Array,
