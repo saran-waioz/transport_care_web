@@ -31,9 +31,10 @@ app.use(async(req, res, next) => {
     console.log("url",url)
     const uriArray = url.split('/');
     if (uriArray[1] !== 'api') {
-        const readFile = util.promisify(fs.readFile)
+        const redaFile = util.promisify(fs.readFile)
         if (uriArray[1] == "media") {
             const pathImage = uriArray[4];
+            console.log("pathImage",pathImage)
             var extension = pathImage.split('.').pop();
             url = url.split('?');
             url = url[0];
