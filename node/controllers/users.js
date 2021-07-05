@@ -83,6 +83,7 @@ exports.get_export_user = async (req, res) => {
 };
 exports.get_user_detail = async (req, res) => {
   var requests = req.bodyParams;
+  console.log("get",requests)
   if (
     requests.id &&
     requests.id != "" &&

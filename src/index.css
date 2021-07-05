@@ -1,0 +1,16 @@
+body {
+  margin: 0;
+  font-family: 'Muli' !important;
+  -webkit-font-smoothing: Muli !important;
+  -moz-osx-font-smoothing: Muli !important;
+}
+
+code {
+  font-family: "Muli" !important;
+}
+
+.ant-btn-primary {
+  color: #fff;
+  background-color: #07cb79 !important;
+  border-color: #07cb79 !important;
+}

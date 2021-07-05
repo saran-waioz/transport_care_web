@@ -17,7 +17,7 @@ exports.update_settings = async (req, res, next) => {
       const save = await add_site_data.save();
       return res.apiResponse(true, "Added Successfully");
     } else {
-      var result = await Settings.findOneAndUpdate({ _id: result[0]._id }, { $set: requests } );
+      var result = await Settings.findOneAndUpdate({ _id: result[0].id }, { $set: requests } );
         return res.apiResponse(true, "Updated Successfully",{result});
       
 }

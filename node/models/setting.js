@@ -17,9 +17,12 @@ const SettingsSchema = new mongoose.Schema(
   {
     site_name: { type: String, default: "transportcare" },
     site_email: { type: String, default: "admin@transportcare.com" },
+    site_curency: { type: Number, default: "100" },
     copyrights_content: { type: String, default: "Copy Right" },
-    contact_number: { type: String, default: "1234567890" },
+    contact_number: { type: Number, default: "1234567890" },
     contact_email: { type: String, default: "admin@transportcare.com" },
+    appstore_link: { type: String, default: "admin@transportcare.com" },
+    playstore_link: { type: String, default: "admin@transportcare.com" },
     created_at: Date,
     updated_at: Date,
   },
