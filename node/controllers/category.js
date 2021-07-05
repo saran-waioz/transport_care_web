@@ -73,7 +73,7 @@ exports.get_category = async (req, res, next) => {
     is_deleted: false,
   };
   if(requests.id){
-    match._id=requests.id
+    match._id = requests.id
   }
   if (typeof requests.search != "undefined" && requests.search != "") {
     match.$or = [

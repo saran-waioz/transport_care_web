@@ -9,7 +9,7 @@ const app = express();
 const cwd = process.cwd();
 const env = process.env
 mongoose.set('useCreateIndex', true); // mongoose default config settings
-mongoose.connect(env.MONGO_DB_URL, { useNewUrlParser: true,useUnifiedTopology: true, useCreateIndex: true, }); // mention database name
+mongoose.connect(env.MONGO_DB_URL, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, }); // mention database name
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(fileUpload());

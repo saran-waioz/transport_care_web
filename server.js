@@ -27,5 +27,7 @@ else
 const app = require('./node/app');
 const httpPort = process.env.PORT || 8080;
 const server = http.createServer(options,app);
+const agenda = require('./node/agenda');
 server.listen(httpPort);
+agenda.start()
 console.log('Server listening on ' + ':' + httpPort)

@@ -18,6 +18,12 @@ router.post('/update_profile', Usercontroller.update_profile);
 router.post('/update_driver_attender', Usercontroller.update_driver_attender);
 router.post('/delete_driver_attender', Usercontroller.delete_driver_attender);
 router.post('/update_availability_status', Usercontroller.update_availability_status);
+router.post('/get_home_page_detail', Usercontroller.get_home_page_details);
+router.post('/calculate_fare_estimation', Usercontroller.calculate_fare_estimation);
+router.post('/update_trip_status', Usercontroller.update_trip_status);
+router.post('/accept_request', Usercontroller.accept_request);
+router.post('/cancel_request', Usercontroller.cancel_request);
+router.post('/request_order', Usercontroller.request_order);
 // router.post('/get_pagination',Usercontroller.get_pagination)
 // router.post('/get_users',Usercontroller.get_users)
 

@@ -296,3 +296,5 @@ exports.forgotPassword = async(req, res, next) => {
         return res.apiResponse(true, "Reset password link sent to your email",token)
     }
 }
+
+
