@@ -81,6 +81,7 @@ exports.get_export_user = async (req, res) => {
     return res.apiResponse(true, "Success", result);
   }).populate(["store_detail"]);
 };
+
 exports.get_user_detail = async (req, res) => {
   var requests = req.bodyParams;
   console.log("get",requests)
@@ -654,7 +655,7 @@ async function function_request_order(requests) {
       var trip_detail = await Trip.findOne({ '_id': trip_details._id });
       //console.log(trip_detail);
       if (get_drivers.length) {
-
+        console.log("request is saving" + get_drivers.length)
         var trip_detail = await Trip.findOne({ '_id': trip_details._id });
         trip_detail.trip_status = "processing";
         await trip_detail.save();

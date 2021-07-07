@@ -140,7 +140,13 @@ userSchema.virtual('original_attender_proof').get(function () {
  * Create instance method for authenticating user
  */
  
-
+userSchema.virtual('driver_status_detail', {
+    ref : 'Log',
+    localField : '_id',
+    foreignField : 'user_id',
+    justOne : false
+});
+  
 
 userSchema.methods.comparePassword = function (password) {
     return this.password === this.hashPassword(password);

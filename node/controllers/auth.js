@@ -7,6 +7,7 @@ const commonHelper = require('../helpers/commonhelpers')
 const _ = require("lodash");
 const util = require("util");
 const { request } = require("http");
+const Attender = require("../models/attender");
 
 
 exports.sign_up = async (req, res, next) => {
@@ -36,6 +37,21 @@ exports.sign_up = async (req, res, next) => {
                     }
                     User.findOneAndUpdate({ "_id": checkUser._id }, update, { new: true })
                 }
+                if(requests.is_attender == 'yes' && requests.attender_name != undefined) {
+                    console.log("is_attender");
+                    var old_detail = await Attender.findOne({ "driver_id": checkUser._id, "name": requests.attender_name });
+                    if(!old_detail) {
+                        var driver_detail = {
+                            driver_id: checkUser._id,
+                            name: requests.attender_name,
+                            age: requests.attender_age,
+                            gender: requests.attender_gender
+                        };
+                        var newAttender = new Attender(driver_detail);
+                        await newAttender.save();
+                        console.log("Value inserted");
+                    }
+                }
                 User.findById(checkUser._id, function (err, userDetails) {
                     for (var k in requests) {
                         if (requests.hasOwnProperty(k)) {
@@ -46,7 +62,7 @@ exports.sign_up = async (req, res, next) => {
                     userDetails.save(function (err) {
                         return res.apiResponse(true, "User Updated Successfully", { user_detail })
                     });
-                });
+                }).populate(['driver_status_detail']);
             // }
 
 
@@ -71,7 +87,7 @@ exports.sign_up = async (req, res, next) => {
             }
             requests.location = location;
             var newUser = new User(requests);
-            await newUser.save(function (err) {
+            await newUser.save(async function (err) {
                 if (err) {
                     return res.apiResponse(false, 'Error')
                 }
@@ -86,10 +102,22 @@ exports.sign_up = async (req, res, next) => {
                         }
                         User.findOneAndUpdate({ "_id": newUser._id }, update, { new: true })
                     }
+                    if(requests.is_attender == 'yes') {
+                        var driver_detail = {
+                            driver_id: newUser._id,
+                            name: requests.attender_name,
+                            age: requests.attender_age,
+                            gender: requests.attender_gender
+                        };
+                        var newAttender = new Attender(driver_detail);
+                        await newAttender.save();
+                    }
                     return res.apiResponse(true, "Thanks for Transport_care Registration, will notify you once it's launched", { user_detail })
                 }
             });
         }
+
+        
     }
 }
 exports.sign_in = async (req, res, next) => {
@@ -216,6 +244,7 @@ exports.update_otp = async (req, res, next) => {
             else {
                 data.type = "newUser";
             }
+            //var updated_data = await User.findOne({ "_id": checkUser._id})
             return res.apiResponse(true, "newUser", data)
         });
     }

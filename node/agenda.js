@@ -24,6 +24,7 @@ agenda.define('requestProcess',{lockLifetime: 10000}, async(job, done) => {
     {
         var order_requests = await RequestDetail.find({'trip_id':trip_detail._id, is_deleted: false });
         console.log(order_requests.length);
+        console.log(order_requests[0]._id);
         if(order_requests.length)
         {
             var delivery = order_requests[0].user_id;
@@ -53,7 +54,7 @@ agenda.define('requestProcess',{lockLifetime: 10000}, async(job, done) => {
                     console.log(driver_detail.device_id[i]);
                 }
             }
-            console.log("requested "+ delivery +' for order '+ order_requests[0].driver_id +' at '+moment().format('HH:mm:ss'));
+            console.log("requested "+ delivery +' for order '+ order_requests[0].driver_id +' at '+ moment().format('HH:mm:ss'));
             await RequestDetail.findOneAndUpdate({ '_id': order_requests[0]._id }, { "$set": { is_deleted: true }}).exec();
             // RequestDetail.findOne({ '_id': order_requests[0]._id, 'request_status': 'Cancelled' }, async (err, old_requests) =>{
             //     await old_requests.remove()
