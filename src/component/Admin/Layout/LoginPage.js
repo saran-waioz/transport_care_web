@@ -30,7 +30,7 @@ export const LoginPage = () => {
   });
   const { email, password } = values;
   useEffect(() => {
-    localStorage.getItem("adminLogin") === email
+    localStorage.getItem("adminLogin") === values
       ? history.push({ pathname: "/admin/admin-dashboard" })
       : history.push({ pathname: "/admin" });
   }, []);
@@ -46,7 +46,7 @@ export const LoginPage = () => {
       const res = await Apicall({ email, password }, "/auth/admin_login");
       console.log(res.data);
       if (res.data.status) {
-        localStorage.setItem("adminLogin", email);
+        localStorage.setItem("adminLogin", values);
         message.info("Login succssfully");
         history.push("/admin/admin-dashboard");
       } else {
