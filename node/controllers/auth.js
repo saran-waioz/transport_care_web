@@ -13,7 +13,7 @@ const Attender = require("../models/attender");
 exports.sign_up = async (req, res, next) => {
     console.log("sign_up");
     var requests = req.bodyParams
-    var page_status = 'home';
+    var page_status = 0;
     console.log(req.files)
     var checkUser = await User.findOne({ role: requests.role, phone: requests.phone,country_code:requests.country_code});
     if (checkUser) {
@@ -63,13 +63,13 @@ exports.sign_up = async (req, res, next) => {
                     userDetails.save(function (err) {
                         if(user_detail.role === 2) {
                             if(!user_detail.vehicle_make || user_detail.vehicle_make === undefined || user_detail.vehicle_make === null) {
-                                page_status = 'vehicle_details';
+                                page_status = 1;
                             }
                             else if((!user_detail.vehicle_rc_document && !user_detail.vehicle_insurance_document) || user_detail.vehicle_rc_document === undefined || user_detail.vehicle_insurance_document === undefined) {
-                                page_status = 'vehicle_document';
+                                page_status = 2;
                             }
                             else if(!user_detail.driver_license || user_detail.driver_license === undefined) {
-                                page_status = 'driver_document';
+                                page_status = 3;
                             }
                         }
                         console.log(typeof user_detail.vehicle_insurance_document);
