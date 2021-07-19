@@ -51,6 +51,13 @@ exports.sign_up = async (req, res, next) => {
                         }
                         User.findOneAndUpdate({ "_id": newUser._id }, update, { new: true })
                     }
+                    var newLog = new Log({
+                        user_id: newUser._id,
+                        type: "status",
+                        message: "pending",
+                        info: "",
+                      });
+                      newLog.save();
                     if(requests.is_attender == 'yes') {
                         var driver_detail = {
                             driver_id: newUser._id,
