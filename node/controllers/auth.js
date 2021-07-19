@@ -18,7 +18,7 @@ exports.sign_up = async (req, res, next) => {
 
     var checkUser = await User.findOne({ role: requests.role, phone: requests.phone,country_code:requests.country_code});
     if (checkUser) {
-        return res.apiResponse(false, "User details already exists");
+        return res.apiResponse(false, "Mobile number already exists, sign in to continue");
     }
     else {
         if (requests.email) {
@@ -28,7 +28,7 @@ exports.sign_up = async (req, res, next) => {
             var checkUseremail = false;
         }
         if (checkUseremail) {
-            return res.apiResponse(false, "Email already exists.")
+            return res.apiResponse(false, "Email already exists, sign in to continue")
         }
         else {
             let location = {
@@ -70,7 +70,7 @@ exports.sign_up = async (req, res, next) => {
                         update.verify_code = otp;
                         User.findOneAndUpdate({ "_id": newUser._id }, update, { new: true }).exec();
                         var data = {};
-                        data.otp = parseInt(otp);
+                        otp = parseInt(otp);
                         //return res.apiResponse(true, "Successfully OTP Sent", data)
                     }
                     if(user_detail.phone_verify === 0) {
@@ -93,7 +93,7 @@ exports.sign_up = async (req, res, next) => {
                             page_status = 5;
                         }
                     }
-                    return res.apiResponse(true, "Thanks for Transport_care Registration, will notify you once it's launched", { data, user_detail, page_status })
+                    return res.apiResponse(true, "Thanks for Transport_care Registration, will notify you once it's launched", { otp, user_detail, page_status })
                 }
             });
         }    
@@ -127,6 +127,17 @@ exports.sign_in = async (req, res, next) => {
                 }
                 User.findOneAndUpdate({ "_id": user_detail._id }, update, { new: true }).exec()
                 if(user_detail.phone_verify === 0) {
+                    if(user_detail.phone) {
+                        var otp = (user_detail.phone == '9876543210') ? '1234' : Math.floor(1000 + Math.random() * 9000);
+                        var smsMessage = otp + " is your " + commonHelper.siteName() + " OTP to login";
+                        commonHelper.sendSms(user_detail.phone, smsMessage);
+                        var update = {}
+                        update.verify_code = otp;
+                        User.findOneAndUpdate({ "_id": user_detail._id }, update, { new: true }).exec();
+                        var data = {};
+                        otp = parseInt(otp);
+                        //return res.apiResponse(true, "Successfully OTP Sent", data)
+                    }
                     page_status = 1 // otp 
                 }
                 if(user_detail.role === 2) {
@@ -147,7 +158,7 @@ exports.sign_in = async (req, res, next) => {
                     }
                 }
             }
-            return res.apiResponse(true, "Logged In Successfully", { user_detail, page_status })
+            return res.apiResponse(true, "Logged In Successfully", { otp, user_detail, page_status })
         }
         else {
             return res.apiResponse(false, "Invalid Password")
