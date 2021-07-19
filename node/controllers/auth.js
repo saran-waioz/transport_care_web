@@ -11,10 +11,8 @@ const Attender = require("../models/attender");
 
 
 exports.sign_up = async (req, res, next) => {
-    console.log("sign_up");
     var requests = req.bodyParams
     var page_status = 0;
-    console.log(req.files);
 
     var checkUser = await User.findOne({ role: requests.role, phone: requests.phone,country_code:requests.country_code});
     if (checkUser) {
@@ -36,6 +34,7 @@ exports.sign_up = async (req, res, next) => {
                 coordinates: [0, 0]
             }
             requests.location = location;
+            console.log(requests.password,"password")
             var newUser = new User(requests);
             await newUser.save(async function (err) {
                 if (err) {
@@ -104,7 +103,6 @@ exports.sign_up = async (req, res, next) => {
 exports.sign_in = async (req, res, next) => {
     var requests = req.bodyParams
     var page_status = 0;
-    console.log(requests)
     if (requests.email && requests.email != "") {
         var user_detail = await User.findOne({ email: requests.email }).populate(['store_detail', 'category_id']);
     }
