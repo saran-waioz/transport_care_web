@@ -381,7 +381,7 @@ exports.upload_document = async (req, res, next) => {
             var document = await User.findOne({ "_id": requests.user_id });
             var document_url = commonHelper.getBaseurl() + "/media/assets/uploads/" + document[requests.document_type];
             console.log(document_url);
-            return res.apiResponse(true, "Document Uploaded Successful", document_url );
+            return res.apiResponse(true, "Document Uploaded Successful", {document_url} );
         } catch (e) {
             return res.apiResponse(false, e.message)
         }
