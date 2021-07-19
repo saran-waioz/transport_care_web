@@ -65,6 +65,10 @@ const userSchema = new mongoose.Schema({
     reset_password_expires: Date,
     email_verify_token: String,
     email_verify_expires: Date,
+    phone_verify: {
+        type: Number,
+        default: 0
+    },
 
     // Driver vehicle details
     vehicle_rc_document: String,

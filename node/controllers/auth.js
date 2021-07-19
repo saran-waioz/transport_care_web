@@ -14,76 +14,13 @@ exports.sign_up = async (req, res, next) => {
     console.log("sign_up");
     var requests = req.bodyParams
     var page_status = 0;
-    console.log(req.files)
+    console.log(req.files);
+
     var checkUser = await User.findOne({ role: requests.role, phone: requests.phone,country_code:requests.country_code});
     if (checkUser) {
-        // if (checkUser.phone) {
-        //     return res.apiResponse(false, "Mobile Number already exists.")
-        // }
-        // else {
-            // if (requests.email) {
-            //     var checkUseremail = await User.findOne({ role: requests.role, email: requests.email });
-            // }
-            // else {
-                var mail_data = {}
-                mail_data.user_name = requests.name;
-                mail_data.site_name = commonHelper.siteName();
-                mail_data.site_url = commonHelper.getBaseurl();
-                if (requests.device_id) {
-                    var push = {
-                        device_id: requests.device_id
-                    }
-                    var update = {
-                        "$addToSet": push
-                    }
-                    User.findOneAndUpdate({ "_id": checkUser._id }, update, { new: true })
-                }
-                if(requests.is_attender == 'yes' && requests.attender_name != undefined) {
-                    console.log("is_attender");
-                    var old_detail = await Attender.findOne({ "driver_id": checkUser._id, "name": requests.attender_name });
-                    if(!old_detail) {
-                        var driver_detail = {
-                            driver_id: checkUser._id,
-                            name: requests.attender_name,
-                            age: requests.attender_age,
-                            gender: requests.attender_gender
-                        };
-                        var newAttender = new Attender(driver_detail);
-                        await newAttender.save();
-                        console.log("Value inserted");
-                    }
-                }
-                User.findById(checkUser._id, function (err, userDetails) {
-                    for (var k in requests) {
-                        if (requests.hasOwnProperty(k)) {
-                            userDetails[k] = requests[k];
-                        }
-                    }
-                    var user_detail = userDetails;
-                    userDetails.save(function (err) {
-                        if(user_detail.role === 2) {
-                            if(!user_detail.vehicle_make || user_detail.vehicle_make === undefined || user_detail.vehicle_make === null) {
-                                page_status = 1;
-                            }
-                            else if((!user_detail.vehicle_rc_document && !user_detail.vehicle_insurance_document) || user_detail.vehicle_rc_document === undefined || user_detail.vehicle_insurance_document === undefined) {
-                                page_status = 2;
-                            }
-                            else if(!user_detail.driver_license || user_detail.driver_license === undefined) {
-                                page_status = 3;
-                            }
-                        }
-                        console.log(typeof user_detail.vehicle_insurance_document);
-                        return res.apiResponse(true, "User Updated Successfully", { user_detail, page_status })
-                    });
-                }).populate(['driver_status_detail']);
-            // }
-
-
-        // }
+        return res.apiResponse(false, "User details already exists");
     }
-    
     else {
-
         if (requests.email) {
             var checkUseremail = await User.findOne({ role: requests.role, email: requests.email });
         }
@@ -125,16 +62,48 @@ exports.sign_up = async (req, res, next) => {
                         var newAttender = new Attender(driver_detail);
                         await newAttender.save();
                     }
-                    return res.apiResponse(true, "Thanks for Transport_care Registration, will notify you once it's launched", { user_detail, page_status })
+                    if(requests.phone) {
+                        var otp = (requests.phone == '9876543210') ? '1234' : Math.floor(1000 + Math.random() * 9000);
+                        var smsMessage = otp + " is your " + commonHelper.siteName() + " OTP to login";
+                        commonHelper.sendSms(requests.phone, smsMessage);
+                        var update = {}
+                        update.verify_code = otp;
+                        User.findOneAndUpdate({ "_id": newUser._id }, update, { new: true }).exec();
+                        var data = {};
+                        data.otp = parseInt(otp);
+                        //return res.apiResponse(true, "Successfully OTP Sent", data)
+                    }
+                    if(user_detail.phone_verify === 0) {
+                        page_status = 1 // otp 
+                    }
+                    if(user_detail.role === 2) {
+                        if(user_detail.phone_verify === 0) {
+                            page_status = 1;
+                        }
+                        else if(!user_detail.vehicle_make || user_detail.vehicle_make === undefined || user_detail.vehicle_make === null) {
+                            page_status = 2;
+                        }
+                        else if((!user_detail.vehicle_rc_document && !user_detail.vehicle_insurance_document) || user_detail.vehicle_rc_document === undefined || user_detail.vehicle_insurance_document === undefined) {
+                            page_status = 3;
+                        }
+                        else if(!user_detail.driver_license || user_detail.driver_license === undefined) {
+                            page_status = 4;
+                        }
+                        else {
+                            page_status = 5;
+                        }
+                    }
+                    return res.apiResponse(true, "Thanks for Transport_care Registration, will notify you once it's launched", { data, user_detail, page_status })
                 }
             });
-        }
-
-        
+        }    
     }
 }
+
+
 exports.sign_in = async (req, res, next) => {
     var requests = req.bodyParams
+    var page_status = 0;
 
     if (requests.email && requests.email != "") {
         var user_detail = await User.findOne({ email: requests.email }).populate(['store_detail', 'category_id']);
@@ -157,14 +126,107 @@ exports.sign_in = async (req, res, next) => {
                     "$addToSet": push
                 }
                 User.findOneAndUpdate({ "_id": user_detail._id }, update, { new: true }).exec()
+                if(user_detail.phone_verify === 0) {
+                    page_status = 1 // otp 
+                }
+                if(user_detail.role === 2) {
+                    if(user_detail.phone_verify === 0) {
+                        page_status = 1;
+                    }
+                    else if(!user_detail.vehicle_make || user_detail.vehicle_make === undefined || user_detail.vehicle_make === null) {
+                        page_status = 2;
+                    }
+                    else if((!user_detail.vehicle_rc_document && !user_detail.vehicle_insurance_document) || user_detail.vehicle_rc_document === undefined || user_detail.vehicle_insurance_document === undefined) {
+                        page_status = 3;
+                    }
+                    else if(!user_detail.driver_license || user_detail.driver_license === undefined) {
+                        page_status = 4;
+                    }
+                    else {
+                        page_status = 5;
+                    }
+                }
             }
-            return res.apiResponse(true, "Logged In Successfully", { user_detail })
+            return res.apiResponse(true, "Logged In Successfully", { user_detail, page_status })
         }
         else {
             return res.apiResponse(false, "Invalid Password")
         }
     }
 }
+
+exports.update_user = async (req, res, next) => {
+    var requests = req.bodyParams
+    var page_status = 0;
+    console.log(req.files)
+    var checkUser = await User.findOne({ _id: requests.id,  role: requests.role });
+    if (checkUser) {
+        var mail_data = {}
+        mail_data.user_name = requests.name;
+        mail_data.site_name = commonHelper.siteName();
+        mail_data.site_url = commonHelper.getBaseurl();
+        if (requests.device_id) {
+            var push = {
+                device_id: requests.device_id
+            }
+            var update = {
+                "$addToSet": push
+            }
+            User.findOneAndUpdate({ "_id": checkUser._id }, update, { new: true })
+        }
+        if(requests.is_attender == 'yes' && requests.attender_name != undefined) {
+            console.log("is_attender");
+            var old_detail = await Attender.findOne({ "driver_id": checkUser._id, "name": requests.attender_name });
+                if(!old_detail) {
+                    var driver_detail = {
+                        driver_id: checkUser._id,
+                        name: requests.attender_name,
+                        age: requests.attender_age,
+                        gender: requests.attender_gender
+                    };
+                    var newAttender = new Attender(driver_detail);
+                    await newAttender.save();
+                    console.log("Value inserted");
+                }
+        }
+        User.findById(checkUser._id, function (err, userDetails) {
+            for (var k in requests) {
+                if (requests.hasOwnProperty(k)) {
+                    userDetails[k] = requests[k];
+                }
+            }
+            var user_detail = userDetails;
+            userDetails.save(function (err) {
+            if(user_detail.phone_verify === 0) {
+                page_status = 1 // otp 
+            }
+            if(user_detail.role === 2) {
+                if(user_detail.phone_verify === 0) {
+                    page_status = 1;
+                }
+                else if(!user_detail.vehicle_make || user_detail.vehicle_make === undefined || user_detail.vehicle_make === null) {
+                    page_status = 2;
+                }
+                else if((!user_detail.vehicle_rc_document && !user_detail.vehicle_insurance_document) || user_detail.vehicle_rc_document === undefined || user_detail.vehicle_insurance_document === undefined) {
+                    page_status = 3;
+                }
+                else if(!user_detail.driver_license || user_detail.driver_license === undefined) {
+                    page_status = 4;
+                }
+                else {
+                    page_status = 5;
+                }
+            }
+            console.log(typeof user_detail.vehicle_insurance_document);
+            return res.apiResponse(true, "User Updated Successfully", { user_detail, page_status })
+            });
+        }).populate(['driver_status_detail']);
+    }
+    else {
+        return res.apiResponse(false, "User is not exists");
+    }
+}
+
 exports.sent_otp = async (req, res, next) => {
 
     var requests = req.bodyParams
@@ -220,7 +282,7 @@ exports.sent_otp = async (req, res, next) => {
             last_verified: moment(),
             role: requests.role,
             phone: requests.phone,
-            country_code:requests.country_code,
+            country_code: requests.country_code,
             location: location
         });
         newUser.save();
@@ -229,8 +291,10 @@ exports.sent_otp = async (req, res, next) => {
         return res.apiResponse(true, "Successfully OTP Sent", data)
     }
 }
+
 exports.update_otp = async (req, res, next) => {
-    var requests = req.bodyParams
+    var requests = req.bodyParams;
+    var page_status = 0; // home
     var data = {};
     var checkUser = await User.findOne({ role: requests.role, phone: requests.phone, verify_code: requests.verify_code,country_code:requests.country_code });
     if (checkUser) {
@@ -251,12 +315,34 @@ exports.update_otp = async (req, res, next) => {
         }
         User.findOneAndUpdate({ "_id": checkUser._id }, update, { new: true }).exec(function (err, user_detail) {
             if (checkUser.email) {
-                data.user_detail = checkUser;
+                //data.user_detail = checkUser;
+                data.user_detail = user_detail;
                 data.type = "oldUser";
             }
             else {
                 data.type = "newUser";
             }
+            if(user_detail.phone_verify === 0) {
+                page_status = 1 // otp 
+            }
+            if(user_detail.role === 2) {
+                if(user_detail.phone_verify === 0) {
+                    page_status = 1
+                }
+                else if(!user_detail.vehicle_make || user_detail.vehicle_make === undefined || user_detail.vehicle_make === null) {
+                    page_status = 2;
+                }
+                else if((!user_detail.vehicle_rc_document && !user_detail.vehicle_insurance_document) || user_detail.vehicle_rc_document === undefined || user_detail.vehicle_insurance_document === undefined) {
+                    page_status = 3;
+                }
+                else if(!user_detail.driver_license || user_detail.driver_license === undefined) {
+                    page_status = 4;
+                }
+                else {
+                    page_status = 5;
+                }
+            }
+            data.page_status = page_status;
             //var updated_data = await User.findOne({ "_id": checkUser._id})
             return res.apiResponse(true, "newUser", data)
         });
@@ -265,6 +351,7 @@ exports.update_otp = async (req, res, next) => {
         return res.apiResponse(false, "Incorrect code")
     }
 }
+
 exports.upload_document = async (req, res, next) => {
     var requests = req.bodyParams
     if (req.files) {
