@@ -1,4 +1,5 @@
 const User = require("../models/user")
+const Log = require("../models/log")
 const Admin=require("../models/admin")
 const moment = require('moment');
 const crypto = require("crypto");
