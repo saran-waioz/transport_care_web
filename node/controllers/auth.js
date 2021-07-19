@@ -198,7 +198,7 @@ exports.update_user = async (req, res, next) => {
                     console.log("Value inserted");
                 }
         }
-        User.findOneAndUpdate({ "_id": checkUser._id }, requests, { new: true })
+        User.findOneAndUpdate({ "_id": checkUser._id }, requests, { new: true }).exec();
         User.findById(checkUser._id, function (err, userDetails) {
             // for (var k in requests) {
             //     if (requests.hasOwnProperty(k)) {
