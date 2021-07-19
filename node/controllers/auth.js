@@ -13,6 +13,7 @@ const Attender = require("../models/attender");
 exports.sign_up = async (req, res, next) => {
     console.log("sign_up");
     var requests = req.bodyParams
+    var page_status = 'home';
     console.log(req.files)
     var checkUser = await User.findOne({ role: requests.role, phone: requests.phone,country_code:requests.country_code});
     if (checkUser) {
@@ -60,7 +61,19 @@ exports.sign_up = async (req, res, next) => {
                     }
                     var user_detail = userDetails;
                     userDetails.save(function (err) {
-                        return res.apiResponse(true, "User Updated Successfully", { user_detail })
+                        if(user_detail.role === 2) {
+                            if(!user_detail.vehicle_make || user_detail.vehicle_make === undefined || user_detail.vehicle_make === null) {
+                                page_status = 'vehicle_details';
+                            }
+                            else if((!user_detail.vehicle_rc_document && !user_detail.vehicle_insurance_document) || user_detail.vehicle_rc_document === undefined || user_detail.vehicle_insurance_document === undefined) {
+                                page_status = 'vehicle_document';
+                            }
+                            else if(!user_detail.driver_license || user_detail.driver_license === undefined) {
+                                page_status = 'driver_document';
+                            }
+                        }
+                        console.log(typeof user_detail.vehicle_insurance_document);
+                        return res.apiResponse(true, "User Updated Successfully", { user_detail, page_status })
                     });
                 }).populate(['driver_status_detail']);
             // }
@@ -112,7 +125,7 @@ exports.sign_up = async (req, res, next) => {
                         var newAttender = new Attender(driver_detail);
                         await newAttender.save();
                     }
-                    return res.apiResponse(true, "Thanks for Transport_care Registration, will notify you once it's launched", { user_detail })
+                    return res.apiResponse(true, "Thanks for Transport_care Registration, will notify you once it's launched", { user_detail, page_status })
                 }
             });
         }

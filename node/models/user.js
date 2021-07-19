@@ -65,14 +65,16 @@ const userSchema = new mongoose.Schema({
     reset_password_expires: Date,
     email_verify_token: String,
     email_verify_expires: Date,
-    //
+
+    // Driver vehicle details
     vehicle_rc_document: String,
     vehicle_insurance_document: String,
-    //
     vehicle_make: String,
     vehicle_model: String,
     vehicle_color: String,
     vehicle_number: String,
+    
+    // Driver attender details
     is_attender: String,//yes or no
     attender_age: String,
     attender_gender: String,
@@ -146,7 +148,7 @@ userSchema.virtual('driver_status_detail', {
     foreignField : 'user_id',
     justOne : false
 });
-  
+
 
 userSchema.methods.comparePassword = function (password) {
     return this.password === this.hashPassword(password);
