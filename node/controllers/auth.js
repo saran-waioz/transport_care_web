@@ -104,10 +104,10 @@ exports.sign_in = async (req, res, next) => {
     var requests = req.bodyParams
     var page_status = 0;
     if (requests.email && requests.email != "") {
-        var user_detail = await User.findOne({ email: requests.email }).populate(['store_detail', 'category_id']);
+        var user_detail = await User.findOne({ email: requests.email }).populate(['store_detail', 'category_id','driver_status_detail']);
     }
     else {
-        var user_detail = await User.findOne({ role: requests.role, phone: requests.phone }).populate(['store_detail', 'category_id']);
+        var user_detail = await User.findOne({ role: requests.role, phone: requests.phone }).populate(['store_detail', 'category_id','driver_status_detail']);
     }
 
     if (!user_detail) {
