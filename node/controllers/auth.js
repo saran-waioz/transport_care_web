@@ -198,14 +198,15 @@ exports.update_user = async (req, res, next) => {
                     console.log("Value inserted");
                 }
         }
+        User.findOneAndUpdate({ "_id": checkUser._id }, requests, { new: true })
         User.findById(checkUser._id, function (err, userDetails) {
-            for (var k in requests) {
-                if (requests.hasOwnProperty(k)) {
-                    userDetails[k] = requests[k];
-                }
-            }
+            // for (var k in requests) {
+            //     if (requests.hasOwnProperty(k)) {
+            //         userDetails[k] = requests[k];
+            //     }
+            // }
             var user_detail = userDetails;
-            userDetails.save(function (err) {
+            // userDetails.save(function (err) {
             if(user_detail.phone_verify === 0) {
                 page_status = 1 // otp 
             }
@@ -228,7 +229,7 @@ exports.update_user = async (req, res, next) => {
             }
             console.log(typeof user_detail.vehicle_insurance_document);
             return res.apiResponse(true, "User Updated Successfully", { user_detail, page_status })
-            });
+            
         }).populate(['driver_status_detail']);
     }
     else {
