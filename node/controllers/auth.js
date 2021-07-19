@@ -171,7 +171,7 @@ exports.update_user = async (req, res, next) => {
     var requests = req.bodyParams
     var page_status = 0;
     console.log(req.files)
-    var checkUser = await User.findOne({ _id: requests.id,  role: requests.role });
+    var checkUser = await User.findOne({ _id: requests.id });
     if (checkUser) {
         var mail_data = {}
         mail_data.user_name = requests.name;
