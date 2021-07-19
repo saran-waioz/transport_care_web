@@ -126,36 +126,37 @@ exports.sign_in = async (req, res, next) => {
                     "$addToSet": push
                 }
                 User.findOneAndUpdate({ "_id": user_detail._id }, update, { new: true }).exec()
-                if(user_detail.phone_verify === 0) {
-                    if(user_detail.phone) {
-                        var otp = (user_detail.phone == '9876543210') ? '1234' : Math.floor(1000 + Math.random() * 9000);
-                        var smsMessage = otp + " is your " + commonHelper.siteName() + " OTP to login";
-                        commonHelper.sendSms(user_detail.phone, smsMessage);
-                        var update = {}
-                        update.verify_code = otp;
-                        User.findOneAndUpdate({ "_id": user_detail._id }, update, { new: true }).exec();
-                        var data = {};
-                        otp = parseInt(otp);
-                        //return res.apiResponse(true, "Successfully OTP Sent", data)
-                    }
-                    page_status = 1 // otp 
+                
+            }
+            if(user_detail.phone_verify === 0) {
+                if(user_detail.phone) {
+                    var otp = (user_detail.phone == '9876543210') ? '1234' : Math.floor(1000 + Math.random() * 9000);
+                    var smsMessage = otp + " is your " + commonHelper.siteName() + " OTP to login";
+                    commonHelper.sendSms(user_detail.phone, smsMessage);
+                    var update = {}
+                    update.verify_code = otp;
+                    User.findOneAndUpdate({ "_id": user_detail._id }, update, { new: true }).exec();
+                    var data = {};
+                    otp = parseInt(otp);
+                    //return res.apiResponse(true, "Successfully OTP Sent", data)
                 }
-                if(user_detail.role === 2) {
-                    if(user_detail.phone_verify === 0) {
-                        page_status = 1;
-                    }
-                    else if(!user_detail.vehicle_make || user_detail.vehicle_make === undefined || user_detail.vehicle_make === null) {
-                        page_status = 2;
-                    }
-                    else if((!user_detail.vehicle_rc_document && !user_detail.vehicle_insurance_document) || user_detail.vehicle_rc_document === undefined || user_detail.vehicle_insurance_document === undefined) {
-                        page_status = 3;
-                    }
-                    else if(!user_detail.driver_license || user_detail.driver_license === undefined) {
-                        page_status = 4;
-                    }
-                    else {
-                        page_status = 5;
-                    }
+                page_status = 1 // otp 
+            }
+            if(user_detail.role === 2) {
+                if(user_detail.phone_verify === 0) {
+                    page_status = 1;
+                }
+                else if(!user_detail.vehicle_make || user_detail.vehicle_make === undefined || user_detail.vehicle_make === null) {
+                    page_status = 2;
+                }
+                else if((!user_detail.vehicle_rc_document && !user_detail.vehicle_insurance_document) || user_detail.vehicle_rc_document === undefined || user_detail.vehicle_insurance_document === undefined) {
+                    page_status = 3;
+                }
+                else if(!user_detail.driver_license || user_detail.driver_license === undefined) {
+                    page_status = 4;
+                }
+                else {
+                    page_status = 5;
                 }
             }
             return res.apiResponse(true, "Logged In Successfully", { otp, user_detail, page_status })
