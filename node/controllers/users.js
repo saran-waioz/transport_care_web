@@ -92,7 +92,7 @@ exports.get_user_detail = async (req, res) => {
     requests.id != "null"
   ) {
     console.log("requests.user_id : ", requests.id);
-    var user_detail = await User.findOne({ _id: ObjectId(requests.id) });
+    var user_detail = await User.findOne({ _id: requests.id }).populate(['driver_status_detail']);
     return res.apiResponse(true, "Success", { user_detail });
   } else {
     return res.apiResponse(false, "Success");
@@ -195,18 +195,7 @@ exports.get_caregiver = async (req, res, next) => {
   if (requests.search && requests.search != "") {
       match.name = { $regex: new RegExp("^" + requests.search, "i") }
   }
-  if (requests.sort != "") {
-      switch (requests.sort) {
-          case 'makes_asc':
-              sort = { name: 1 }
-              break;
-          case 'makes_desc':
-              sort = { name: -1 }
-              break;
-          default:
-          // code block
-      }
-  }
+
   const options = {
       page: page,
       limit: per_page,
@@ -283,18 +272,7 @@ exports.get_user_caregiver = async (req, res, next) => {
   const match = {}
 
   var sort = { createdAt: -1 }
-  if (requests.sort != "") {
-      switch (requests.sort) {
-          case 'makes_asc':
-              sort = { name: 1 }
-              break;
-          case 'makes_desc':
-              sort = { name: -1 }
-              break;
-          default:
-          // code block
-      }
-  }
+  
   const options = {
       page: page,
       limit: per_page,
@@ -372,18 +350,7 @@ exports.get_driver_attender = async (req, res, next) => {
   const match = {}
 
   var sort = { createdAt: -1 }
-  if (requests.sort != "") {
-      switch (requests.sort) {
-          case 'makes_asc':
-              sort = { name: 1 }
-              break;
-          case 'makes_desc':
-              sort = { name: -1 }
-              break;
-          default:
-          // code block
-      }
-  }
+  
   const options = {
       page: page,
       limit: per_page,
@@ -553,7 +520,8 @@ exports.accept_request = async (req, res, next) => {
       },
       { new: true }
     ).exec();
-    return res.apiResponse(true, "Request Accepted Successfully", request_detail);
+    var updated_detail = await Trip.findOne({ _id: request_detail.trip_id });
+    return res.apiResponse(true, "Request Accepted Successfully", updated_detail);
   }
 };
 
