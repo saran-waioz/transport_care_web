@@ -44,7 +44,7 @@ agenda.define('requestProcess',{lockLifetime: 10000}, async(job, done) => {
                 angle:0,
                 status:true
             }
-            //global.io.in("user_"+ order_requests[0].user_id).emit('new_order', {trip_detail,response_time});
+            global.io.in("user_"+ order_requests[0].user_id).emit('new_order', {trip_detail,response_time});
             var driver_detail = await User.findOne({'_id':order_requests[0].driver_id});
             if(driver_detail.device_id.length)
             {
@@ -68,7 +68,7 @@ agenda.define('requestProcess',{lockLifetime: 10000}, async(job, done) => {
             var trip_detail = await Trip.findOne({'_id':trip_detail._id});
             var new_result={}
             new_result.message = "not_available"
-            //global.io.in("user_"+trip_detail.user_id).emit('not_accept', {trip_detail,new_result});
+            global.io.in("user_"+trip_detail.user_id).emit('not_accept', {trip_detail,new_result});
             job.remove(err => {});
         }
     }

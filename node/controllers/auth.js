@@ -90,10 +90,10 @@ exports.sign_up = async (req, res, next) => {
                         else if(!user_detail.vehicle_make || user_detail.vehicle_make === undefined || user_detail.vehicle_make === null) {
                             page_status = 2;
                         }
-                        else if((!user_detail.vehicle_rc_document && !user_detail.vehicle_insurance_document) || user_detail.vehicle_rc_document === undefined || user_detail.vehicle_insurance_document === undefined) {
+                        else if((!user_detail.vehicle_rc_document || !user_detail.vehicle_insurance_document) || ( user_detail.vehicle_rc_document === undefined || user_detail.vehicle_insurance_document === undefined )) {
                             page_status = 3;
                         }
-                        else if(!user_detail.driver_license || user_detail.driver_license === undefined) {
+                        else if((!user_detail.driver_license || !user_detail.attender_proof ) || ( user_detail.driver_license === undefined || user_detail.attender_proof === undefined )) {
                             page_status = 4;
                         }
                         else {
@@ -154,10 +154,10 @@ exports.sign_in = async (req, res, next) => {
                 else if(!user_detail.vehicle_make || user_detail.vehicle_make === undefined || user_detail.vehicle_make === null) {
                     page_status = 2;
                 }
-                else if((!user_detail.vehicle_rc_document && !user_detail.vehicle_insurance_document) || user_detail.vehicle_rc_document === undefined || user_detail.vehicle_insurance_document === undefined) {
+                else if((!user_detail.vehicle_rc_document || !user_detail.vehicle_insurance_document) || ( user_detail.vehicle_rc_document === undefined || user_detail.vehicle_insurance_document === undefined)) {
                     page_status = 3;
                 }
-                else if(!user_detail.driver_license || user_detail.driver_license === undefined) {
+                else if((!user_detail.driver_license || !user_detail.attender_proof ) || ( user_detail.driver_license === undefined || user_detail.attender_proof === undefined )) {
                     page_status = 4;
                 }
                 else {
@@ -225,10 +225,10 @@ exports.update_user = async (req, res, next) => {
                 else if(!user_detail.vehicle_make || user_detail.vehicle_make === undefined || user_detail.vehicle_make === null) {
                     page_status = 2;
                 }
-                else if((!user_detail.vehicle_rc_document && !user_detail.vehicle_insurance_document) || user_detail.vehicle_rc_document === undefined || user_detail.vehicle_insurance_document === undefined) {
+                else if((!user_detail.vehicle_rc_document || !user_detail.vehicle_insurance_document) || ( user_detail.vehicle_rc_document === undefined || user_detail.vehicle_insurance_document === undefined)) {
                     page_status = 3;
                 }
-                else if(!user_detail.driver_license || user_detail.driver_license === undefined) {
+                else if((!user_detail.driver_license || !user_detail.attender_proof ) || ( user_detail.driver_license === undefined || user_detail.attender_proof === undefined )) {
                     page_status = 4;
                 }
                 else {
@@ -350,10 +350,10 @@ exports.update_otp = async (req, res, next) => {
                 else if(!user_detail.vehicle_make || user_detail.vehicle_make === undefined || user_detail.vehicle_make === null) {
                     page_status = 2;
                 }
-                else if((!user_detail.vehicle_rc_document && !user_detail.vehicle_insurance_document) || user_detail.vehicle_rc_document === undefined || user_detail.vehicle_insurance_document === undefined) {
+                else if((!user_detail.vehicle_rc_document || !user_detail.vehicle_insurance_document) || ( user_detail.vehicle_rc_document === undefined || user_detail.vehicle_insurance_document === undefined)) {
                     page_status = 3;
                 }
-                else if(!user_detail.driver_license || user_detail.driver_license === undefined) {
+                else if((!user_detail.driver_license || !user_detail.attender_proof ) || ( user_detail.driver_license === undefined || user_detail.attender_proof === undefined )) {
                     page_status = 4;
                 }
                 else {

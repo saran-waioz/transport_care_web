@@ -25,8 +25,12 @@ else
 }
 
 const app = require('./node/app');
+const socketController = require('./node/controllers/socket_controller');
 const httpPort = process.env.PORT || 8080;
 const server = http.createServer(options,app);
+const io = require('socket.io')(server);
+global.io = io; //added
+io.sockets.on('connection', socketController.respond );
 const agenda = require('./node/agenda');
 server.listen(httpPort);
 agenda.start()
