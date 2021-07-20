@@ -372,6 +372,7 @@ exports.update_otp = async (req, res, next) => {
 
 exports.upload_document = async (req, res, next) => {
     var requests = req.bodyParams
+    var page_status = 0;
     if (req.files) {
         const media = req.files.file;
         const fileMove = util.promisify(media.mv)
@@ -387,7 +388,29 @@ exports.upload_document = async (req, res, next) => {
             var document = await User.findOne({ "_id": requests.user_id });
             var document_url = commonHelper.getBaseurl() + "/media/assets/uploads/" + document[requests.document_type];
             console.log(document_url);
-            return res.apiResponse(true, "Document Uploaded Successful", {document_url} );
+
+            var user_detail = await User.findOne({ "_id": requests.user_id });
+            if(user_detail.phone_verify === 0) {
+                page_status = 1 // otp 
+            }
+            if(user_detail.role === 2) {
+                if(user_detail.phone_verify === 0) {
+                    page_status = 1;
+                }
+                else if(!user_detail.vehicle_make || user_detail.vehicle_make === undefined || user_detail.vehicle_make === null) {
+                    page_status = 2;
+                }
+                else if((!user_detail.vehicle_rc_document || !user_detail.vehicle_insurance_document) || ( user_detail.vehicle_rc_document === undefined || user_detail.vehicle_insurance_document === undefined )) {
+                    page_status = 3;
+                }
+                else if((!user_detail.driver_license || !user_detail.attender_proof ) || ( user_detail.driver_license === undefined || user_detail.attender_proof === undefined )) {
+                    page_status = 4;
+                }
+                else {
+                    page_status = 5;
+                }
+            }
+            return res.apiResponse(true, "Document Uploaded Successful", { document_url, page_status } );
         } catch (e) {
             return res.apiResponse(false, e.message)
         }

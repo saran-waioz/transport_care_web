@@ -656,7 +656,7 @@ async function function_request_order(requests) {
         }
 
         var trip_detail = await Trip.findOne({ '_id': trip_detail._id });
-        //global.io.in("user_" + trip_detail.user_id).emit('order_update', { trip_detail });
+        global.io.in("user_" + trip_detail.user_id).emit('order_update', { trip_detail });
         Agenda.now('requestProcess', { trip_detail }) // requests
       } 
       else {
