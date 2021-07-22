@@ -440,7 +440,23 @@ exports.get_home_page_details = async (req, res, next) => {
   var service_type = [{ name: "Door to Door", is_care: true }, { name: "Independent Trip", is_care: false }, { name: "Caregiver", is_care: true }];
 
   if (typeof requests.user_id != "undefined" && requests.user_id != "") {
-      match['user_id'] = requests.user_id
+      match['user_id'] = requests.user_id;
+      var user_detail = await User.findOne({ '_id': requests.user_id });
+      var matches = {
+        role: 2,
+        status: 'active'
+      }
+      var max_distance = requests.distance_time | 10000
+      matches['location'] = { 
+          $nearSphere: {
+              $maxDistance: 20 * 1000,
+              $geometry: {
+                  type: "Point",
+                  coordinates: user_detail.location.coordinates
+              }
+          }
+      }
+      var nearby_drivers = await User.find(matches);
   }
 
   var caregivers = await UserCareGiver.find(match).populate([
@@ -448,9 +464,9 @@ exports.get_home_page_details = async (req, res, next) => {
       path: 'caregiver_detail',
     }  
   ]);
-   
+ 
   var current_trip_detail = await Trip.find({ user_id: requests.user_id, is_deleted: false });
-  return res.apiResponse(true, "Success", { caregivers, service_type, current_trip_detail });
+  return res.apiResponse(true, "Success", { caregivers, service_type, current_trip_detail, nearby_drivers });
 
 } 
 
@@ -520,8 +536,9 @@ exports.accept_request = async (req, res, next) => {
       },
       { new: true }
     ).exec();
-    var updated_detail = await Trip.findOne({ _id: request_detail.trip_id });
-    return res.apiResponse(true, "Request Accepted Successfully", updated_detail);
+    var trip_detail = await Trip.findOne({ _id: request_detail.trip_id });
+    global.io.in("user_"+ trip_detail.user_id).emit('trip_detail', { trip_detail });
+    return res.apiResponse(true, "Request Accepted Successfully", { trip_detail } );
   }
 };
 
