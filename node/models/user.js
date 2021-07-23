@@ -50,6 +50,7 @@ const userSchema = new mongoose.Schema({
     // Default ride type & vehicle category
     default_ride_type: String,
     default_vehicle_category: String,
+    category_id: String,
 
     //only for driver
     availability_status: String,
@@ -87,6 +88,11 @@ const userSchema = new mongoose.Schema({
     driver_license: String,
     attender_proof: String,
     //
+    // only for drivers
+    trip_status: {
+        type: String,
+        default: "offline"
+    },
     is_deleted: {
         type: Boolean,
         default: false

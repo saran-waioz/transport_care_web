@@ -1,4 +1,5 @@
 const Category = require("../models/category");
+const User = require("../models/user");
 const commonHelper = require("../helpers/commonhelpers");
 const _ = require("lodash");
 const { Validator } = require("node-input-validator");
@@ -34,6 +35,7 @@ exports.update_category = async (req, res, next) => {
     return res.apiResponse(true, "Successfully category added");
   }
 };
+
 upload_category = async (req, id) => {
   var requests = req.bodyParams;
   console.log(req.files);

@@ -467,4 +467,20 @@ exports.forgotPassword = async(req, res, next) => {
     }
 }
 
+exports.update_location = async (req, res, next) => {
+    var requests = req.bodyParams;
+    if(requests.location) {
+        var origin = requests.location.split(",").map(Number);
+        await User.findOneAndUpdate({ '_id': requests.user_id}, 
+        { $set: 
+            {
+             'location.coordinates' : origin
+            }  
+          }
+        ).exec();
+    }
+    var user_detail = await User.findOne({ '_id': requests.user_id });
+    return res.apiResponse(true, "Location Updated Successfully", { user_detail } );
+};
+
 

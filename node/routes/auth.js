@@ -9,7 +9,8 @@ router.post('/update_otp',AuthController.update_otp)
 router.post('/upload_document',AuthController.upload_document)
 router.post('/forgot_password',AuthController.forgotPassword)
 router.post('/update_user', AuthController.update_user);
+router.post('/update_location', AuthController.update_location);
 //admin
-router.post('/admin_login',AuthController.adminlogin)
+router.post('/admin_login',AuthController.adminlogin);
 //
 module.exports = router;

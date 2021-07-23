@@ -15,8 +15,8 @@ var schemaOptions={
 
 }
 const categorySchema=new mongoose.Schema({
-    name:String,
-    parent_id:String,
+    name: String,
+    parent_id: String,
     category_path:{
         type:Array,
         default:[]
@@ -29,6 +29,7 @@ const categorySchema=new mongoose.Schema({
     },
     price:Number,
     commission:Number,
+    calculated_price: Number,
     checked:{
         type:Boolean,
         default:false

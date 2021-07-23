@@ -1,5 +1,6 @@
 var mongodb = require("mongodb");
 var ObjectId = mongodb.ObjectID;
+const commonHelper=require('../helpers/commonhelpers')
 const User = require("../models/user");
 const Log = require("../models/log");
 const Firebase = require("../config/firebase");
@@ -362,8 +363,8 @@ exports.get_driver_attender = async (req, res, next) => {
       ])
   };
 
-  if (typeof requests.id != "undefined" && requests.id != "") {
-      match['driver_id'] = requests.id
+  if (typeof requests.driver_id != "undefined" && requests.driver_id != "") {
+      match['driver_id'] = requests.driver_id
   }
   if (pagination == "true") {
       Attender.paginate(match, options, function (err, attender) {
@@ -437,22 +438,26 @@ exports.get_home_page_details = async (req, res, next) => {
   var requests = req.bodyParams;
   console.log(requests);
   const match = {};
-  var service_type = [{ name: "Door to Door", is_care: true }, { name: "Independent Trip", is_care: false }, { name: "Caregiver", is_care: true }];
+  var service_type = [
+    { name: "Door to Door", image: commonHelper.getBaseurl() + "/media/assets/uploads/door_to_door_image.jpeg", is_care: true }, 
+    { name: "Independent Trip", image: commonHelper.getBaseurl() + "/media/assets/uploads/independent_image.jpeg", is_care: false }, 
+    { name: "Caregiver", image: commonHelper.getBaseurl() + "/media/assets/uploads/caregiver_image.jpeg", is_care: true }
+  ];
 
   if (typeof requests.user_id != "undefined" && requests.user_id != "") {
       match['user_id'] = requests.user_id;
-      var user_detail = await User.findOne({ '_id': requests.user_id });
+      var origin = requests.current_location.split(",");
       var matches = {
         role: 2,
-        status: 'active'
-      }
-      var max_distance = requests.distance_time | 10000
+        status: 'active',
+        trip_status: 'offline'
+      };
       matches['location'] = { 
           $nearSphere: {
               $maxDistance: 20 * 1000,
               $geometry: {
                   type: "Point",
-                  coordinates: user_detail.location.coordinates
+                  coordinates: origin
               }
           }
       }
@@ -464,7 +469,6 @@ exports.get_home_page_details = async (req, res, next) => {
       path: 'caregiver_detail',
     }  
   ]);
- 
   var current_trip_detail = await Trip.find({ user_id: requests.user_id, is_deleted: false });
   return res.apiResponse(true, "Success", { caregivers, service_type, current_trip_detail, nearby_drivers });
 
@@ -472,10 +476,29 @@ exports.get_home_page_details = async (req, res, next) => {
 
 exports.calculate_fare_estimation = async (req, res, next) => {
   var requests = req.bodyParams;
-  var API_KEY = 'AIzaSyCOmadRqABD5ViSxRIoSVRFSrPsd4haoPo';
+  var API_KEY = 'AIzaSyCUbgwz5a9IidJRM8QA7Ms3K5ibIKB_B6M';
   console.log(requests);
   var distance_time;
-  var category_list = await Category.find({}); 
+  if(requests.origin) {
+    var origin = requests.origin.split(",");
+    var match = {
+      role: 2,
+      status: 'active',
+      trip_status: 'offline'
+    };
+    match['location'] = { 
+        $nearSphere: {
+            $maxDistance: 20 * 1000,
+            $geometry: {
+                type: "Point",
+                coordinates: origin
+            }
+        }
+    }
+    var get_drivers = await User.find(match).distinct('category_id');
+    console.log(get_drivers);
+    var category_list = await Category.find({ '_id': { $in : get_drivers }});
+  }
 
   distance.apiKey = API_KEY;
   distance.get(
@@ -483,12 +506,23 @@ exports.calculate_fare_estimation = async (req, res, next) => {
       origin: requests.origin,
       destination: requests.destination
     },
-    function(err, distances) {
+    async function(err, distances) {
       if (err) return console.log(err);
       console.log(distances);
-      distance_time = distances;
+      console.log( distances.distance, parseInt(distances.distance));
+      for(var i = 0; i < category_list.length; i++) {
+        var price = category_list[i].price * parseInt(distances.distance);
+        console.log(price);
+        await Category.findOneAndUpdate({ '_id': category_list[i]._id }, 
+        { $set: 
+          {
+            'calculated_price': price
+          } 
+        }).exec();
+      }
+      category_list = await Category.find({ '_id': { $in: get_drivers } }).exec();
+      return res.apiResponse(true, "Success", { distances, category_list } );
   });
-  return res.apiResponse(true, "Success", { distance_time, category_list } );
 }
 
 exports.update_trip_status = async (req, res, next) => {
@@ -501,8 +535,7 @@ exports.update_trip_status = async (req, res, next) => {
 
   var old_detail = await Trip.findOne({ _id: requests.trip_id, user_id: requests.user_id });
   if(old_detail) {
-    await Trip.findOneAndUpdate(
-      { _id: requests.trip_id },
+    await Trip.findOneAndUpdate({ _id: requests.trip_id },
       { $set: 
         {
         'trip_status': requests.status,
@@ -511,6 +544,26 @@ exports.update_trip_status = async (req, res, next) => {
       },
       { new: true }
     ).exec();
+      if(old_detail.driver_id && requests.status == 'start_trip') {
+        await User.findOneAndUpdate({ _id: old_detail.driver_id, role: 2 },
+          { $set: 
+            {
+            'trip_status': 'online'
+            }  
+          },
+          { new: true }
+        ).exec();
+      }
+      if(old_detail.driver_id && (requests.status == 'completed' || requests.status == 'cancelled')) {
+        await User.findOneAndUpdate({ _id: old_detail.driver_id, role: 2 },
+          { $set: 
+            {
+            'trip_status': 'offline'
+            }  
+          },
+          { new: true }
+        ).exec();
+      }
     return res.apiResponse(true, "Status Updated Successfully");
   }
 };
