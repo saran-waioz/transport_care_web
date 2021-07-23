@@ -464,7 +464,7 @@ exports.get_home_page_details = async (req, res, next) => {
       var nearby_drivers = await User.find(matches);
   }
 
-  var caregivers = await UserCareGiver.find(match).populate([
+  var caregivers = await UserCareGiver.find(match).sort({is_default:-1}).populate([
     {
       path: 'caregiver_detail',
     }  
