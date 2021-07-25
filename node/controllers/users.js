@@ -477,7 +477,7 @@ exports.get_home_page_details = async (req, res, next) => {
 exports.calculate_fare_estimation = async (req, res, next) => {
   var requests = req.bodyParams;
   var API_KEY = 'AIzaSyCUbgwz5a9IidJRM8QA7Ms3K5ibIKB_B6M';
-  console.log(requests);
+  var testing = requests.testing || true;
   var distance_time;
   if(requests.origin) {
     var origin = requests.origin.split(",");
@@ -496,33 +496,47 @@ exports.calculate_fare_estimation = async (req, res, next) => {
         }
     }
     var get_drivers = await User.find(match).distinct('category_id');
-    console.log(get_drivers);
     var category_list = await Category.find({ '_id': { $in : get_drivers }});
-  }
-
-  distance.apiKey = API_KEY;
-  distance.get(
+    category_list = JSON.parse(JSON.stringify(category_list));
+    if(testing)
     {
-      origin: requests.origin,
-      destination: requests.destination
-    },
-    async function(err, distances) {
-      if (err) return console.log(err);
-      console.log(distances);
-      console.log( distances.distance, parseInt(distances.distance));
-      for(var i = 0; i < category_list.length; i++) {
-        var price = category_list[i].price * parseInt(distances.distance);
-        console.log(price);
-        await Category.findOneAndUpdate({ '_id': category_list[i]._id }, 
-        { $set: 
-          {
-            'calculated_price': price
-          } 
-        }).exec();
+      var distances = {
+        "index": null,
+        "distance": "16.0 km",
+        "distanceValue": 16047,
+        "duration": "33 mins",
+        "durationValue": 1964,
+        "origin": "70A, 5th St, Kalai Nagar, Madurai, Tamil Nadu 625017, India",
+        "destination": "8, Rajaji St, Thiru Nagar, Tamil Nadu 625006, India",
+        "mode": "driving",
+        "units": "metric",
+        "language": "en",
+        "avoid": null,
+        "sensor": false
       }
-      category_list = await Category.find({ '_id': { $in: get_drivers } }).exec();
+      for(var i = 0; i < category_list.length; i++) {
+        category_list[i].calculated_price = parseFloat(category_list[i].price * parseFloat(distances.distanceValue)).toFixed(2);
+      }
       return res.apiResponse(true, "Success", { distances, category_list } );
-  });
+    }
+    else
+    {
+      distance.apiKey = API_KEY;
+      await distance.get(
+        {
+          origin: requests.origin,
+          destination: requests.destination
+        },
+        async function(err, distances) {
+          if (err) return console.log(err);
+          for(var i = 0; i < category_list.length; i++) {
+            category_list[i].calculated_price = parseFloat(category_list[i].price * parseFloat(distances.distanceValue)).toFixed(2);
+          }
+          return res.apiResponse(true, "Success", { distances, category_list } );
+        }
+      );
+    }
+  }
 }
 
 exports.update_trip_status = async (req, res, next) => {
