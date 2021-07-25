@@ -514,9 +514,8 @@ exports.calculate_fare_estimation = async (req, res, next) => {
         "avoid": null,
         "sensor": false
       }
-      var exact_distance = distances.distanceValue/1000;
       for(var i = 0; i < category_list.length; i++) {
-        category_list[i].calculated_price = parseFloat(category_list[i].price * exact_distance).toFixed(2);      
+        category_list[i].calculated_price = parseFloat(category_list[i].price * (distances.distanceValue/1000)).toFixed(2);
       }
       return res.apiResponse(true, "Success", { distances, category_list } );
     }
@@ -530,9 +529,8 @@ exports.calculate_fare_estimation = async (req, res, next) => {
         },
         async function(err, distances) {
           if (err) return console.log(err);
-          var exact_distance = distances.distanceValue/1000;
           for(var i = 0; i < category_list.length; i++) {
-            category_list[i].calculated_price = parseFloat(category_list[i].price * exact_distance).toFixed(2);
+            category_list[i].calculated_price = parseFloat(category_list[i].price * (distances.distanceValue/1000)).toFixed(2);
           }
           return res.apiResponse(true, "Success", { distances, category_list } );
         }
