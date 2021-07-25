@@ -515,7 +515,7 @@ exports.calculate_fare_estimation = async (req, res, next) => {
         "sensor": false
       }
       for(var i = 0; i < category_list.length; i++) {
-        category_list[i].calculated_price = parseFloat(category_list[i].price * parseFloat(distances.distanceValue/1000)).toFixed(2);
+        category_list[i].calculated_price = parseFloat(category_list[i].price * (distances.distanceValue/1000)).toFixed(2);
       }
       return res.apiResponse(true, "Success", { distances, category_list } );
     }
@@ -530,7 +530,7 @@ exports.calculate_fare_estimation = async (req, res, next) => {
         async function(err, distances) {
           if (err) return console.log(err);
           for(var i = 0; i < category_list.length; i++) {
-            category_list[i].calculated_price = parseFloat(category_list[i].price * parseFloat(distances.distanceValue/1000)).toFixed(2);
+            category_list[i].calculated_price = parseFloat(category_list[i].price * (distances.distanceValue/1000)).toFixed(2);
           }
           return res.apiResponse(true, "Success", { distances, category_list } );
         }
