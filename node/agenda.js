@@ -16,15 +16,10 @@ agenda.define('requestProcess',{lockLifetime: 10000}, async(job, done) => {
     });
     job.save();
     var trip_id = job.attrs.data.trip_detail._id;
-    console.log(trip_id)
-    var trip_detail = await Trip.findOne({'_id': trip_id})
-    console.log(trip_detail._id);
-    
+    var trip_detail = await Trip.findOne({'_id': trip_id})    
     if(trip_detail.trip_status=='processing')
     {
         var order_requests = await RequestDetail.find({'trip_id':trip_detail._id, is_deleted: false });
-        console.log(order_requests.length);
-        console.log(order_requests[0]._id);
         if(order_requests.length)
         {
             var delivery = order_requests[0].user_id;
@@ -44,7 +39,7 @@ agenda.define('requestProcess',{lockLifetime: 10000}, async(job, done) => {
                 angle:0,
                 status:true
             }
-            global.io.in("user_"+ order_requests[0].user_id).emit('new_trip', { trip_detail, response_time });
+            global.io.in("user_"+ order_requests[0].driver_id).emit('new_trip', { trip_detail, response_time });
             var driver_detail = await User.findOne({'_id':order_requests[0].driver_id});
             if(driver_detail.device_id.length)
             {
@@ -54,7 +49,7 @@ agenda.define('requestProcess',{lockLifetime: 10000}, async(job, done) => {
                     console.log(driver_detail.device_id[i]);
                 }
             }
-            console.log("requested "+ delivery +' for order '+ order_requests[0].driver_id +' at '+ moment().format('HH:mm:ss'));
+            console.log("requested "+ delivery +' for order '+ driver_detail.email +' at '+ moment().format('HH:mm:ss'));
             await RequestDetail.findOneAndUpdate({ '_id': order_requests[0]._id }, { "$set": { is_deleted: true }}).exec();
             // RequestDetail.findOne({ '_id': order_requests[0]._id, 'request_status': 'Cancelled' }, async (err, old_requests) =>{
             //     await old_requests.remove()
