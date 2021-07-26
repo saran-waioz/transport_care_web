@@ -562,7 +562,7 @@ exports.update_trip_status = async (req, res, next) => {
         await User.findOneAndUpdate({ _id: old_detail.driver_id, role: 2 },
           { $set: 
             {
-            'trip_status': 'online'
+            'trip_status': 'trip'
             }  
           },
           { new: true }
@@ -572,7 +572,7 @@ exports.update_trip_status = async (req, res, next) => {
         await User.findOneAndUpdate({ _id: old_detail.driver_id, role: 2 },
           { $set: 
             {
-            'trip_status': 'offline'
+            'trip_status': 'online'
             }  
           },
           { new: true }
@@ -664,7 +664,8 @@ exports.request_order = async(req, res, next) => {
       user_id: requests.user_id,
       care_giver_id: requests.care_giver_id,
       service_type: requests.service_type,
-      category_detail: category_detail
+      category_detail: category_detail,
+      distance: requests.distance
     };
     var newTrip = new Trip(trip_detail);
     await newTrip.save();

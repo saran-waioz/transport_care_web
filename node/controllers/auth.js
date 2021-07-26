@@ -96,7 +96,7 @@ exports.sign_up = async (req, res, next) => {
                         else if((!user_detail.driver_license || !user_detail.attender_proof ) || ( user_detail.driver_license === undefined || user_detail.attender_proof === undefined )) {
                             page_status = 4;
                         }
-                        else {
+                        else if(user_detail.driver_status != 'approved'){
                             page_status = 5;
                         }
                     }
@@ -160,7 +160,7 @@ exports.sign_in = async (req, res, next) => {
                 else if((!user_detail.driver_license || !user_detail.attender_proof ) || ( user_detail.driver_license === undefined || user_detail.attender_proof === undefined )) {
                     page_status = 4;
                 }
-                else {
+                else if(user_detail.driver_status != 'approved'){
                     page_status = 5;
                 }
             }
@@ -188,6 +188,12 @@ exports.update_user = async (req, res, next) => {
             }
             var update = {
                 "$addToSet": push
+            }
+            User.findOneAndUpdate({ "_id": checkUser._id }, update, { new: true })
+        }
+        if(requests.trip_status && checkUser.driver_status == 'approved') {
+            var update = {
+                trip_status: requests.trip_status
             }
             User.findOneAndUpdate({ "_id": checkUser._id }, update, { new: true })
         }
@@ -231,7 +237,7 @@ exports.update_user = async (req, res, next) => {
                 else if((!user_detail.driver_license || !user_detail.attender_proof ) || ( user_detail.driver_license === undefined || user_detail.attender_proof === undefined )) {
                     page_status = 4;
                 }
-                else {
+                else if(user_detail.driver_status != 'approved') {
                     page_status = 5;
                 }
             }
@@ -356,7 +362,7 @@ exports.update_otp = async (req, res, next) => {
                 else if((!user_detail.driver_license || !user_detail.attender_proof ) || ( user_detail.driver_license === undefined || user_detail.attender_proof === undefined )) {
                     page_status = 4;
                 }
-                else {
+                else if(user_detail.driver_status != 'approved'){
                     page_status = 5;
                 }
             }
@@ -406,7 +412,7 @@ exports.upload_document = async (req, res, next) => {
                 else if((!user_detail.driver_license || !user_detail.attender_proof ) || ( user_detail.driver_license === undefined || user_detail.attender_proof === undefined )) {
                     page_status = 4;
                 }
-                else {
+                else if(user_detail.driver_status != 'approved'){
                     page_status = 5;
                 }
             }

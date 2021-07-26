@@ -31,6 +31,7 @@ const TripDetailSchema = new mongoose.Schema({
       type: String,
       default: "Pending"  //Processing, Arrived, Start_trip, End_trip, Completed, Cancelled
     },
+    distance: Object,
     is_deleted: {
       type: Boolean,
       default: true
