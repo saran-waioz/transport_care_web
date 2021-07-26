@@ -44,7 +44,7 @@ agenda.define('requestProcess',{lockLifetime: 10000}, async(job, done) => {
                 angle:0,
                 status:true
             }
-            global.io.in("user_"+ order_requests[0].user_id).emit('new_order', { trip_detail, response_time });
+            global.io.in("user_"+ order_requests[0].user_id).emit('new_trip', { trip_detail, response_time });
             var driver_detail = await User.findOne({'_id':order_requests[0].driver_id});
             if(driver_detail.device_id.length)
             {
