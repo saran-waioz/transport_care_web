@@ -585,30 +585,21 @@ exports.update_trip_status = async (req, res, next) => {
 };
 
 exports.accept_request = async (req, res, next) => {
-  if (typeof req.bodyParams == "undefined") {
-    var requests = req;
-  } 
-  else {
-    var requests = req.bodyParams;
-  }
-
-  var request_detail = await RequestDetail.findOne({ _id: requests.request_id, driver_id: requests.driver_id });
-  if(request_detail) {
-    await Trip.findOneAndUpdate(
-      { _id: request_detail.trip_id },
-      { $set: 
-        {
-        'driver_id': request_detail.driver_id,
-        'trip_status': 'Accepted',
-        'is_deleted': false
-        }  
-      },
-      { new: true }
-    ).exec();
-    var trip_detail = await Trip.findOne({ _id: request_detail.trip_id }).populate(['user_detail','caregiver_detail','driver_detail']);
-    global.io.in("user_"+ trip_detail.user_id).emit('trip_detail', { trip_detail });
-    return res.apiResponse(true, "Request Accepted Successfully", { trip_detail } );
-  }
+  var requests = req.bodyParams;
+  await Trip.findOneAndUpdate(
+    { _id: requests.trip_id },
+    { $set: 
+      {
+      'driver_id': requests.driver_id,
+      'trip_status': 'Accepted',
+      'is_deleted': false
+      }  
+    },
+    { new: true }
+  ).exec();
+  var trip_detail = await Trip.findOne({ _id: request_detail.trip_id }).populate(['user_detail','caregiver_detail','driver_detail']);
+  global.io.in("user_"+ trip_detail.user_id).emit('trip_detail', { trip_detail });
+  return res.apiResponse(true, "Request Accepted Successfully", { trip_detail } );
 };
 
 exports.cancel_request = async (req, res, next) => {
