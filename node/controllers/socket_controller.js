@@ -9,7 +9,9 @@ module.exports.respond = function(socket_io){
     socket_io.on('pong', function(data){
       console.log(data);
     });
-
+    socket_io.on('room_for_user', function(room) {
+      socket_io.join(room);
+    });
     socket_io.on('update_location', async(data) => {
       let location = {
         type: "Point",

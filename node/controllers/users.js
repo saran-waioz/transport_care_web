@@ -674,11 +674,12 @@ exports.request_order = async(req, res, next) => {
     function_request_order(requests).then(async(trip_detail) => {
       if(!trip_detail)
       {
-          return res.apiResponse(true, "Trip already processing")
+          return res.apiResponse(false, "Trip already processing")
       }
       else
       {
-          return res.apiResponse(true, "Trip request processing", trip_detail )
+        trip_detail = _.map('_id',trip_detail);
+        return res.apiResponse(true, "Trip request processing", {trip_detail} )
       }
     });
 }
@@ -741,13 +742,12 @@ async function function_request_order(requests) {
         }
 
         var trip_detail = await Trip.findOne({ '_id': trip_detail._id });
-        global.io.in("user_" + trip_detail.user_id).emit('order_update', { trip_detail });
         Agenda.now('requestProcess', { trip_detail }) // requests
       } 
       else {
           var new_result = {}
           new_result.message = "not_available"
-          global.io.in("user_" + trip_detail.user_id).emit('not_accept', { trip_detail, new_result });
+          global.io.in("trip_" + trip_detail._id).emit('not_accept', {});
       }
       return trip_detail;
     } 
