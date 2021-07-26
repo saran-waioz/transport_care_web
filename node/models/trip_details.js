@@ -31,14 +31,31 @@ const TripDetailSchema = new mongoose.Schema({
       type: String,
       default: "Pending"  //Processing, Arrived, Start_trip, End_trip, Completed, Cancelled
     },
-    distance: Object,
+    distances: Object,
     is_deleted: {
       type: Boolean,
       default: true
     }    
 }, schemaOptions);
 
-
+TripDetailSchema.virtual('user_detail', {
+  ref: 'User',
+  localField: 'user_id',
+  foreignField: '_id',
+  justOne: false
+});
+TripDetailSchema.virtual('caregiver_detail', {
+  ref: 'User',
+  localField: 'care_giver_id',
+  foreignField: '_id',
+  justOne: false
+});
+TripDetailSchema.virtual('driver_detail', {
+  ref: 'User',
+  localField: 'driver_id',
+  foreignField: '_id',
+  justOne: false
+});
 
 TripDetailSchema.plugin(mongoosePaginate);
 module.exports = mongoose.model('Trip_details', TripDetailSchema);

@@ -578,7 +578,7 @@ exports.update_trip_status = async (req, res, next) => {
           { new: true }
         ).exec();
       }
-      var trip_detail = await Trip.findOne({ _id: requests.trip_id});
+      var trip_detail = await Trip.findOne({ _id: requests.trip_id}).populate(['user_detail','caregiver_detail','driver_detail']);
       global.io.in("user_"+ trip_detail.user_id).emit('trip_detail', { trip_detail });
     return res.apiResponse(true, "Status Updated Successfully");
   }
@@ -605,7 +605,7 @@ exports.accept_request = async (req, res, next) => {
       },
       { new: true }
     ).exec();
-    var trip_detail = await Trip.findOne({ _id: request_detail.trip_id });
+    var trip_detail = await Trip.findOne({ _id: request_detail.trip_id }).populate(['user_detail','caregiver_detail','driver_detail']);
     global.io.in("user_"+ trip_detail.user_id).emit('trip_detail', { trip_detail });
     return res.apiResponse(true, "Request Accepted Successfully", { trip_detail } );
   }
@@ -662,13 +662,15 @@ exports.request_order = async(req, res, next) => {
   {
     var requests = req.bodyParams;
     var category_detail = await Category.findOne({ '_id': requests.category_id });
+    category_detail.calculated_price = parseFloat(category_detail.price * (requests.distances.distanceValue/1000)).toFixed(2);
     var trip_detail = {
       user_id: requests.user_id,
       care_giver_id: requests.care_giver_id,
       service_type: requests.service_type,
       category_detail: category_detail,
-      distance: requests.distance
+      distances: requests.distances
     };
+    
     var newTrip = new Trip(trip_detail);
     await newTrip.save();
   }
