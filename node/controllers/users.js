@@ -449,9 +449,9 @@ exports.get_home_page_details = async (req, res, next) => {
       var origin = requests.current_location.split(",");
       var matches = {
         role: 2,
-        status: 'active',
-        trip_status: 'offline'
+        status: 'active'
       };
+      matches['trip_status'] = 'online';
       matches['location'] = { 
           $nearSphere: {
               $maxDistance: 20 * 1000,
@@ -668,7 +668,11 @@ exports.request_order = async(req, res, next) =>
 
 
   function_request_order(requests,trip_detail).then(async(trip_detail) => {
-    if(!trip_detail)
+    if(trip_detail=="no_drivers")
+    {
+        return res.apiResponse(false, "No Drivers found near you")
+    }
+    else if(trip_detail=="already_process")
     {
         return res.apiResponse(false, "Trip already processing")
     }
@@ -686,7 +690,7 @@ async function function_request_order(requests,trip_detail) {
         role: 2,
         status: 'active'    
       }
-    match['trip_status'] = 'online';
+    // match['trip_status'] = 'online';
     match['location'] = { 
         $nearSphere: {
             $maxDistance: 20 * 1000,
@@ -741,13 +745,13 @@ async function function_request_order(requests,trip_detail) {
       } 
       else
       {
-        return false;
+        return "already_process";
       }
     } 
     else {
       var new_result = {}
       new_result.message = "not_available"
       global.io.in("trip_" + trip_detail._id).emit('not_accept', {});
-      return false;
+      return "no_drivers";
     }
 }
