@@ -601,7 +601,7 @@ exports.accept_request = async (req, res, next) => {
     },
     { new: true }
   ).exec();
-  var trip_detail = await Trip.findOne({ _id: request_detail.trip_id }).populate(['user_detail','caregiver_detail','driver_detail']);
+  var trip_detail = await Trip.findOne({ _id: requests.trip_id }).populate(['user_detail','caregiver_detail','driver_detail']);
   global.io.in("user_"+ trip_detail.user_id).emit('trip_detail', { trip_detail });
   return res.apiResponse(true, "Request Accepted Successfully", { trip_detail } );
 };
