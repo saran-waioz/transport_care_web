@@ -437,7 +437,6 @@ exports.update_availability_status = async (req, res, next) => {
 
 exports.get_home_page_details = async (req, res, next) => {
   var requests = req.bodyParams;
-  console.log(requests);
   const match = {};
   var service_type = [
     { name: "Door to Door", image: commonHelper.getBaseurl() + "/media/assets/uploads/door_to_door_image.jpeg", is_care: true }, 
@@ -685,9 +684,9 @@ async function function_request_order(requests,trip_detail) {
   var trip_details = await Trip.findOne({ 'user_id': requests.user_id, 'trip_status': "Pending" });
     var match = {
         role: 2,
-        status: 'active',
-        trip_status: 'online'
-    }
+        status: 'active'    
+      }
+    match['trip_status'] = 'online';
     match['location'] = { 
         $nearSphere: {
             $maxDistance: 20 * 1000,
@@ -697,12 +696,12 @@ async function function_request_order(requests,trip_detail) {
             }
         }
     }
-    var trip_request_old = await RequestDetail.find({ 'trip_id': trip_details._id });
     var get_drivers = await User.find(match);
-
-    if (!trip_request_old.length) {
-      
-      if (get_drivers.length) {
+    console.log("nearest drivers",get_drivers.length)
+    if (get_drivers.length) {
+      var trip_request_old = await RequestDetail.find({ 'trip_id': trip_details._id });
+      if (!trip_request_old.length) 
+      {
         await Trip.findOneAndUpdate({ "_id": trip_detail._id }, { "$set": { trip_status: 'processing'}}).exec();
         trip_detail.trip_status = "processing";
 
@@ -738,15 +737,17 @@ async function function_request_order(requests,trip_detail) {
             await new_request.save();
         }
         Agenda.now('requestProcess', { trip_detail }) // requests
+        return trip_detail;
       } 
-      else {
-          var new_result = {}
-          new_result.message = "not_available"
-          global.io.in("trip_" + trip_detail._id).emit('not_accept', {});
+      else
+      {
+        return false;
       }
-      return trip_detail;
     } 
     else {
+      var new_result = {}
+      new_result.message = "not_available"
+      global.io.in("trip_" + trip_detail._id).emit('not_accept', {});
       return false;
     }
 }
