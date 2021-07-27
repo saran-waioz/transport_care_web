@@ -451,7 +451,7 @@ exports.get_home_page_details = async (req, res, next) => {
         role: 2,
         status: 'active'
       };
-      matches['trip_status'] = 'online';
+      // matches['trip_status'] = 'online';
       matches['location'] = { 
           $nearSphere: {
               $maxDistance: 20 * 1000,
