@@ -741,7 +741,6 @@ async function function_request_order(requests,trip_detail) {
             var new_request = new RequestDetail(new_request_data);
             await new_request.save();
         }
-        console.log(trip_detail);
         Agenda.now('requestProcess', { trip_detail }) // requests
         return trip_detail;
       } 
@@ -753,7 +752,7 @@ async function function_request_order(requests,trip_detail) {
     else {
       var new_result = {}
       new_result.message = "not_available"
-      global.io.in("trip_" + trip_detail._id).emit('not_accept', {});
+      global.io.in("user_" + trip_detail.user_id).emit('not_accept', {});
       return "no_drivers";
     }
 }

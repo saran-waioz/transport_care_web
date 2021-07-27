@@ -58,11 +58,10 @@ agenda.define('requestProcess',{lockLifetime: 10000}, async(job, done) => {
         {
             console.log("not accept")
             await RequestDetail.deleteMany({'trip_id':trip_detail._id, 'request_status': 'Cancelled' },function(){});
-            //await Trip.findOneAndUpdate({ "_id": trip_detail._id }, { "$set": {request_status:'pending',last_delivery_id:'',last_delivery_time:''}}).exec();
             var trip_detail = await Trip.findOne({'_id':trip_detail._id}).populate(['user_detail','caregiver_detail','driver_detail']);
             var new_result={}
             new_result.message = "not_available"
-            global.io.in("trip_" + trip_detail._id).emit('not_accept', {});
+            global.io.in("user_" + trip_detail.user_id).emit('not_accept', {});
             job.remove(err => {});
         }
     }
