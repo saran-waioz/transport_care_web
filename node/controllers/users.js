@@ -478,7 +478,7 @@ exports.get_home_page_details = async (req, res, next) => {
 exports.calculate_fare_estimation = async (req, res, next) => {
   var requests = req.bodyParams;
   var API_KEY = 'AIzaSyCUbgwz5a9IidJRM8QA7Ms3K5ibIKB_B6M';
-  var testing = requests.testing || true;
+  var testing = (requests.testing && requests.testing=="true")?true:false;
   var distance_time;
   if(requests.origin) {
     var origin = requests.origin.split(",");
