@@ -27,7 +27,6 @@ agenda.define('requestProcess',{lockLifetime: 10000}, async(job, done) => {
             for(let j=0;j<order_requests_current_driver.length;++j)
             {
                 await RequestDetail.findOneAndUpdate({ "driver_id": order_requests_current_driver[j] }, { "$set": { request_status:'Requesting' }}).exec(async(err,res)=>{
-                console.log("update requesting to current one ");
                 });
             }
             //await Trip.findOneAndUpdate({ "_id": trip_detail._id }, { "$set": { last_delivery_id: order_requests[0].delivery_id._id, last_delivery_time: moment().toISOString()}}).exec();
