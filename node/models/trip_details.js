@@ -21,6 +21,7 @@ const TripDetailSchema = new mongoose.Schema({
     driver_id: String,
     service_type: String,
     category_detail: Object,
+    price_detail: Object,
     admin_commission: Number,
     driver_earnings: Number,
     payment_status: {
@@ -59,4 +60,3 @@ TripDetailSchema.virtual('driver_detail', {
 
 TripDetailSchema.plugin(mongoosePaginate);
 module.exports = mongoose.model('Trip_details', TripDetailSchema);
-

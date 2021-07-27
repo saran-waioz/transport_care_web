@@ -15,6 +15,7 @@ const Rating = require("../models/rating");
 const Category = require("../models/category");
 const distance = require("google-distance");
 const Agenda = require("../agenda");
+const geolib = require('geolib');
 
 
 exports.get_users = async (req, res, next) => {
@@ -512,7 +513,9 @@ exports.calculate_fare_estimation = async (req, res, next) => {
         "units": "metric",
         "language": "en",
         "avoid": null,
-        "sensor": false
+        "sensor": false,
+        "selected_origin": "9.9619342,78.1266277",
+        "selected_destination": "9.8807146,78.0563409"
       }
       for(var i = 0; i < category_list.length; i++) {
         category_list[i].calculated_price = parseFloat(category_list[i].price * (distances.distanceValue/1000)).toFixed(2);
@@ -532,6 +535,8 @@ exports.calculate_fare_estimation = async (req, res, next) => {
           for(var i = 0; i < category_list.length; i++) {
             category_list[i].calculated_price = parseFloat(category_list[i].price * (distances.distanceValue/1000)).toFixed(2);
           }
+          distances.selected_origin = requests.origin;
+          distances.selected_destination = requests.destination;
           return res.apiResponse(true, "Success", { distances, category_list } );
         }
       );
@@ -644,56 +649,51 @@ exports.rate_delivery = async(req, res) => {
   })
 };
 
-exports.request_order = async(req, res, next) => {
-  if(typeof req.bodyParams=="undefined")
-  {
-    var requests = req;
-  }
-  else
-  {
-    var requests = req.bodyParams;
-    var category_detail = await Category.findOne({ '_id': requests.category_id });
-    category_detail.calculated_price = parseFloat(category_detail.price * (requests.distances.distanceValue/1000)).toFixed(2);
-    var trip_detail = {
-      user_id: requests.user_id,
-      care_giver_id: requests.care_giver_id,
-      service_type: requests.service_type,
-      category_detail: category_detail,
-      distances: requests.distances
-    };
-    
-    var newTrip = new Trip(trip_detail);
-    await newTrip.save();
-  }
+exports.request_order = async(req, res, next) => 
+{
+  var requests = req.bodyParams;
+  var category_detail = await Category.findOne({ '_id': requests.category_id });
+  var price_detail = {}
+  price_detail.total = parseFloat(category_detail.price * (requests.distances.distanceValue/1000)).toFixed(2);
+  var trip_detail = {
+    user_id: requests.user_id,
+    care_giver_id: requests.care_giver_id,
+    service_type: requests.service_type,
+    category_detail: category_detail,
+    distances: requests.distances,
+    price_detail:price_detail
+  };
+  
+  var newTrip = new Trip(trip_detail);
+  var trip_detail = await newTrip.save();
 
-    function_request_order(requests).then(async(trip_detail) => {
-      if(!trip_detail)
-      {
-          return res.apiResponse(false, "Trip already processing")
-      }
-      else
-      {
-        trip_detail = _.map('_id',trip_detail);
-        return res.apiResponse(true, "Trip request processing", {trip_detail} )
-      }
-    });
+
+  function_request_order(requests,trip_detail).then(async(trip_detail) => {
+    if(!trip_detail)
+    {
+        return res.apiResponse(false, "Trip already processing")
+    }
+    else
+    {
+      trip_detail = _.map('_id',trip_detail);
+      return res.apiResponse(true, "Trip request processing", {trip_detail} )
+    }
+  });
 }
 
-async function function_request_order(requests) {
+async function function_request_order(requests,trip_detail) {
   var trip_details = await Trip.findOne({ 'user_id': requests.user_id, 'trip_status': "Pending" });
-  var user_detail = await User.findOne({ '_id': requests.user_id });
-
     var match = {
         role: 2,
-        status: 'active'
+        status: 'active',
+        trip_status: 'online'
     }
-    var max_distance = requests.distance_time | 10000
     match['location'] = { 
         $nearSphere: {
             $maxDistance: 20 * 1000,
             $geometry: {
                 type: "Point",
-                coordinates: user_detail.location.coordinates
+                coordinates: requests.distances.selected_origin.split(',')
             }
         }
     }
@@ -701,13 +701,10 @@ async function function_request_order(requests) {
     var get_drivers = await User.find(match);
 
     if (!trip_request_old.length) {
-      var trip_detail = await Trip.findOne({ '_id': trip_details._id });
-      //console.log(trip_detail);
+      
       if (get_drivers.length) {
-        console.log("request is saving" + get_drivers.length)
-        var trip_detail = await Trip.findOne({ '_id': trip_details._id });
+        await Trip.findOneAndUpdate({ "_id": trip_detail._id }, { "$set": { trip_status: 'processing'}}).exec();
         trip_detail.trip_status = "processing";
-        await trip_detail.save();
 
         for (let i = 0; i < get_drivers.length; ++i) {
           var already_requested_driver = await RequestDetail.find({ 'driver_id': get_drivers[i]._id });
@@ -731,12 +728,15 @@ async function function_request_order(requests) {
                 sort: i
               }
             }
+            var distance = geolib.getDistance({ latitude: get_drivers[i].location.coordinates[1], longitude: get_drivers[i].location.coordinates[0] }, { latitude: user_address.lat, longitude: user_address.lng })
+            var km = "1";
+            if (distance >= 1000) {
+                km = parseFloat(parseFloat(distance) / 1000).toFixed(2);
+            }
+            new_request_data.duration = Number(Math.round(parseInt(km)/50 * 60)).toString()+" mins";
             var new_request = new RequestDetail(new_request_data);
             await new_request.save();
-            // var already_assigned = await OrderRequests.deleteMany({'order_id':order_detail._id},function(){});
         }
-
-        var trip_detail = await Trip.findOne({ '_id': trip_detail._id });
         Agenda.now('requestProcess', { trip_detail }) // requests
       } 
       else {
@@ -750,4 +750,3 @@ async function function_request_order(requests) {
       return false;
     }
 }
-
