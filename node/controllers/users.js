@@ -741,6 +741,7 @@ async function function_request_order(requests,trip_detail) {
             var new_request = new RequestDetail(new_request_data);
             await new_request.save();
         }
+        console.log(trip_detail);
         Agenda.now('requestProcess', { trip_detail }) // requests
         return trip_detail;
       } 
