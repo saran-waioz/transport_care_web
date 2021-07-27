@@ -686,7 +686,8 @@ exports.request_order = async(req, res, next) =>
 
 async function function_request_order(requests,trip_detail) {
   var trip_details = await Trip.findOne({ 'user_id': requests.user_id, 'trip_status': "Pending" });
-    var match = {
+  var orgin = requests.distances.selected_origin.split(',')  
+  var match = {
         role: 2,
         status: 'active'    
       }
@@ -696,7 +697,7 @@ async function function_request_order(requests,trip_detail) {
             $maxDistance: 20 * 1000,
             $geometry: {
                 type: "Point",
-                coordinates: requests.distances.selected_origin.split(',')
+                coordinates: orgin
             }
         }
     }
@@ -731,7 +732,7 @@ async function function_request_order(requests,trip_detail) {
                 sort: i
               }
             }
-            var distance = geolib.getDistance({ latitude: get_drivers[i].location.coordinates[1], longitude: get_drivers[i].location.coordinates[0] }, { latitude: user_address.lat, longitude: user_address.lng })
+            var distance = geolib.getDistance({ latitude: get_drivers[i].location.coordinates[1], longitude: get_drivers[i].location.coordinates[0] }, { latitude: orgin[0], longitude: orgin[1] })
             var km = "1";
             if (distance >= 1000) {
                 km = parseFloat(parseFloat(distance) / 1000).toFixed(2);
