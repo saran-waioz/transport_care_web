@@ -590,13 +590,15 @@ exports.update_trip_status = async (req, res, next) => {
 
 exports.accept_request = async (req, res, next) => {
   var requests = req.bodyParams;
+  var request_detail = await RequestDetail.findOne({ trip_id: requests.trip_id, driver_id: requests.driver_id });
   await Trip.findOneAndUpdate(
     { _id: requests.trip_id },
     { $set: 
       {
       'driver_id': requests.driver_id,
       'trip_status': 'Accepted',
-      'is_deleted': false
+      'is_deleted': false,
+      'duration':request_detail.duration
       }  
     },
     { new: true }
@@ -707,13 +709,7 @@ async function function_request_order(requests,trip_detail) {
       var trip_request_old = await RequestDetail.find({ 'trip_id': trip_details._id });
       if (!trip_request_old.length) 
       {
-        var distance = geolib.getDistance({ latitude: get_drivers[i].location.coordinates[1], longitude: get_drivers[i].location.coordinates[0] }, { latitude: orgin[0], longitude: orgin[1] })
-        var km = "1";
-        if (distance >= 1000) {
-            km = parseFloat(parseFloat(distance) / 1000).toFixed(2);
-        }
-        var duration = Number(Math.round(parseInt(km)/50 * 60)).toString()+" mins";
-        await Trip.findOneAndUpdate({ "_id": trip_detail._id }, { "$set": { duration:duration,trip_status: 'processing'}}).exec();
+        await Trip.findOneAndUpdate({ "_id": trip_detail._id }, { "$set": { trip_status: 'processing'}}).exec();
         trip_detail.trip_status = "processing";
 
         for (let i = 0; i < get_drivers.length; ++i) {
@@ -725,7 +721,6 @@ async function function_request_order(requests,trip_detail) {
                 trip_id: trip_detail._id,
                 driver_id: get_drivers[i]._id,
                 request_status: 'Pending',
-                duration:duration,
                 sort: i
               }
             } 
@@ -735,12 +730,16 @@ async function function_request_order(requests,trip_detail) {
                 care_giver_id: requests.care_giver_id,
                 trip_id: trip_detail._id,
                 driver_id: get_drivers[i]._id,
-                duration:duration,
                 request_status: 'Requesting',
                 sort: i
               }
             }
-
+            var distance = geolib.getDistance({ latitude: get_drivers[i].location.coordinates[1], longitude: get_drivers[i].location.coordinates[0] }, { latitude: orgin[0], longitude: orgin[1] })
+            var km = "1";
+            if (distance >= 1000) {
+                km = parseFloat(parseFloat(distance) / 1000).toFixed(2);
+            }
+            new_request_data.duration = Number(Math.round(parseInt(km)/50 * 60)).toString()+" mins";
             var new_request = new RequestDetail(new_request_data);
             await new_request.save();
         }
