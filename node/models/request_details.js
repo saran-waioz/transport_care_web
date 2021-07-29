@@ -24,6 +24,7 @@ const requestDetailSchema = new mongoose.Schema({
       type: String,
       default: "Pending"
     },
+    duration:String,
     sort: Number,
     is_deleted: {
         type: Boolean,
