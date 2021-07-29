@@ -715,6 +715,12 @@ async function function_request_order(requests,trip_detail) {
 
         for (let i = 0; i < get_drivers.length; ++i) {
           var already_requested_driver = await RequestDetail.find({ 'driver_id': get_drivers[i]._id });
+          var distance = geolib.getDistance({ latitude: get_drivers[i].location.coordinates[1], longitude: get_drivers[i].location.coordinates[0] }, { latitude: orgin[0], longitude: orgin[1] })
+            var km = "1";
+            if (distance >= 1000) {
+                km = parseFloat(parseFloat(distance) / 1000).toFixed(2);
+            }
+            var duration = Number(Math.round(parseInt(km)/50 * 60)).toString()+" mins";
             if (already_requested_driver.length) {
               var new_request_data = {
                 user_id: requests.user_id,
@@ -722,7 +728,8 @@ async function function_request_order(requests,trip_detail) {
                 trip_id: trip_detail._id,
                 driver_id: get_drivers[i]._id,
                 request_status: 'Pending',
-                sort: i
+                sort: i,
+                duration:duration
               }
             } 
             else {
@@ -732,15 +739,12 @@ async function function_request_order(requests,trip_detail) {
                 trip_id: trip_detail._id,
                 driver_id: get_drivers[i]._id,
                 request_status: 'Requesting',
-                sort: i
+                sort: i,
+                duration:duration
               }
             }
-            var distance = geolib.getDistance({ latitude: get_drivers[i].location.coordinates[1], longitude: get_drivers[i].location.coordinates[0] }, { latitude: orgin[0], longitude: orgin[1] })
-            var km = "1";
-            if (distance >= 1000) {
-                km = parseFloat(parseFloat(distance) / 1000).toFixed(2);
-            }
-            new_request_data.duration = Number(Math.round(parseInt(km)/50 * 60)).toString()+" mins";
+            
+            
             var new_request = new RequestDetail(new_request_data);
             await new_request.save();
         }
