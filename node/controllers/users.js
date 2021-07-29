@@ -591,6 +591,7 @@ exports.update_trip_status = async (req, res, next) => {
 exports.accept_request = async (req, res, next) => {
   var requests = req.bodyParams;
   var request_detail = await RequestDetail.findOne({ trip_id: requests.trip_id, driver_id: requests.driver_id });
+  console.log(request_detail)
   await Trip.findOneAndUpdate(
     { _id: requests.trip_id },
     { $set: 
