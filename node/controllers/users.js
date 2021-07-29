@@ -744,7 +744,7 @@ async function function_request_order(requests,trip_detail) {
               }
             }
             
-            
+            console.log(new_request_data);
             var new_request = new RequestDetail(new_request_data);
             await new_request.save();
         }
