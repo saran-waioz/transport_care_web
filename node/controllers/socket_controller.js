@@ -17,6 +17,7 @@ module.exports.respond = function(socket_io){
         type: "Point",
         coordinates: [data.latitude,data.longitude]
       }
+      console.log(data)
       var update = {}
       update.location = location;
       update.bearing = data.bearing;
