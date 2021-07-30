@@ -11,7 +11,7 @@
 # production
 .env
 
-/media
+/media/assets/uploads
 # misc
 .DS_Store
 .env.local

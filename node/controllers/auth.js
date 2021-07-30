@@ -241,9 +241,7 @@ exports.update_user = async (req, res, next) => {
                     page_status = 5;
                 }
             }
-            console.log(typeof user_detail.vehicle_insurance_document);
             return res.apiResponse(true, "User Updated Successfully", { user_detail, page_status })
-            
         }).populate(['driver_status_detail']);
     }
     else {

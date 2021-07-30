@@ -30,11 +30,21 @@ const TripDetailSchema = new mongoose.Schema({
     payment_status: {
       type: String,
       default: "Not Paid"  //Not Paid, Paid
+    },
+    booking_type: {
+      type: String,
+      default: "now"  //now, schdeule
     },              
     trip_status: {      
       type: String,
-      default: "pending"  //processing, arrived, start_trip, end_trip, completed, cancelled
+      default: "pending"  //processing, arrived, start_trip, end_trip, rating, completed, cancelled
     },
+    accepted_at:Date,
+    arrived_at:Date,
+    started_at:Date,
+    ended_at:Date,
+    completed_at:Date,
+    cancelled_at:Date,
     distances: Object,
     duration:String,
     invoice_id:Number,
@@ -63,11 +73,35 @@ TripDetailSchema.virtual('driver_detail', {
   justOne: false
 });
 TripDetailSchema.virtual('show_created_at').get(function () {
-  var utc = moment.utc(this.reminded_at);
+  var utc = moment.utc(this.createdAt);
+  return moment(utc).utcOffset(env.utcOffset).format('YYYY-MM-DD hh:mm A')
+});
+TripDetailSchema.virtual('show_arrived_at').get(function () {
+  var utc = moment.utc(this.arrived_at);
+  return moment(utc).utcOffset(env.utcOffset).format('YYYY-MM-DD hh:mm A')
+});
+TripDetailSchema.virtual('pickup_time').get(function () {
+  var utc = moment.utc(this.arrived_at);
+  return moment(utc).utcOffset(env.utcOffset).format('hh:mm A')
+});
+TripDetailSchema.virtual('show_started_at').get(function () {
+  var utc = moment.utc(this.started_at);
+  return moment(utc).utcOffset(env.utcOffset).format('YYYY-MM-DD hh:mm A')
+});
+TripDetailSchema.virtual('show_ended_at').get(function () {
+  var utc = moment.utc(this.ended_at);
+  return moment(utc).utcOffset(env.utcOffset).format('YYYY-MM-DD hh:mm A')
+});
+TripDetailSchema.virtual('show_cancelled_at').get(function () {
+  var utc = moment.utc(this.cancelled_at);
+  return moment(utc).utcOffset(env.utcOffset).format('YYYY-MM-DD hh:mm A')
+});
+TripDetailSchema.virtual('show_completed_at').get(function () {
+  var utc = moment.utc(this.completed_at);
   return moment(utc).utcOffset(env.utcOffset).format('YYYY-MM-DD hh:mm A')
 });
 TripDetailSchema.virtual('formatted_created_at').get(function () {
-  var utc = moment.utc(this.reminded_at);
+  var utc = moment.utc(this.createdAt);
   return moment(utc).utcOffset(env.utcOffset).format('dddd')+", "+moment(utc).utcOffset(env.utcOffset).format('LL');
 });
 TripDetailSchema.plugin(AutoIncrement, {inc_field: 'invoice_id',start_seq:1000});

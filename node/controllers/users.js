@@ -610,37 +610,46 @@ exports.update_trip_status = async (req, res, next) => {
 
   var old_detail = await Trip.findOne({ _id: requests.trip_id, user_id: requests.user_id });
   if(old_detail) {
+    var update_data={};
+    update_data.trip_status = requests.status;
+    update_data.is_deleted = false;
+    switch (update_data.trip_status) {
+      case 'arrived':
+        update_data.arrived_at = moment();
+        break;
+      case 'start_trip':
+        update_data.started_at = moment();
+        break;
+      case 'end_trip':
+        update_data.ended_at = moment();
+        break;
+      case 'completed':
+        update_data.completed_at = moment();
+        break; 
+      case 'cancelled':
+        update_data.cancelled_at = moment();
+        break;    
+      default:
+        break;
+    }
     await Trip.findOneAndUpdate({ _id: requests.trip_id },
       { $set: 
-        {
-        'trip_status': requests.status,
-        'is_deleted': false
-        }  
+        update_data  
       },
       { new: true }
     ).exec();
-      if(old_detail.driver_id && requests.status == 'start_trip') {
-        await User.findOneAndUpdate({ _id: old_detail.driver_id, role: 2 },
-          { $set: 
-            {
-            'trip_status': 'trip'
-            }  
-          },
-          { new: true }
-        ).exec();
-      }
-      if(old_detail.driver_id && (requests.status == 'completed' || requests.status == 'cancelled')) {
-        await User.findOneAndUpdate({ _id: old_detail.driver_id, role: 2 },
-          { $set: 
-            {
-            'trip_status': 'online'
-            }  
-          },
-          { new: true }
-        ).exec();
-      }
-      var trip_detail = await Trip.findOne({ _id: requests.trip_id}).populate(['user_detail','caregiver_detail','driver_detail']);
-      global.io.in("user_"+ trip_detail.user_id).emit('trip_detail', { trip_detail });
+    if(old_detail.driver_id && (requests.status == 'completed' || requests.status == 'cancelled')) {
+      await User.findOneAndUpdate({ _id: old_detail.driver_id, role: 2 },
+        { $set: 
+          {
+          'trip_status': 'online'
+          }  
+        },
+        { new: true }
+      ).exec();
+    }
+    var trip_detail = await Trip.findOne({ _id: requests.trip_id}).populate(['user_detail','caregiver_detail','driver_detail']);
+    global.io.in("user_"+ trip_detail.user_id).emit('trip_detail', { trip_detail });
     return res.apiResponse(true, "Status Updated Successfully");
   }
 };
@@ -658,6 +667,7 @@ exports.accept_request = async (req, res, next) => {
         'driver_id': requests.driver_id,
         'trip_status': 'accepted',
         'is_deleted': false,
+        'accepted_at':moment(),
         'duration':request_detail.duration
         }  
       },
@@ -677,7 +687,7 @@ exports.cancel_request = async (req, res, next) => {
   var requests = req.bodyParams;
   if(requests.type=="user")
   {
-    await Trip.findOneAndUpdate({ "_id": requests.trip_id }, { "$set": { 'trip_status': 'cancelled' } }, { new: true }).exec();
+    await Trip.findOneAndUpdate({ "_id": requests.trip_id }, { "$set": { 'cancelled_at':moment(),'trip_status': 'cancelled' } }, { new: true }).exec();
     await RequestDetail.deleteMany({'trip_id':requests.trip_id},function(){});
   }
   else

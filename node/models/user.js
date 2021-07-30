@@ -52,8 +52,8 @@ const userSchema = new mongoose.Schema({
     },
   
     // Default ride type & vehicle category
-    default_ride_type: String,
-    default_vehicle_category: String,
+    default_service_type: String,
+    default_category_id: String,
     category_id: String,
 
     //only for driver
@@ -74,7 +74,7 @@ const userSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-
+    message:String,
     // Driver vehicle details
     vehicle_rc_document: String,
     vehicle_insurance_document: String,
@@ -172,7 +172,12 @@ userSchema.virtual('driver_status_detail', {
     foreignField : 'user_id',
     justOne : false
 });
-
+userSchema.virtual('default_category_detail', {
+    ref : 'Category',
+    localField : 'default_category_id',
+    foreignField : '_id',
+    justOne : true
+});
 
 userSchema.methods.comparePassword = function (password) {
     return this.password === this.hashPassword(password);
