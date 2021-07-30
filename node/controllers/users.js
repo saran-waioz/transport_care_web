@@ -86,16 +86,20 @@ exports.get_export_user = async (req, res) => {
 
 exports.get_user_detail = async (req, res) => {
   var requests = req.bodyParams;
-  console.log("get",requests)
   if (
     requests.id &&
     requests.id != "" &&
     requests.id != null &&
     requests.id != "null"
   ) {
-    console.log("requests.user_id : ", requests.id);
     var user_detail = await User.findOne({ _id: requests.id }).populate(['driver_status_detail']);
-    return res.apiResponse(true, "Success", { user_detail });
+    var service_type = [
+      { name: "Door to Door", image: commonHelper.getBaseurl() + "/media/assets/images/door_to_door_image.jpeg", is_care: true }, 
+      { name: "Independent Trip", image: commonHelper.getBaseurl() + "/media/assets/images/independent_image.jpeg", is_care: false }, 
+      { name: "Caregiver", image: commonHelper.getBaseurl() + "/media/assets/images/caregiver_image.jpeg", is_care: true }
+    ];
+    var category_list = await Category.find();
+    return res.apiResponse(true, "Success", { user_detail,service_type,category_list });
   } else {
     return res.apiResponse(false, "Success");
   }
@@ -496,9 +500,9 @@ exports.get_home_page_details = async (req, res, next) => {
   var requests = req.bodyParams;
   const match = {};
   var service_type = [
-    { name: "Door to Door", image: commonHelper.getBaseurl() + "/media/assets/uploads/door_to_door_image.jpeg", is_care: true }, 
-    { name: "Independent Trip", image: commonHelper.getBaseurl() + "/media/assets/uploads/independent_image.jpeg", is_care: false }, 
-    { name: "Caregiver", image: commonHelper.getBaseurl() + "/media/assets/uploads/caregiver_image.jpeg", is_care: true }
+    { name: "Door to Door", image: commonHelper.getBaseurl() + "/media/assets/images/door_to_door_image.jpeg", is_care: true }, 
+    { name: "Independent Trip", image: commonHelper.getBaseurl() + "/media/assets/images/independent_image.jpeg", is_care: false }, 
+    { name: "Caregiver", image: commonHelper.getBaseurl() + "/media/assets/images/caregiver_image.jpeg", is_care: true }
   ];
 
   if (typeof requests.user_id != "undefined" && requests.user_id != "") {
