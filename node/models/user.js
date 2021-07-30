@@ -90,6 +90,7 @@ const userSchema = new mongoose.Schema({
     attender_name: String,
     //
     driver_license: String,
+    profile_image: String,
     attender_proof: String,
     //
     // only for drivers
@@ -131,6 +132,15 @@ userSchema.virtual('original_vehicle_rc_document').get(function () {
 userSchema.virtual('original_vehicle_insurance_document').get(function () {
     if (this.vehicle_insurance_document) {
         return commonHelper.getBaseurl() + "/media/assets/uploads/" + this.vehicle_insurance_document;
+    }
+    else {
+        return commonHelper.getBaseurl() + "/media/assets/uploads/default_image.jpg";
+    }
+})
+
+userSchema.virtual('original_profile_image').get(function () {
+    if (this.profile_image) {
+        return commonHelper.getBaseurl() + "/media/assets/uploads/" + this.profile_image;
     }
     else {
         return commonHelper.getBaseurl() + "/media/assets/uploads/default_image.jpg";
