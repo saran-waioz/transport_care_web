@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 var mongoosePaginate = require('mongoose-paginate-v2');
 mongoose.set('useFindAndModify', false);
 
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 //create schemaOptions
 var schemaOptions = {
@@ -34,6 +35,7 @@ const TripDetailSchema = new mongoose.Schema({
     },
     distances: Object,
     duration:String,
+    invoice_id:Number,
     is_deleted: {
       type: Boolean,
       default: true
@@ -58,6 +60,6 @@ TripDetailSchema.virtual('driver_detail', {
   foreignField: '_id',
   justOne: false
 });
-
+TripDetailSchema.plugin(AutoIncrement, {inc_field: 'invoice_id',start_seq:1000});
 TripDetailSchema.plugin(mongoosePaginate);
 module.exports = mongoose.model('Trip_details', TripDetailSchema);

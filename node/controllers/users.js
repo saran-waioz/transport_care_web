@@ -185,6 +185,39 @@ exports.update_driver_status = async (req, res, next) => {
 //   }
 // }
 
+exports.get_trips = async (req, res, next) => {
+  var requests = req.bodyParams;
+  var page = requests.page || 1
+  var per_page = requests.per_page || 10
+  var pagination = requests.pagination || "false"
+  const match = {}
+  match['is_deleted'] =  false;
+  var sort = { createdAt: -1 }
+  if (requests.search && requests.search != "") {
+      match.invoice_id = { $regex: new RegExp("^" + requests.search, "i") }
+  }
+  if (requests.id && requests.id != "") {
+    var trip_detail = await Trip.findOne({_id:requests.id});
+    return res.apiResponse(true, "Success", {trip_detail} )
+  }
+  else
+  {
+    const options = {
+      page: page,
+      limit: per_page,
+      sort: sort
+    };
+    if (pagination == "true") {
+        Trip.paginate(match, options, function (err, trip_detail) {
+            return res.apiResponse(true, "Success", {trip_detail} )
+        });
+    }
+    else {
+        var trip_detail = await Trip.find(match).sort(sort);
+        return res.apiResponse(true, "Success", {trip_detail} )
+    }
+  }
+}
 exports.get_caregiver = async (req, res, next) => {
   var requests = req.bodyParams;
   var page = requests.page || 1

@@ -29,6 +29,10 @@ const userSchema = new mongoose.Schema({
     country_code: String,
     password: String,
     salt: String,
+    profession: {
+        type:String,
+        default:"Physiotherapist"
+    },
     location: {
         type: { type: String },
         coordinates: []
