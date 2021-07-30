@@ -178,7 +178,7 @@ exports.update_user = async (req, res, next) => {
                 }
         }
         User.findOneAndUpdate({ "_id": checkUser._id }, requests, { new: true }).exec();
-        User.findById(checkUser._id, function (err, userDetails) {
+        User.findById(checkUser._id, async (err, userDetails)=> {
             // for (var k in requests) {
             //     if (requests.hasOwnProperty(k)) {
             //         userDetails[k] = requests[k];
@@ -280,7 +280,7 @@ exports.update_otp = async (req, res, next) => {
                 "$addToSet": push
             }
         }
-        User.findOneAndUpdate({ "_id": checkUser._id }, update, { new: true }).exec(function (err, user_detail) {
+        User.findOneAndUpdate({ "_id": checkUser._id }, update, { new: true }).exec(async (err, user_detail)=> {
             if (checkUser.email) {
                 //data.user_detail = checkUser;
                 data.user_detail = user_detail;
