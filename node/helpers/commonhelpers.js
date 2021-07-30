@@ -1,5 +1,6 @@
 const env=process.env
 const fs =require('fs')
+const User = require("../models/user")
 
 //sitename
 exports.siteName=()=>{
