@@ -526,7 +526,7 @@ exports.get_home_page_details = async (req, res, next) => {
       path: 'caregiver_detail',
     }  
   ]);
-  var current_trip_detail = await Trip.find({ user_id: requests.user_id, is_deleted: false, trip_status:{$in:['pending', 'arrived', 'start_trip', 'end_trip']} }).populate(['user_detail','caregiver_detail','driver_detail']);
+  var current_trip_detail = await Trip.find({ user_id: requests.user_id, is_deleted: false, trip_status:{$in:['pending', 'arrived','accepted' , 'start_trip', 'end_trip']} }).populate(['user_detail','caregiver_detail','driver_detail']);
   return res.apiResponse(true, "Success", { caregivers, service_type, current_trip_detail, nearby_drivers });
 
 } 
