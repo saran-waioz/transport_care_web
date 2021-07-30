@@ -743,7 +743,10 @@ exports.request_order = async(req, res, next) =>
   var requests = req.bodyParams;
   var category_detail = await Category.findOne({ '_id': requests.category_id });
   var price_detail = {}
-  console.log(requests.distances)
+  if(typeof requests.distances.selected_origin==="undefined")
+  {
+    requests.distances = JSON.parse(requests.distances);
+  }
   price_detail.total = parseFloat(category_detail.price * (requests.distances.distanceValue/1000)).toFixed(2);
   var trip_detail = {
     user_id: requests.user_id,
@@ -776,7 +779,6 @@ exports.request_order = async(req, res, next) =>
 
 async function function_request_order(requests,trip_detail) {
   var trip_details = await Trip.findOne({ 'user_id': requests.user_id, 'trip_status': "pending" });
-  console.log(requests.distances.selected_origin)
   var orgin = requests.distances.selected_origin.split(',')  
   var match = {
         role: 2,
