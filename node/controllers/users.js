@@ -634,33 +634,41 @@ exports.update_trip_status = async (req, res, next) => {
 exports.accept_request = async (req, res, next) => {
   var requests = req.bodyParams;
   var request_detail = await RequestDetail.findOne({ trip_id: requests.trip_id, driver_id: requests.driver_id });
-  console.log(request_detail)
-  await Trip.findOneAndUpdate(
-    { _id: requests.trip_id },
-    { $set: 
-      {
-      'driver_id': requests.driver_id,
-      'trip_status': 'Accepted',
-      'is_deleted': false,
-      'duration':request_detail.duration
-      }  
-    },
-    { new: true }
-  ).exec();
-  var trip_detail = await Trip.findOne({ _id: requests.trip_id }).populate(['user_detail','caregiver_detail','driver_detail']);
-  global.io.in("user_"+ trip_detail.user_id).emit('trip_detail', { trip_detail });
-  return res.apiResponse(true, "Request Accepted Successfully", { trip_detail } );
+  var trip_detail = await Trip.findOne({_id:requests.trip_id});
+  if(trip_detail.trip_status=="processing")
+  {
+    await Trip.findOneAndUpdate(
+      { _id: requests.trip_id },
+      { $set: 
+        {
+        'driver_id': requests.driver_id,
+        'trip_status': 'Accepted',
+        'is_deleted': false,
+        'duration':request_detail.duration
+        }  
+      },
+      { new: true }
+    ).exec();
+    var trip_detail = await Trip.findOne({ _id: requests.trip_id }).populate(['user_detail','caregiver_detail','driver_detail']);
+    global.io.in("user_"+ trip_detail.user_id).emit('trip_detail', { trip_detail });
+    return res.apiResponse(true, "Request Accepted Successfully", { trip_detail } );
+  }
+  else
+  {
+    return res.apiResponse(false, "Request Already Accepted");
+  }
 };
 
 exports.cancel_request = async (req, res, next) => {
   var requests = req.bodyParams;
   if(requests.type=="user")
   {
-    await RequestDetail.deleteMany({ user_id: requests.user_id}, function(err) {});
+    await Trip.findOneAndUpdate({ "_id": requests.trip_id }, { "$set": { 'trip_status': 'cancelled' } }, { new: true }).exec();
+    await RequestDetail.deleteMany({'trip_id':trip_id},function(){});
   }
   else
   {
-    var request_detail = await RequestDetail.findOne({ _id: requests.request_id, driver_id: requests.driver_id });
+    var request_detail = await RequestDetail.findOne({ trip_id: requests.trip_id, driver_id: requests.driver_id });
     if(request_detail)
     {
       request_detail.remove();
