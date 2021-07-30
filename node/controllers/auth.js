@@ -13,8 +13,6 @@ const Attender = require("../models/attender");
 
 exports.sign_up = async (req, res, next) => {
     var requests = req.bodyParams
-    var page_status = 0;
-
     var checkUser = await User.findOne({ role: requests.role, phone: requests.phone,country_code:requests.country_code});
     if (checkUser) {
         return res.apiResponse(false, "Mobile number already exists, sign in to continue");
@@ -35,7 +33,6 @@ exports.sign_up = async (req, res, next) => {
                 coordinates: [0, 0]
             }
             requests.location = location;
-            console.log(requests.password,"password")
             var newUser = new User(requests);
             await newUser.save(async function (err) {
                 if (err) {
@@ -80,26 +77,7 @@ exports.sign_up = async (req, res, next) => {
                         otp = parseInt(otp);
                         //return res.apiResponse(true, "Successfully OTP Sent", data)
                     }
-                    if(user_detail.phone_verify === 0) {
-                        page_status = 1 // otp 
-                    }
-                    if(user_detail.role === 2) {
-                        if(user_detail.phone_verify === 0) {
-                            page_status = 1;
-                        }
-                        else if(!user_detail.vehicle_make || user_detail.vehicle_make === undefined || user_detail.vehicle_make === null) {
-                            page_status = 2;
-                        }
-                        else if((!user_detail.vehicle_rc_document || !user_detail.vehicle_insurance_document) || ( user_detail.vehicle_rc_document === undefined || user_detail.vehicle_insurance_document === undefined )) {
-                            page_status = 3;
-                        }
-                        else if((!user_detail.driver_license || !user_detail.attender_proof ) || ( user_detail.driver_license === undefined || user_detail.attender_proof === undefined )) {
-                            page_status = 4;
-                        }
-                        else if(user_detail.driver_status != 'approved'){
-                            page_status = 5;
-                        }
-                    }
+                    var page_status = await commonHelper.get_page_status(newUser._id);
                     return res.apiResponse(true, "Thanks for Transport_care Registration, will notify you once it's launched", { otp, user_detail, page_status })
                 }
             });
@@ -110,7 +88,6 @@ exports.sign_up = async (req, res, next) => {
 
 exports.sign_in = async (req, res, next) => {
     var requests = req.bodyParams
-    var page_status = 0;
     if (requests.email && requests.email != "") {
         var user_detail = await User.findOne({ email: requests.email,role: requests.role }).populate(['store_detail', 'category_id','driver_status_detail']);
     }
@@ -145,25 +122,8 @@ exports.sign_in = async (req, res, next) => {
                     otp = parseInt(otp);
                     //return res.apiResponse(true, "Successfully OTP Sent", data)
                 }
-                page_status = 1 // otp 
             }
-            if(user_detail.role === 2) {
-                if(user_detail.phone_verify === 0) {
-                    page_status = 1;
-                }
-                else if(!user_detail.vehicle_make || user_detail.vehicle_make === undefined || user_detail.vehicle_make === null) {
-                    page_status = 2;
-                }
-                else if((!user_detail.vehicle_rc_document || !user_detail.vehicle_insurance_document) || ( user_detail.vehicle_rc_document === undefined || user_detail.vehicle_insurance_document === undefined)) {
-                    page_status = 3;
-                }
-                else if((!user_detail.driver_license || !user_detail.attender_proof ) || ( user_detail.driver_license === undefined || user_detail.attender_proof === undefined )) {
-                    page_status = 4;
-                }
-                else if(user_detail.driver_status != 'approved'){
-                    page_status = 5;
-                }
-            }
+            var page_status = await commonHelper.get_page_status(user_detail._id);
             return res.apiResponse(true, "Logged In Successfully", { otp, user_detail, page_status })
         }
         else {
@@ -174,8 +134,6 @@ exports.sign_in = async (req, res, next) => {
 
 exports.update_user = async (req, res, next) => {
     var requests = req.bodyParams
-    var page_status = 0;
-    console.log(req.files)
     var checkUser = await User.findOne({ _id: requests.id });
     if (checkUser) {
         var mail_data = {}
@@ -221,26 +179,7 @@ exports.update_user = async (req, res, next) => {
             // }
             var user_detail = userDetails;
             // userDetails.save(function (err) {
-            if(user_detail.phone_verify === 0) {
-                page_status = 1 // otp 
-            }
-            if(user_detail.role === 2) {
-                if(user_detail.phone_verify === 0) {
-                    page_status = 1;
-                }
-                else if(!user_detail.vehicle_make || user_detail.vehicle_make === undefined || user_detail.vehicle_make === null) {
-                    page_status = 2;
-                }
-                else if((!user_detail.vehicle_rc_document || !user_detail.vehicle_insurance_document) || ( user_detail.vehicle_rc_document === undefined || user_detail.vehicle_insurance_document === undefined)) {
-                    page_status = 3;
-                }
-                else if((!user_detail.driver_license || !user_detail.attender_proof ) || ( user_detail.driver_license === undefined || user_detail.attender_proof === undefined )) {
-                    page_status = 4;
-                }
-                else if(user_detail.driver_status != 'approved') {
-                    page_status = 5;
-                }
-            }
+            var page_status = await commonHelper.get_page_status(user_detail._id);
             return res.apiResponse(true, "User Updated Successfully", { user_detail, page_status })
         }).populate(['driver_status_detail']);
     }
@@ -316,7 +255,6 @@ exports.sent_otp = async (req, res, next) => {
 
 exports.update_otp = async (req, res, next) => {
     var requests = req.bodyParams;
-    var page_status = 0; // home
     var data = {};
     var checkUser = await User.findOne({ role: requests.role, phone: requests.phone, verify_code: requests.verify_code,country_code:requests.country_code });
     if (checkUser) {
@@ -344,28 +282,8 @@ exports.update_otp = async (req, res, next) => {
             else {
                 data.type = "newUser";
             }
-            if(user_detail.phone_verify === 0) {
-                page_status = 1 // otp 
-            }
-            if(user_detail.role === 2) {
-                if(user_detail.phone_verify === 0) {
-                    page_status = 1
-                }
-                else if(!user_detail.vehicle_make || user_detail.vehicle_make === undefined || user_detail.vehicle_make === null) {
-                    page_status = 2;
-                }
-                else if((!user_detail.vehicle_rc_document || !user_detail.vehicle_insurance_document) || ( user_detail.vehicle_rc_document === undefined || user_detail.vehicle_insurance_document === undefined)) {
-                    page_status = 3;
-                }
-                else if((!user_detail.driver_license || !user_detail.attender_proof ) || ( user_detail.driver_license === undefined || user_detail.attender_proof === undefined )) {
-                    page_status = 4;
-                }
-                else if(user_detail.driver_status != 'approved'){
-                    page_status = 5;
-                }
-            }
+            var page_status = await commonHelper.get_page_status(checkUser._id);
             data.page_status = page_status;
-            //var updated_data = await User.findOne({ "_id": checkUser._id})
             return res.apiResponse(true, "newUser", data)
         });
     }
@@ -376,7 +294,6 @@ exports.update_otp = async (req, res, next) => {
 
 exports.upload_document = async (req, res, next) => {
     var requests = req.bodyParams
-    var page_status = 0;
     if (req.files) {
         const media = req.files.file;
         const fileMove = util.promisify(media.mv)
