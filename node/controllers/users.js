@@ -187,7 +187,6 @@ exports.update_driver_status = async (req, res, next) => {
 
 exports.get_caregiver = async (req, res, next) => {
   var requests = req.bodyParams;
-  console.log(requests);
   var page = requests.page || 1
   var per_page = requests.per_page || 10
   var pagination = requests.pagination || "false"
@@ -209,12 +208,12 @@ exports.get_caregiver = async (req, res, next) => {
   }
   if (pagination == "true") {
       User.paginate(match, options, function (err, caregivers) {
-          return res.apiResponse(true, "Success", caregivers )
+          return res.apiResponse(true, "Success", {caregivers} )
       });
   }
   else {
       var caregivers = await User.find(match).sort(sort);
-      return res.apiResponse(true, "Success", caregivers )
+      return res.apiResponse(true, "Success", {caregivers} )
   }
 
 }
@@ -297,12 +296,12 @@ exports.get_user_caregiver = async (req, res, next) => {
   }
   if (pagination == "true") {
       UserCareGiver.paginate(match, options, function (err, caregivers) {
-          return res.apiResponse(true, "Success", caregivers )
+          return res.apiResponse(true, "Success", {caregivers} )
       });
   }
   else {
       var caregivers = await UserCareGiver.find(match).sort(sort);
-      return res.apiResponse(true, "Success", caregivers )
+      return res.apiResponse(true, "Success", {caregivers} )
   }
 
 }
