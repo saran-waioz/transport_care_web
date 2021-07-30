@@ -306,19 +306,31 @@ exports.get_user_caregiver = async (req, res, next) => {
   const match = {}
 
   var sort = { createdAt: -1 }
-  
+  var populate = [
+    {
+      path: 'user_detail',
+    },
+    {
+      path: 'caregiver_detail',
+    }  
+  ];
+  const myCustomLabels = {
+    totalDocs: 'totalDocs',
+    docs: 'caregivers',
+    limit: 'limit',
+    page: 'page',
+    nextPage: 'nextPage',
+    prevPage: 'prevPage',
+    totalPages: 'totalPages',
+    pagingCounter: 'pagingCounter',
+    meta: 'meta',
+  };
   const options = {
       page: page,
       limit: per_page,
       sort: sort,
-      populate: ([
-        {
-          path: 'user_detail',
-        },
-        {
-          path: 'caregiver_detail',
-        }  
-      ])
+      customLabels: myCustomLabels,
+      populate: (populate)
   };
 
   if (typeof requests.user_id != "undefined" && requests.user_id != "") {
@@ -329,11 +341,11 @@ exports.get_user_caregiver = async (req, res, next) => {
   }
   if (pagination == "true") {
       UserCareGiver.paginate(match, options, function (err, caregivers) {
-          return res.apiResponse(true, "Success", {caregivers} )
+          return res.apiResponse(true, "Success", caregivers )
       });
   }
   else {
-      var caregivers = await UserCareGiver.find(match).sort(sort);
+      var caregivers = await UserCareGiver.find(match).sort(sort).populate(populate);
       return res.apiResponse(true, "Success", {caregivers} )
   }
 
