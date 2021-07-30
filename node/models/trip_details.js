@@ -68,7 +68,7 @@ TripDetailSchema.virtual('show_created_at').get(function () {
 });
 TripDetailSchema.virtual('formatted_created_at').get(function () {
   var utc = moment.utc(this.reminded_at);
-  return moment(utc).utcOffset(env.utcOffset).format('dddd')+" "+moment(utc).utcOffset(env.utcOffset).format('LL');
+  return moment(utc).utcOffset(env.utcOffset).format('dddd')+", "+moment(utc).utcOffset(env.utcOffset).format('LL');
 });
 TripDetailSchema.plugin(AutoIncrement, {inc_field: 'invoice_id',start_seq:1000});
 TripDetailSchema.plugin(mongoosePaginate);
