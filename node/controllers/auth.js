@@ -127,7 +127,14 @@ exports.sign_in = async (req, res, next) => {
             return res.apiResponse(true, "Logged In Successfully", { otp, user_detail, page_status })
         }
         else {
-            return res.apiResponse(false, "Invalid Password")
+            if(user_detail.reset_password_status)
+            {
+                return res.apiResponse(false, "Password Changed, Please check you email for updated password")
+            }
+            else
+            {
+                return res.apiResponse(false, "Invalid Password")
+            }
         }
     }
 }
