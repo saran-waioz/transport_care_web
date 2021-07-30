@@ -734,8 +734,8 @@ exports.request_order = async(req, res, next) =>
     }
     else
     {
-      trip_detail = _.map('_id',trip_detail);
-      return res.apiResponse(true, "Trip request processing", {trip_detail} )
+      trip_id = trip_detail._id;
+      return res.apiResponse(true, "Trip request processing", {trip_id} )
     }
   });
 }
