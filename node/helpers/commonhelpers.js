@@ -28,7 +28,7 @@ exports.sendSms=async(to,text)=>{
 }
 exports.get_page_status=async(user_id)=>{
   var page_status = 0;
-  var user_detail = await User.findOne({ "_id": requests.user_id });
+  var user_detail = await User.findOne({ "_id": user_id });
   if(user_detail.phone_verify === 0) {
       page_status = 1 // otp 
   }
