@@ -611,14 +611,8 @@ exports.calculate_fare_estimation = async (req, res, next) => {
 }
 
 exports.update_trip_status = async (req, res, next) => {
-  if (typeof req.bodyParams == "undefined") {
-    var requests = req;
-  } 
-  else {
-    var requests = req.bodyParams;
-  }
-
-  var old_detail = await Trip.findOne({ _id: requests.trip_id, user_id: requests.user_id });
+  var requests = req.bodyParams;
+  var old_detail = await Trip.findOne({ _id: requests.trip_id });
   if(old_detail) {
     var update_data={};
     update_data.trip_status = requests.status;
