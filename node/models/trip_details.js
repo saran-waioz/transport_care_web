@@ -2,6 +2,7 @@
 const mongoose = require('mongoose');
 var mongoosePaginate = require('mongoose-paginate-v2');
 mongoose.set('useFindAndModify', false);
+const env = process.env
 
 const AutoIncrement = require('mongoose-sequence')(mongoose);
 
@@ -59,6 +60,14 @@ TripDetailSchema.virtual('driver_detail', {
   localField: 'driver_id',
   foreignField: '_id',
   justOne: false
+});
+TripDetailSchema.virtual('show_created_at').get(function () {
+  var utc = moment.utc(this.reminded_at);
+  return moment(utc).utcOffset(env.utcOffset).format('YYYY-MM-DD hh:mm A')
+});
+TripDetailSchema.virtual('formatted_created_at').get(function () {
+  var utc = moment.utc(this.reminded_at);
+  return moment(utc).utcOffset(env.utcOffset).format('dddd')+" "+moment(utc).utcOffset(env.utcOffset).format('LL');
 });
 TripDetailSchema.plugin(AutoIncrement, {inc_field: 'invoice_id',start_seq:1000});
 TripDetailSchema.plugin(mongoosePaginate);
