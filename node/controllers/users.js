@@ -776,6 +776,7 @@ exports.request_order = async(req, res, next) =>
 
 async function function_request_order(requests,trip_detail) {
   var trip_details = await Trip.findOne({ 'user_id': requests.user_id, 'trip_status': "pending" });
+  console.log(requests.distances.selected_origin)
   var orgin = requests.distances.selected_origin.split(',')  
   var match = {
         role: 2,
