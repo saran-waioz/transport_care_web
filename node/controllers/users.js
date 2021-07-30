@@ -761,6 +761,7 @@ async function function_request_order(requests,trip_detail) {
         status: 'active'    
       }
     // match['trip_status'] = 'online';
+    // match['category_id'] = 'online';
     match['location'] = { 
         $nearSphere: {
             $maxDistance: 20 * 1000,
@@ -809,8 +810,6 @@ async function function_request_order(requests,trip_detail) {
                 duration:duration
               }
             }
-            
-            console.log(new_request_data);
             var new_request = new RequestDetail(new_request_data);
             await new_request.save();
         }
