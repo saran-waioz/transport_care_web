@@ -201,6 +201,12 @@ exports.get_trips = async (req, res, next) => {
   if (requests.search && requests.search != "") {
       match.invoice_id = { $regex: new RegExp("^" + requests.search, "i") }
   }
+  if (requests.status && requests.status != "") {
+    match.trip_status = { $in: requests.status.split(',') }
+  }
+  if (requests.booking_type && requests.booking_type != "") {
+    match.booking_type =  requests.booking_type
+  }
   if (requests.id && requests.id != "") {
     var trip_detail = await Trip.findOne({_id:requests.id});
     return res.apiResponse(true, "Success", {trip_detail} )
@@ -737,6 +743,7 @@ exports.request_order = async(req, res, next) =>
   var requests = req.bodyParams;
   var category_detail = await Category.findOne({ '_id': requests.category_id });
   var price_detail = {}
+  console.log(requests.distances)
   price_detail.total = parseFloat(category_detail.price * (requests.distances.distanceValue/1000)).toFixed(2);
   var trip_detail = {
     user_id: requests.user_id,

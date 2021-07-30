@@ -466,6 +466,7 @@ exports.forgotPassword = async(req, res, next) => {
         mail_data.new_password = token;
         nodemailer.sendMail({'to':requests.email,'slug':'forgot_password','data':mail_data});
         user.password=token;
+        user.reset_password_status = true;
         await user.save();
         return res.apiResponse(true, "Reset password link sent to your email",token)
     }

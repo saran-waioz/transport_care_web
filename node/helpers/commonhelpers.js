@@ -25,6 +25,10 @@ exports.sendSms=async(to,text)=>{
         console.log("Kindly configure you sms services in admin panel")
     }
 }
+exports.get_page_status=async(user_id)=>{
+  var page_status = 0;
+  var user_detail = await User.findOne({ email: requests.email,role: requests.role }).populate(['store_detail', 'category_id','driver_status_detail']);
+}
 exports.getBaseurl = () =>{
     return env.APP_URL;
 }

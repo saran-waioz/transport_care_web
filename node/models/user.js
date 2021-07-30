@@ -66,6 +66,10 @@ const userSchema = new mongoose.Schema({
     verify_code: String,  //otp
     device_id: Array,
     last_verified: Date,
+    reset_password_status:{
+        type:Boolean,
+        default:false
+    },
     reset_password_token: String,
     reset_password_expires: Date,
     email_verify_token: String,
