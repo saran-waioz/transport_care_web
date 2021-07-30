@@ -664,7 +664,7 @@ exports.cancel_request = async (req, res, next) => {
   if(requests.type=="user")
   {
     await Trip.findOneAndUpdate({ "_id": requests.trip_id }, { "$set": { 'trip_status': 'cancelled' } }, { new: true }).exec();
-    await RequestDetail.deleteMany({'trip_id':trip_id},function(){});
+    await RequestDetail.deleteMany({'trip_id':requests.trip_id},function(){});
   }
   else
   {
