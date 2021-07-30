@@ -193,7 +193,7 @@ exports.get_trips = async (req, res, next) => {
   var requests = req.bodyParams;
   var page = requests.page || 1
   var per_page = requests.per_page || 10
-  var pagination = requests.pagination || "false"
+  var pagination = (requests.pagination)?requests.pagination:"false"
   const match = {}
   var populate=['user_detail','caregiver_detail','driver_detail'];
   match['is_deleted'] =  false;
@@ -215,7 +215,7 @@ exports.get_trips = async (req, res, next) => {
   {
     const myCustomLabels = {
       totalDocs: 'totalDocs',
-      docs: 'trip_detail',
+      docs: 'trip_details',
       limit: 'limit',
       page: 'page',
       nextPage: 'nextPage',
@@ -232,13 +232,13 @@ exports.get_trips = async (req, res, next) => {
       populate:populate
     };
     if (pagination == "true") {
-        Trip.paginate(match, options, function (err, trip_detail) {
-            return res.apiResponse(true, "Success", {trip_detail} )
+        Trip.paginate(match, options, function (err, trip_details) {
+            return res.apiResponse(true, "Success", trip_details )
         });
     }
     else {
-        var trip_detail = await Trip.find(match).sort(sort).populate(populate);
-        return res.apiResponse(true, "Success", {trip_detail} )
+        var trip_details = await Trip.find(match).sort(sort).populate(populate);
+        return res.apiResponse(true, "Success", {trip_details} )
     }
   }
 }

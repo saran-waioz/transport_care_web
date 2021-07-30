@@ -391,29 +391,7 @@ exports.upload_document = async (req, res, next) => {
             await User.findOneAndUpdate({ "_id": requests.user_id}, { "$set": update_data }).exec();
             var document = await User.findOne({ "_id": requests.user_id });
             var document_url = commonHelper.getBaseurl() + "/media/assets/uploads/" + document[requests.document_type];
-            console.log(document_url);
-
-            var user_detail = await User.findOne({ "_id": requests.user_id });
-            if(user_detail.phone_verify === 0) {
-                page_status = 1 // otp 
-            }
-            if(user_detail.role === 2) {
-                if(user_detail.phone_verify === 0) {
-                    page_status = 1;
-                }
-                else if(!user_detail.vehicle_make || user_detail.vehicle_make === undefined || user_detail.vehicle_make === null) {
-                    page_status = 2;
-                }
-                else if((!user_detail.vehicle_rc_document || !user_detail.vehicle_insurance_document) || ( user_detail.vehicle_rc_document === undefined || user_detail.vehicle_insurance_document === undefined )) {
-                    page_status = 3;
-                }
-                else if((!user_detail.driver_license || !user_detail.attender_proof ) || ( user_detail.driver_license === undefined || user_detail.attender_proof === undefined )) {
-                    page_status = 4;
-                }
-                else if(user_detail.driver_status != 'approved'){
-                    page_status = 5;
-                }
-            }
+            var page_status = await commonHelper.get_page_status(requests.user_id);
             return res.apiResponse(true, "Document Uploaded Successful", { document_url, page_status } );
         } catch (e) {
             return res.apiResponse(false, e.message)
@@ -450,6 +428,12 @@ exports.adminlogin = async (req, res, next) => {
 }
 
 exports.change_password = async(req, res, next) => {
+    var requests=req.bodyParams
+    var user=await User.findOne({ _id: requests.user_id });
+    user.password=requests.new_password;
+    user.reset_password_status = false;
+    await user.save();
+    return res.apiResponse(true, "Password Updated")
 }
 exports.forgotPassword = async(req, res, next) => {
     var requests=req.bodyParams
