@@ -10,6 +10,7 @@ module.exports.respond = function(socket_io){
       console.log(data);
     });
     socket_io.on('room_for_user', function(room) {
+      console.log(room)
       socket_io.join(room);
     });
     socket_io.on('update_location', async(data) => {
@@ -17,7 +18,6 @@ module.exports.respond = function(socket_io){
         type: "Point",
         coordinates: [data.latitude,data.longitude]
       }
-      console.log(data)
       var update = {}
       update.location = location;
       update.bearing = data.bearing;
