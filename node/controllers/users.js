@@ -299,13 +299,12 @@ exports.delete_user_caregiver = async (req, res, next) => {
 
 exports.get_user_caregiver = async (req, res, next) => {
   var requests = req.bodyParams;
-  console.log(requests);
   var page = requests.page || 1
   var per_page = requests.per_page || 10
   var pagination = requests.pagination || "false"
   const match = {}
 
-  var sort = { createdAt: -1 }
+  var sort = { createdAt: -1, is_default :-1}
   var populate = [
     {
       path: 'user_detail',
