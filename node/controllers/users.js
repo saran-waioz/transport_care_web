@@ -734,8 +734,7 @@ exports.request_order = async(req, res, next) =>
     }
     else
     {
-      trip_id = trip_detail._id;
-      return res.apiResponse(true, "Trip request processing", {trip_id} )
+      return res.apiResponse(true, "Trip request processing", { trip_detail } )
     }
   });
 }
