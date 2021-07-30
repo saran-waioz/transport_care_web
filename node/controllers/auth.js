@@ -448,6 +448,9 @@ exports.adminlogin = async (req, res, next) => {
         return res.apiResponse(false, "User name password wrong")
     }
 }
+
+exports.change_password = async(req, res, next) => {
+}
 exports.forgotPassword = async(req, res, next) => {
     var requests=req.bodyParams
 
