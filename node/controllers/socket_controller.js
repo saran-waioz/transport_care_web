@@ -15,7 +15,7 @@ module.exports.respond = function(socket_io){
     socket_io.on('update_location', async(data) => {
       let location = {
         type: "Point",
-        coordinates: [data.longitude,data.latitude]
+        coordinates: [data.latitude,data.longitude]
       }
       var update = {}
       update.location = location;
