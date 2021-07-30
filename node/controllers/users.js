@@ -191,6 +191,7 @@ exports.get_trips = async (req, res, next) => {
   var per_page = requests.per_page || 10
   var pagination = requests.pagination || "false"
   const match = {}
+  var populate=['user_detail','caregiver_detail','driver_detail'];
   match['is_deleted'] =  false;
   var sort = { createdAt: -1 }
   if (requests.search && requests.search != "") {
@@ -202,10 +203,23 @@ exports.get_trips = async (req, res, next) => {
   }
   else
   {
+    const myCustomLabels = {
+      totalDocs: 'totalDocs',
+      docs: 'trip_detail',
+      limit: 'limit',
+      page: 'page',
+      nextPage: 'nextPage',
+      prevPage: 'prevPage',
+      totalPages: 'totalPages',
+      pagingCounter: 'pagingCounter',
+      meta: 'meta',
+    };
     const options = {
       page: page,
       limit: per_page,
-      sort: sort
+      sort: sort,
+      customLabels:myCustomLabels,
+      populate:populate
     };
     if (pagination == "true") {
         Trip.paginate(match, options, function (err, trip_detail) {
@@ -213,7 +227,7 @@ exports.get_trips = async (req, res, next) => {
         });
     }
     else {
-        var trip_detail = await Trip.find(match).sort(sort);
+        var trip_detail = await Trip.find(match).sort(sort).populate(populate);
         return res.apiResponse(true, "Success", {trip_detail} )
     }
   }
