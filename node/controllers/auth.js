@@ -77,7 +77,8 @@ exports.sign_up = async (req, res, next) => {
                         otp = parseInt(otp);
                         //return res.apiResponse(true, "Successfully OTP Sent", data)
                     }
-                    var page_status = await commonHelper.get_page_status(newUser._id);
+                    var user_detail = await User.findOne({ "id": newUser._id });
+                    var page_status = await commonHelper.get_page_status(user_detail);
                     return res.apiResponse(true, "Thanks for Transport_care Registration, will notify you once it's launched", { otp, user_detail, page_status })
                 }
             });
@@ -123,7 +124,7 @@ exports.sign_in = async (req, res, next) => {
                     //return res.apiResponse(true, "Successfully OTP Sent", data)
                 }
             }
-            var page_status = await commonHelper.get_page_status(user_detail._id);
+            var page_status = await commonHelper.get_page_status(user_detail);
             return res.apiResponse(true, "Logged In Successfully", { otp, user_detail, page_status })
         }
         else {
@@ -186,7 +187,7 @@ exports.update_user = async (req, res, next) => {
             // }
             var user_detail = userDetails;
             // userDetails.save(function (err) {
-            var page_status = await commonHelper.get_page_status(user_detail._id);
+            var page_status = await commonHelper.get_page_status(user_detail);
             return res.apiResponse(true, "User Updated Successfully", { user_detail, page_status })
         }).populate(['driver_status_detail']);
     }
@@ -289,7 +290,7 @@ exports.update_otp = async (req, res, next) => {
             else {
                 data.type = "newUser";
             }
-            var page_status = await commonHelper.get_page_status(checkUser._id);
+            var page_status = await commonHelper.get_page_status(user_detail);
             data.page_status = page_status;
             return res.apiResponse(true, "newUser", data)
         });
@@ -315,7 +316,8 @@ exports.upload_document = async (req, res, next) => {
             await User.findOneAndUpdate({ "_id": requests.user_id}, { "$set": update_data }).exec();
             var document = await User.findOne({ "_id": requests.user_id });
             var document_url = commonHelper.getBaseurl() + "/media/assets/uploads/" + document[requests.document_type];
-            var page_status = await commonHelper.get_page_status(requests.user_id);
+            var user_detail = await User.findOne({ "id": requests.user_id });
+            var page_status = await commonHelper.get_page_status(user_detail);
             return res.apiResponse(true, "Document Uploaded Successful", { document_url, page_status } );
         } catch (e) {
             return res.apiResponse(false, e.message)

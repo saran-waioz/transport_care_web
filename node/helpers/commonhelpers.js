@@ -26,9 +26,8 @@ exports.sendSms=async(to,text)=>{
         console.log("Kindly configure you sms services in admin panel")
     }
 }
-exports.get_page_status=async(user_id)=>{
+exports.get_page_status=async(user_detail)=>{
   var page_status = 0;
-  var user_detail = await User.findOne({ "_id": user_id });
   if(user_detail.phone_verify === 0) {
       page_status = 1 // otp 
   }
