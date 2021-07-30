@@ -654,18 +654,20 @@ exports.accept_request = async (req, res, next) => {
 };
 
 exports.cancel_request = async (req, res, next) => {
-  if (typeof req.bodyParams == "undefined") {
-    var requests = req;
-  } 
-  else {
-    var requests = req.bodyParams;
+  var requests = req.bodyParams;
+  if(requests.type=="user")
+  {
+    await RequestDetail.deleteMany({ user_id: requests.user_id}, function(err) {});
   }
-
-  var request_detail = await RequestDetail.findOne({ _id: requests.request_id, driver_id: requests.driver_id });
-  if(request_detail) {
-    await RequestDetail.findOneAndDelete({ _id: request_detail._id}).exec();
-    return res.apiResponse(true, "Request Cancelled");
+  else
+  {
+    var request_detail = await RequestDetail.findOne({ _id: requests.request_id, driver_id: requests.driver_id });
+    if(request_detail)
+    {
+      request_detail.remove();
+    }
   }
+  return res.apiResponse(true, "Request Cancelled");
 };
 
 exports.rate_delivery = async(req, res) => {
