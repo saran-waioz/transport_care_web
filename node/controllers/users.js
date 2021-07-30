@@ -526,7 +526,7 @@ exports.get_home_page_details = async (req, res, next) => {
       path: 'caregiver_detail',
     }  
   ]);
-  var current_trip_detail = await Trip.find({ user_id: requests.user_id, is_deleted: false }).populate(['user_detail','caregiver_detail','driver_detail']);
+  var current_trip_detail = await Trip.find({ user_id: requests.user_id, is_deleted: false, trip_status:{$in:['pending', 'arrived', 'start_trip', 'end_trip']} }).populate(['user_detail','caregiver_detail','driver_detail']);
   return res.apiResponse(true, "Success", { caregivers, service_type, current_trip_detail, nearby_drivers });
 
 } 
@@ -656,7 +656,7 @@ exports.accept_request = async (req, res, next) => {
       { $set: 
         {
         'driver_id': requests.driver_id,
-        'trip_status': 'Accepted',
+        'trip_status': 'accepted',
         'is_deleted': false,
         'duration':request_detail.duration
         }  
@@ -754,7 +754,7 @@ exports.request_order = async(req, res, next) =>
 }
 
 async function function_request_order(requests,trip_detail) {
-  var trip_details = await Trip.findOne({ 'user_id': requests.user_id, 'trip_status': "Pending" });
+  var trip_details = await Trip.findOne({ 'user_id': requests.user_id, 'trip_status': "pending" });
   var orgin = requests.distances.selected_origin.split(',')  
   var match = {
         role: 2,
