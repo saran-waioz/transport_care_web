@@ -304,7 +304,7 @@ exports.get_user_caregiver = async (req, res, next) => {
   var pagination = requests.pagination || "false"
   const match = {}
 
-  var sort = { createdAt: -1, is_default :-1}
+  var sort = { is_default :-1}
   var populate = [
     {
       path: 'user_detail',
