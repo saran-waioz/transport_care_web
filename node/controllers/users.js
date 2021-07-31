@@ -510,35 +510,39 @@ exports.get_home_page_details = async (req, res, next) => {
     { name: "Independent Trip", image: commonHelper.getBaseurl() + "/media/assets/images/independent_image.jpeg", is_care: false }, 
     { name: "Caregiver", image: commonHelper.getBaseurl() + "/media/assets/images/caregiver_image.jpeg", is_care: true }
   ];
-
-  if (typeof requests.user_id != "undefined" && requests.user_id != "") {
-      match['user_id'] = requests.user_id;
-      var origin = requests.current_location.split(",");
-      var matches = {
-        role: 2,
-        status: 'active'
-      };
-      // matches['trip_status'] = 'online';
-      matches['location'] = { 
-          $nearSphere: {
-              $maxDistance: 20 * 1000,
-              $geometry: {
-                  type: "Point",
-                  coordinates: origin
-              }
-          }
-      }
-      var nearby_drivers = await User.find(matches);
+  var nearby_drivers = [];
+  var caregivers = [];
+  if (typeof requests.user_id != "undefined" && requests.user_id != "") 
+  {
+    match['user_id'] = requests.user_id;
+    var origin = requests.current_location.split(",");
+    var matches = {
+      role: 2,
+      status: 'active'
+    };
+    // matches['trip_status'] = 'online';
+    matches['location'] = { 
+        $nearSphere: {
+            $maxDistance: 20 * 1000,
+            $geometry: {
+                type: "Point",
+                coordinates: origin
+            }
+        }
+    }
+    nearby_drivers = await User.find(matches);
+    caregivers = await UserCareGiver.find(match).sort({is_default:-1}).populate([
+      {
+        path: 'caregiver_detail',
+      }  
+    ]);
+    var current_trip_detail = await Trip.find({ user_id: requests.user_id, is_deleted: false, trip_status:{$in:['pending', 'arrived','accepted' , 'start_trip', 'end_trip']} }).populate(['user_detail','caregiver_detail','driver_detail']);
   }
-
-  var caregivers = await UserCareGiver.find(match).sort({is_default:-1}).populate([
-    {
-      path: 'caregiver_detail',
-    }  
-  ]);
-  var current_trip_detail = await Trip.find({ user_id: requests.user_id, is_deleted: false, trip_status:{$in:['pending', 'arrived','accepted' , 'start_trip', 'end_trip']} }).populate(['user_detail','caregiver_detail','driver_detail']);
+  else if (typeof requests.driver_id != "undefined" && requests.driver_id != "") 
+  {
+    var current_trip_detail = await Trip.find({ driver_id: requests.driver_id, is_deleted: false, trip_status:{$in:['pending', 'arrived','accepted' , 'start_trip', 'end_trip']} }).populate(['user_detail','caregiver_detail','driver_detail']);
+  }
   return res.apiResponse(true, "Success", { caregivers, service_type, current_trip_detail, nearby_drivers });
-
 } 
 
 exports.calculate_fare_estimation = async (req, res, next) => {
