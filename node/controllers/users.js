@@ -740,6 +740,7 @@ exports.request_order = async(req, res, next) =>
 {
   var requests = req.bodyParams;
   var category_detail = await Category.findOne({ '_id': requests.category_id });
+  category_detail = JSON.parse(JSON.stringify(category_detail));
   var price_detail = {}
   if(typeof requests.distances.selected_origin==="undefined")
   {
