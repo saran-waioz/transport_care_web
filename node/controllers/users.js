@@ -635,6 +635,10 @@ exports.update_trip_status = async (req, res, next) => {
         update_data.completed_at = moment();
         break; 
       case 'cancelled':
+        if(requests.type && requests.type!="")
+        {
+          update_data.cancelled_by = requests.type;
+        }
         update_data.cancelled_at = moment();
         break;    
       default:

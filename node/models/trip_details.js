@@ -44,6 +44,7 @@ const TripDetailSchema = new mongoose.Schema({
     started_at:Date,
     ended_at:Date,
     completed_at:Date,
+    cancelled_by:String,
     cancelled_at:Date,
     distances: Object,
     duration:String,
