@@ -662,7 +662,7 @@ exports.update_trip_status = async (req, res, next) => {
     }
     var trip_detail = await Trip.findOne({ _id: requests.trip_id}).populate(['user_detail','caregiver_detail','driver_detail']);
     global.io.in("user_"+ trip_detail.user_id).emit('trip_detail', { trip_detail });
-    return res.apiResponse(true, "Status Updated Successfully");
+    return res.apiResponse(true, "Status Updated Successfully",{ trip_detail });
   }
 };
 

@@ -37,7 +37,7 @@ const TripDetailSchema = new mongoose.Schema({
     },              
     trip_status: {      
       type: String,
-      default: "pending"  //processing, arrived, start_trip, end_trip, rating, completed, cancelled
+      default: "pending"  //processing, accepted ,arrived, start_trip, end_trip, rating, completed, cancelled
     },
     accepted_at:Date,
     arrived_at:Date,
