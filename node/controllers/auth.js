@@ -381,7 +381,7 @@ exports.forgotPassword = async(req, res, next) => {
         user.password=token;
         user.reset_password_status = true;
         await user.save();
-        return res.apiResponse(true, "Reset password link sent to your email",token)
+        return res.apiResponse(true, "Reset password link sent to your email",{token})
     }
 }
 
