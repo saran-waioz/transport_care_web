@@ -77,7 +77,7 @@ exports.sign_up = async (req, res, next) => {
                         otp = parseInt(otp);
                         //return res.apiResponse(true, "Successfully OTP Sent", data)
                     }
-                    var user_detail = await User.findOne({ "id": newUser._id });
+                    var user_detail = await User.findOne({ "_id": newUser._id });
                     var page_status = await commonHelper.get_page_status(user_detail);
                     return res.apiResponse(true, "Thanks for Transport_care Registration, will notify you once it's launched", { otp, user_detail, page_status })
                 }

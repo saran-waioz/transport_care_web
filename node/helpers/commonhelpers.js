@@ -28,29 +28,31 @@ exports.sendSms=async(to,text)=>{
 }
 exports.get_page_status=async(user_detail)=>{
   var page_status = 0;
-  console.log(user_detail)
-  if(user_detail.phone_verify === 0) {
-      page_status = 1 // otp 
-  }
-  if(user_detail.role === 2) {
+  if(user_detail)
+  {
     if(user_detail.phone_verify === 0) {
-        page_status = 1;
+        page_status = 1 // otp 
     }
-    else if(!user_detail.vehicle_make || user_detail.vehicle_make === undefined || user_detail.vehicle_make === null) {
-        page_status = 2;
+    if(user_detail.role === 2) {
+      if(user_detail.phone_verify === 0) {
+          page_status = 1;
+      }
+      else if(!user_detail.vehicle_make || user_detail.vehicle_make === undefined || user_detail.vehicle_make === null) {
+          page_status = 2;
+      }
+      else if((!user_detail.vehicle_rc_document || !user_detail.vehicle_insurance_document) || ( user_detail.vehicle_rc_document === undefined || user_detail.vehicle_insurance_document === undefined )) {
+          page_status = 3;
+      }
+      else if((!user_detail.driver_license || !user_detail.attender_proof ) || ( user_detail.driver_license === undefined || user_detail.attender_proof === undefined )) {
+          page_status = 4;
+      }
+      else if(user_detail.driver_status != 'approved'){
+          page_status = 5;
+      }
     }
-    else if((!user_detail.vehicle_rc_document || !user_detail.vehicle_insurance_document) || ( user_detail.vehicle_rc_document === undefined || user_detail.vehicle_insurance_document === undefined )) {
-        page_status = 3;
+    if(user_detail.reset_password_status) {
+      page_status = 6 // attempting forgot password 
     }
-    else if((!user_detail.driver_license || !user_detail.attender_proof ) || ( user_detail.driver_license === undefined || user_detail.attender_proof === undefined )) {
-        page_status = 4;
-    }
-    else if(user_detail.driver_status != 'approved'){
-        page_status = 5;
-    }
-  }
-  if(user_detail.reset_password_status) {
-    page_status = 6 // attempting forgot password 
   }
   return page_status;
 }
