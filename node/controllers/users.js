@@ -288,8 +288,8 @@ exports.add_user_caregiver = async (req, res, next) => {
         var check_user = await User.find({ _id: requests.user_id, role: 1 });
         if(check_user.length) {
           var newCareGiver = new UserCareGiver(requests);
-          await newCareGiver.save();
-          return res.apiResponse(true, "Record Inserted Successfully", newCareGiver._id)
+          var caregiver = await newCareGiver.save();
+          return res.apiResponse(true, "Record Inserted Successfully", {caregiver})
         }
       }
     }
