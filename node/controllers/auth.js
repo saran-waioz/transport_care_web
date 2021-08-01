@@ -316,7 +316,8 @@ exports.upload_document = async (req, res, next) => {
             await User.findOneAndUpdate({ "_id": requests.user_id}, { "$set": update_data }).exec();
             var document = await User.findOne({ "_id": requests.user_id });
             var document_url = commonHelper.getBaseurl() + "/media/assets/uploads/" + document[requests.document_type];
-            var user_detail = await User.findOne({ "id": requests.user_id });
+            var user_detail = await User.findOne({ "_id": requests.user_id });
+            console.log(user_detail)
             var page_status = await commonHelper.get_page_status(user_detail);
             return res.apiResponse(true, "Document Uploaded Successful", { document_url, page_status } );
         } catch (e) {
