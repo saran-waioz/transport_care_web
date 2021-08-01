@@ -28,6 +28,14 @@ const userSchema = new mongoose.Schema({
     phone: String,
     country_code: String,
     password: String,
+    dob:{
+        type:Date,
+        default:Date.now
+    },
+    gender:{
+        type:String,
+        default:'Male'
+    },
     salt: String,
     profession: {
         type:String,
@@ -52,7 +60,10 @@ const userSchema = new mongoose.Schema({
     },
   
     // Default ride type & vehicle category
-    default_service_type: String,
+    default_service_type: {
+        type:String,
+        default:'Door to Door'
+    },
     default_category_id: String,
     category_id: String,
 
@@ -124,6 +135,9 @@ userSchema.pre('save', function (next) {
         this.password = this.hashPassword(this.password);
     }
     next();
+});
+userSchema.virtual('age').get(function(){
+    return Math.floor((Date.now() - this.dob.getTime()) / (1000 * 3600 * 24 * 365));
 });
 userSchema.virtual('original_vehicle_rc_document').get(function () {
     if (this.vehicle_rc_document) {
