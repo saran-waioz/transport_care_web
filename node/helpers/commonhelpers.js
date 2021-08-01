@@ -28,6 +28,7 @@ exports.sendSms=async(to,text)=>{
 }
 exports.get_page_status=async(user_detail)=>{
   var page_status = 0;
+  console.log(user_detail)
   if(user_detail.phone_verify === 0) {
       page_status = 1 // otp 
   }
