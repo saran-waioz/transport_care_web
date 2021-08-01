@@ -502,7 +502,16 @@ exports.get_home_page_details = async (req, res, next) => {
   var caregivers = [];
   if (typeof requests.user_id != "undefined" && requests.user_id != "") 
   {
-    match['user_id'] = requests.user_id;
+    var current_user = await User.findOne({_id:requests.user_id});
+    if(current_user.role==1)
+    {
+      match['user_id'] = requests.user_id;  
+    }
+    else
+    {
+      match['care_giver_id'] = requests.user_id;
+    }
+    
     var origin = requests.current_location.split(",");
     var matches = {
       role: 2,
@@ -522,6 +531,9 @@ exports.get_home_page_details = async (req, res, next) => {
     caregivers = await UserCareGiver.find(match).sort({is_default:-1}).populate([
       {
         path: 'caregiver_detail',
+      },
+      {
+        path: 'user_detail',
       }  
     ]);
     var current_trip_detail = await Trip.find({ user_id: requests.user_id, is_deleted: false, trip_status:{$in:['pending', 'arrived','accepted' , 'start_trip', 'end_trip']} }).populate(['user_detail','caregiver_detail','driver_detail']);
