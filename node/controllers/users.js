@@ -277,37 +277,20 @@ exports.get_caregiver = async (req, res, next) => {
 
 exports.add_user_caregiver = async (req, res, next) => {
   var requests = req.bodyParams;
-  console.log(requests);
-  //if(requests.type == "add") {
-    if(requests.user_id) {
-      var check_user_caregiver = await UserCareGiver.find({ user_id: requests.user_id, care_giver_id: requests.care_giver_id});
-      if(check_user_caregiver.length) {
-        return res.apiResponse(false, "User can already have an Caregiver");
-      }
-      else {
-        var check_user = await User.find({ _id: requests.user_id, role: 1 });
-        if(check_user.length) {
-          var newCareGiver = new UserCareGiver(requests);
-          var caregiver = await newCareGiver.save();
-          return res.apiResponse(true, "Record Inserted Successfully", {caregiver})
-        }
-      }
+  if(requests.user_id) {
+    var check_user_caregiver = await UserCareGiver.find({ user_id: requests.user_id, care_giver_id: requests.care_giver_id});
+    if(check_user_caregiver.length) {
+      return res.apiResponse(false, "User can already have an Caregiver");
     }
     else {
-      return res.apiResponse(false, "Please Create the User");
+      var newCareGiver = new UserCareGiver(requests);
+      var caregiver = await newCareGiver.save();
+      return res.apiResponse(true, "Record Inserted Successfully", {caregiver})
     }
-  //}
-  // if(requests.type == "update") {
-  //   var old_caregiver_detail = await UserCareGiver.findOne({ user_id: requests.user_id, care_giver_id: requests.care_giver_id });
-  //   if(old_caregiver_detail) {
-  //     await UserCareGiver.findOneAndUpdate(
-  //       { user_id: requests.user_id, care_giver_id: requests.care_giver_id },
-  //       { $set: requests },
-  //       { new: true }
-  //     ).exec();
-  //     return res.apiResponse(true, "Record Updated Successfully");
-  //   }
-  // }
+  }
+  else {
+    return res.apiResponse(false, "Please Create the User");
+  }
 }
 
 exports.delete_user_caregiver = async (req, res, next) => {
