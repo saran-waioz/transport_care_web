@@ -24,7 +24,11 @@ const RatingSchema = new  mongoose.Schema({
     trip_id: String,
     driver_id: String,
     message: String,
-    rating: Number
+    rating: Number,
+    rating_type:{
+      type:String,
+      default:"user-driver"//user-driver,driver-user
+    }
 }, schemaOptions);
 // on every save, add the date
 RatingSchema.virtual('show_created').get(function () {

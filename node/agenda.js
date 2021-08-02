@@ -19,6 +19,23 @@ agenda.define('requestProcess',{lockLifetime: 10000}, async(job, done) => {
     var trip_detail = await Trip.findOne({'_id': trip_id})    
     if(trip_detail.trip_status=='processing')
     {
+        var trip_populate=['user_detail','caregiver_detail','driver_detail',
+        {
+            path:'user_rating',
+            match:{rating_type:'driver-user'}
+        },
+        {
+            path:'driver_rating',
+            match:{rating_type:'user-driver'}
+        },
+        {
+            path:'is_user_rated',
+            match:{rating_type:'driver-user'}
+        },
+        {
+            path:'is_driver_rated',
+            match:{rating_type:'user-driver'}
+        }];
         var order_requests = await RequestDetail.find({'trip_id':trip_detail._id, is_deleted: false });
         if(order_requests.length)
         {
@@ -30,7 +47,8 @@ agenda.define('requestProcess',{lockLifetime: 10000}, async(job, done) => {
                 });
             }
             //await Trip.findOneAndUpdate({ "_id": trip_detail._id }, { "$set": { last_delivery_id: order_requests[0].delivery_id._id, last_delivery_time: moment().toISOString()}}).exec();
-            var trip_detail = await Trip.findOne({'_id':trip_detail._id}).populate(['user_detail','caregiver_detail','driver_detail']);
+            
+            var trip_detail = await Trip.findOne({'_id':trip_detail._id}).populate(trip_populate);
             var response_time={
                 start:0,
                 end:10,
@@ -58,7 +76,7 @@ agenda.define('requestProcess',{lockLifetime: 10000}, async(job, done) => {
         {
             console.log("not accept")
             await RequestDetail.deleteMany({'trip_id':trip_detail._id, 'request_status': 'Cancelled' },function(){});
-            var trip_detail = await Trip.findOne({'_id':trip_detail._id}).populate(['user_detail','caregiver_detail','driver_detail']);
+            var trip_detail = await Trip.findOne({'_id':trip_detail._id}).populate(trip_populate);
             var new_result={}
             new_result.message = "not_available"
             global.io.in("user_" + trip_detail.user_id).emit('not_accept', {});

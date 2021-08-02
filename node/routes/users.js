@@ -24,6 +24,8 @@ router.post('/accept_request', Usercontroller.accept_request);
 router.post('/cancel_request', Usercontroller.cancel_request);
 router.post('/request_order', Usercontroller.request_order);
 router.post('/get_trips', Usercontroller.get_trips);
+router.post('/rate_user', Usercontroller.rate_user);
+router.post('/rate_driver', Usercontroller.rate_driver);
 // router.post('/get_pagination',Usercontroller.get_pagination)
 // router.post('/get_users',Usercontroller.get_users)
 

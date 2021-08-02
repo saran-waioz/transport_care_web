@@ -195,7 +195,23 @@ exports.get_trips = async (req, res, next) => {
   var per_page = requests.per_page || 10
   var pagination = (requests.pagination)?requests.pagination:"false"
   const match = {}
-  var populate=['user_detail','caregiver_detail','driver_detail'];
+  var populate=['user_detail','caregiver_detail','driver_detail',
+  {
+    path:'user_rating',
+    match:{rating_type:'driver-user'}
+  },
+  {
+    path:'driver_rating',
+    match:{rating_type:'user-driver'}
+  },
+  {
+    path:'is_user_rated',
+    match:{rating_type:'driver-user'}
+  },
+  {
+    path:'is_driver_rated',
+    match:{rating_type:'user-driver'}
+  }];
   match['is_deleted'] =  false;
   var sort = { createdAt: -1 }
   if (requests.search && requests.search != "") {
@@ -208,7 +224,7 @@ exports.get_trips = async (req, res, next) => {
     match.booking_type =  requests.booking_type
   }
   if (requests.id && requests.id != "") {
-    var trip_detail = await Trip.findOne({_id:requests.id});
+    var trip_detail = await Trip.findOne({_id:requests.id}).populate(populate);
     return res.apiResponse(true, "Success", {trip_detail} )
   }
   else
@@ -221,8 +237,7 @@ exports.get_trips = async (req, res, next) => {
       nextPage: 'nextPage',
       prevPage: 'prevPage',
       totalPages: 'totalPages',
-      pagingCounter: 'pagingCounter',
-      meta: 'meta',
+      pagingCounter: 'pagingCounter'
     };
     const options = {
       page: page,
@@ -333,8 +348,7 @@ exports.get_user_caregiver = async (req, res, next) => {
     nextPage: 'nextPage',
     prevPage: 'prevPage',
     totalPages: 'totalPages',
-    pagingCounter: 'pagingCounter',
-    meta: 'meta',
+    pagingCounter: 'pagingCounter'
   };
   const options = {
       page: page,
@@ -500,6 +514,23 @@ exports.get_home_page_details = async (req, res, next) => {
   ];
   var nearby_drivers = [];
   var caregivers = [];
+  var trip_populate=['user_detail','caregiver_detail','driver_detail',
+  {
+    path:'user_rating',
+    match:{rating_type:'driver-user'}
+  },
+  {
+    path:'driver_rating',
+    match:{rating_type:'user-driver'}
+  },
+  {
+    path:'is_user_rated',
+    match:{rating_type:'driver-user'}
+  },
+  {
+    path:'is_driver_rated',
+    match:{rating_type:'user-driver'}
+  }];
   if (typeof requests.user_id != "undefined" && requests.user_id != "") 
   {
     var current_user = await User.findOne({_id:requests.user_id});
@@ -536,11 +567,11 @@ exports.get_home_page_details = async (req, res, next) => {
         path: 'user_detail',
       }  
     ]);
-    var current_trip_detail = await Trip.find({ user_id: requests.user_id, is_deleted: false, trip_status:{$in:['pending', 'arrived','accepted' , 'start_trip', 'end_trip']} }).populate(['user_detail','caregiver_detail','driver_detail']);
+    var current_trip_detail = await Trip.find({ user_id: requests.user_id, is_deleted: false, trip_status:{$in:['pending', 'arrived','accepted' , 'start_trip', 'end_trip']} }).populate(trip_populate);
   }
   else if (typeof requests.driver_id != "undefined" && requests.driver_id != "") 
   {
-    var current_trip_detail = await Trip.find({ driver_id: requests.driver_id, is_deleted: false, trip_status:{$in:['pending', 'arrived','accepted' , 'start_trip']} }).populate(['user_detail','caregiver_detail','driver_detail']);
+    var current_trip_detail = await Trip.find({ driver_id: requests.driver_id, is_deleted: false, trip_status:{$in:['pending', 'arrived','accepted' , 'start_trip']} }).populate(trip_populate);
   }
   return res.apiResponse(true, "Success", { caregivers, service_type, current_trip_detail, nearby_drivers });
 } 
@@ -660,7 +691,24 @@ exports.update_trip_status = async (req, res, next) => {
         { new: true }
       ).exec();
     }
-    var trip_detail = await Trip.findOne({ _id: requests.trip_id}).populate(['user_detail','caregiver_detail','driver_detail']);
+    var trip_populate=['user_detail','caregiver_detail','driver_detail',
+    {
+      path:'user_rating',
+      match:{rating_type:'driver-user'}
+    },
+    {
+      path:'driver_rating',
+      match:{rating_type:'user-driver'}
+    },
+    {
+      path:'is_user_rated',
+      match:{rating_type:'driver-user'}
+    },
+    {
+      path:'is_driver_rated',
+      match:{rating_type:'user-driver'}
+    }];
+    var trip_detail = await Trip.findOne({ _id: requests.trip_id}).populate(trip_populate);
     global.io.in("trip_"+ trip_detail.id).emit('trip_detail', { trip_detail });
     return res.apiResponse(true, "Status Updated Successfully",{ trip_detail });
   }
@@ -685,7 +733,24 @@ exports.accept_request = async (req, res, next) => {
       },
       { new: true }
     ).exec();
-    var trip_detail = await Trip.findOne({ _id: requests.trip_id }).populate(['user_detail','caregiver_detail','driver_detail']);
+    var trip_populate=['user_detail','caregiver_detail','driver_detail',
+    {
+      path:'user_rating',
+      match:{rating_type:'driver-user'}
+    },
+    {
+      path:'driver_rating',
+      match:{rating_type:'user-driver'}
+    },
+    {
+      path:'is_user_rated',
+      match:{rating_type:'driver-user'}
+    },
+    {
+      path:'is_driver_rated',
+      match:{rating_type:'user-driver'}
+    }];
+    var trip_detail = await Trip.findOne({ _id: requests.trip_id }).populate(trip_populate);
     global.io.in("user_"+ trip_detail.user_id).emit('trip_detail', { trip_detail });
     return res.apiResponse(true, "Request Accepted Successfully", { trip_detail } );
   }
@@ -713,21 +778,50 @@ exports.cancel_request = async (req, res, next) => {
   return res.apiResponse(true, "Request Cancelled");
 };
 
-exports.rate_delivery = async(req, res) => {
+exports.rate_user = async(req, res) => {
   var requests = req.bodyParams
   var new_rating = new Rating({
     user_id: requests.user_id,
     trip_id: requests.trip_id,
     driver_id: requests.driver_id,
     rating: requests.rating,
-    message: requests.message
+    message: requests.message,
+    rating_type:'driver-user'
   })
   new_rating.save(async(err, result) => {
-      var five_star_rating = await Rating.find({ 'driver_id': requests.driver_id, 'rating': 5 });
-      var four_star_rating = await Rating.find({ 'driver_id': requests.driver_id, 'rating': 4 });
-      var three_star_rating = await Rating.find({ 'driver_id': requests.driver_id, 'rating': 3 });
-      var two_star_rating = await Rating.find({ 'driver_id': requests.driver_id, 'rating': 2 });
-      var one_star_rating = await Rating.find({ 'driver_id': requests.driver_id, 'rating': 1 });
+      var five_star_rating = await Rating.find({ 'user_id': requests.user_id,'rating_type':'driver-user', 'rating': 5 });
+      var four_star_rating = await Rating.find({ 'user_id': requests.user_id,'rating_type':'driver-user', 'rating': 4 });
+      var three_star_rating = await Rating.find({ 'user_id': requests.user_id,'rating_type':'driver-user', 'rating': 3 });
+      var two_star_rating = await Rating.find({ 'user_id': requests.user_id,'rating_type':'driver-user', 'rating': 2 });
+      var one_star_rating = await Rating.find({ 'user_id': requests.user_id,'rating_type':'driver-user', 'rating': 1 });
+      five_star_rating = five_star_rating.length;
+      four_star_rating = four_star_rating.length;
+      three_star_rating = three_star_rating.length;
+      two_star_rating = two_star_rating.length;
+      one_star_rating = one_star_rating.length;
+      var total_rating = (5 * five_star_rating + 4 * four_star_rating + 3 * three_star_rating + 2 * two_star_rating + 1 * one_star_rating) / (five_star_rating + four_star_rating + three_star_rating + two_star_rating + one_star_rating)
+      total_rating = parseFloat(total_rating).toFixed(1).toString()
+      await User.findOneAndUpdate({ "_id": requests.user_id }, { "$set": { 'user_rating': total_rating } }, { new: true }).exec();
+      return res.apiResponse(true, "Review Updated Successfully")
+  })
+};
+
+exports.rate_driver = async(req, res) => {
+  var requests = req.bodyParams
+  var new_rating = new Rating({
+    user_id: requests.user_id,
+    trip_id: requests.trip_id,
+    driver_id: requests.driver_id,
+    rating: requests.rating,
+    message: requests.message,
+    rating_type:'user-driver'
+  })
+  new_rating.save(async(err, result) => {
+      var five_star_rating = await Rating.find({ 'driver_id': requests.driver_id,'rating_type':'user-driver', 'rating': 5 });
+      var four_star_rating = await Rating.find({ 'driver_id': requests.driver_id,'rating_type':'user-driver', 'rating': 4 });
+      var three_star_rating = await Rating.find({ 'driver_id': requests.driver_id,'rating_type':'user-driver', 'rating': 3 });
+      var two_star_rating = await Rating.find({ 'driver_id': requests.driver_id,'rating_type':'user-driver', 'rating': 2 });
+      var one_star_rating = await Rating.find({ 'driver_id': requests.driver_id,'rating_type':'user-driver', 'rating': 1 });
       five_star_rating = five_star_rating.length;
       four_star_rating = four_star_rating.length;
       three_star_rating = three_star_rating.length;

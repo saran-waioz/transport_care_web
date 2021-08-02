@@ -73,6 +73,30 @@ TripDetailSchema.virtual('driver_detail', {
   foreignField: '_id',
   justOne: false
 });
+TripDetailSchema.virtual('user_rating', {
+  ref: 'Rating',
+  localField: '_id',
+  foreignField: 'trip_id',
+  justOne: true
+});
+TripDetailSchema.virtual('driver_rating', {
+  ref: 'Rating',
+  localField: '_id',
+  foreignField: 'trip_id',
+  justOne: true
+});
+TripDetailSchema.virtual('is_user_rated', {
+  ref: 'Rating',
+  localField: '_id',
+  foreignField: 'trip_id',
+  count: true
+});
+TripDetailSchema.virtual('is_driver_rated', {
+  ref: 'Rating',
+  localField: '_id',
+  foreignField: 'trip_id',
+  count: true
+});
 TripDetailSchema.virtual('show_created_at').get(function () {
   var utc = moment.utc(this.createdAt);
   return moment(utc).utcOffset(env.utcOffset).format('YYYY-MM-DD hh:mm A')
