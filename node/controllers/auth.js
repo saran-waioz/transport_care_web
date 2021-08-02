@@ -61,7 +61,8 @@ exports.sign_up = async (req, res, next) => {
                             driver_id: newUser._id,
                             name: requests.attender_name,
                             age: requests.attender_age,
-                            gender: requests.attender_gender
+                            gender: requests.attender_gender,
+                            is_default:true
                         };
                         var newAttender = new Attender(driver_detail);
                         await newAttender.save();

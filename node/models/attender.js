@@ -20,6 +20,10 @@ const attenderSchema = new mongoose.Schema({
     name: String,
     age: String,
     gender: String,
+    is_default: {
+      type: Boolean,
+      default: false
+    },    
     is_deleted: {
         type: Boolean,
         default: false
