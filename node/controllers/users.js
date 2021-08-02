@@ -377,15 +377,13 @@ exports.get_user_caregiver = async (req, res, next) => {
 }
 
 exports.add_driver_attender = async (req, res, next) => {
-  var requests = req.bodyParams;
-  console.log(requests);
-  
+  var requests = req.bodyParams;  
   if(requests.type == "add") {
     var check_user = await User.find({ _id: requests.driver_id, role: 2 });
     if(check_user.length) {
       var newAttender = new Attender(requests);
       await newAttender.save();
-      return res.apiResponse(true, "Record Inserted Successfully", newAttender._id)
+      return res.apiResponse(true, "Record Inserted Successfully")
     }
   }
   if(requests.type == "update") {
@@ -414,7 +412,6 @@ exports.delete_driver_attender = async (req, res, next) => {
 
 exports.get_driver_attender = async (req, res, next) => {
   var requests = req.bodyParams;
-  console.log(requests);
   var page = requests.page || 1
   var per_page = requests.per_page || 10
   var pagination = requests.pagination || "false"
@@ -437,13 +434,13 @@ exports.get_driver_attender = async (req, res, next) => {
       match['driver_id'] = requests.driver_id
   }
   if (pagination == "true") {
-      Attender.paginate(match, options, function (err, attender) {
-          return res.apiResponse(true, "Success", attender )
+      Attender.paginate(match, options, function (err, attenders) {
+          return res.apiResponse(true, "Success", {attenders} )
       });
   }
   else {
-      var attender = await Attender.find(match).sort(sort);
-      return res.apiResponse(true, "Success", attender ) 
+      var attenders = await Attender.find(match).sort(sort);
+      return res.apiResponse(true, "Success", {attenders} ) 
   }
 }
 
@@ -777,7 +774,23 @@ exports.cancel_request = async (req, res, next) => {
   }
   return res.apiResponse(true, "Request Cancelled");
 };
-
+async function check_rating_for_complete_trip(trip_id) {
+  var trip_detail = await Trip.findOne({ _id: trip_id}).populate(['is_user_rated','is_driver_rated']);
+  if(trip_detail)
+  {
+    if(trip_detail.is_user_rated && trip_detail.is_driver_rated)
+    {
+      await Trip.findOneAndUpdate({ _id: trip_id },
+        { $set: 
+          {
+            trip_status:'completed'
+          }
+        },
+        { new: true }
+      ).exec();
+    }
+  }
+}
 exports.rate_user = async(req, res) => {
   var requests = req.bodyParams
   var new_rating = new Rating({
@@ -801,6 +814,7 @@ exports.rate_user = async(req, res) => {
       one_star_rating = one_star_rating.length;
       var total_rating = (5 * five_star_rating + 4 * four_star_rating + 3 * three_star_rating + 2 * two_star_rating + 1 * one_star_rating) / (five_star_rating + four_star_rating + three_star_rating + two_star_rating + one_star_rating)
       total_rating = parseFloat(total_rating).toFixed(1).toString()
+      await check_rating_for_complete_trip(requests.trip_id);
       await User.findOneAndUpdate({ "_id": requests.user_id }, { "$set": { 'user_rating': total_rating } }, { new: true }).exec();
       return res.apiResponse(true, "Review Updated Successfully")
   })
