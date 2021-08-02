@@ -303,7 +303,10 @@ exports.add_user_caregiver = async (req, res, next) => {
       var caregiver = await UserCareGiver.findOne({_id:added_caregiver.id}).populate([
         {
           path: 'caregiver_detail',
-        }  
+        },
+        {
+          path: 'user_detail',
+        }   
       ])
       return res.apiResponse(true, "Record Inserted Successfully", {caregiver})
     }
