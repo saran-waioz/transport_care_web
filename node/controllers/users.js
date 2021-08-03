@@ -16,6 +16,7 @@ const Category = require("../models/category");
 const distance = require("google-distance");
 const Agenda = require("../agenda");
 const geolib = require('geolib');
+const { RequestResponseStatusCode } = require("nexmo");
 
 
 exports.get_users = async (req, res, next) => {
@@ -222,10 +223,10 @@ exports.get_trips = async (req, res, next) => {
     match.trip_status = { $in: requests.status.split(',') }
   }
   if (requests.user_id && requests.user_id != "") {
-    match.user_id = request.user_id
+    match.user_id = RequestResponseStatusCode.user_id
   }
   if (requests.driver_id && requests.driver_id != "") {
-    match.driver_id = request.driver_id
+    match.driver_id = requests.driver_id
   }
   if (requests.booking_type && requests.booking_type != "") {
     match.booking_type =  requests.booking_type
@@ -548,8 +549,8 @@ exports.get_home_page_details = async (req, res, next) => {
   }];
   if (typeof requests.user_id != "undefined" && requests.user_id != "") 
   {
-    var current_user = await User.findOne({_id:requests.user_id});
-    if(current_user.role==1)
+    var user_detail = await User.findOne({_id:requests.user_id});
+    if(user_detail.role==1)
     {
       match['user_id'] = requests.user_id;  
     }
@@ -588,7 +589,7 @@ exports.get_home_page_details = async (req, res, next) => {
   {
     var current_trip_detail = await Trip.find({ driver_id: requests.driver_id, is_deleted: false, trip_status:{$in:['pending', 'arrived','accepted' , 'start_trip']} }).populate(trip_populate);
   }
-  return res.apiResponse(true, "Success", { caregivers, service_type, current_trip_detail, nearby_drivers });
+  return res.apiResponse(true, "Success", { user_detail, caregivers, service_type, current_trip_detail, nearby_drivers });
 } 
 
 exports.calculate_fare_estimation = async (req, res, next) => {
