@@ -217,8 +217,15 @@ exports.get_trips = async (req, res, next) => {
   if (requests.search && requests.search != "") {
       match.invoice_id = { $regex: new RegExp("^" + requests.search, "i") }
   }
+
   if (requests.status && requests.status != "") {
     match.trip_status = { $in: requests.status.split(',') }
+  }
+  if (requests.user_id && requests.user_id != "") {
+    match.user_id = request.user_id
+  }
+  if (requests.driver_id && requests.driver_id != "") {
+    match.driver_id = request.driver_id
   }
   if (requests.booking_type && requests.booking_type != "") {
     match.booking_type =  requests.booking_type
@@ -246,14 +253,22 @@ exports.get_trips = async (req, res, next) => {
       customLabels:myCustomLabels,
       populate:populate
     };
+    var extra_detail = {
+      trips_last_week:"23",
+      trips_current_week:"5",
+      trips_per_day:"5",
+      earnings_last_week:"KSh 85",
+      earnings_current_week:"KSh 15",
+      earnings_per_day:"KSh 5"
+    }
     if (pagination == "true") {
         Trip.paginate(match, options, function (err, trip_details) {
-            return res.apiResponse(true, "Success", trip_details )
+            return res.apiResponse(true, "Success", {trip_details,extra_detail} )
         });
     }
     else {
         var trip_details = await Trip.find(match).sort(sort).populate(populate);
-        return res.apiResponse(true, "Success", {trip_details} )
+        return res.apiResponse(true, "Success", {trip_details,extra_detail} )
     }
   }
 }
