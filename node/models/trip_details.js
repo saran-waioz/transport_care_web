@@ -47,6 +47,10 @@ const TripDetailSchema = new mongoose.Schema({
     cancelled_by:String,
     cancelled_at:Date,
     distances: Object,
+    is_care_giver: {
+      type:Boolean,
+      default:false
+    },
     duration:String,
     invoice_id:Number,
     is_deleted: {

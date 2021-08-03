@@ -884,7 +884,8 @@ exports.request_order = async(req, res, next) =>
     service_type: requests.service_type,
     category_detail: category_detail,
     distances: requests.distances,
-    price_detail:price_detail
+    price_detail:price_detail,
+    is_care_giver:(requests.service_type=='Independent Trip')?false:true
   };
   
   var newTrip = new Trip(trip_detail);
