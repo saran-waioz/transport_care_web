@@ -357,11 +357,11 @@ exports.adminlogin = async (req, res, next) => {
 
 exports.change_password = async(req, res, next) => {
     var requests=req.bodyParams
-    var user=await User.findOne({ _id: requests.user_id });
-    user.password=requests.new_password;
-    user.reset_password_status = false;
-    await user.save();
-    return res.apiResponse(true, "Password Updated")
+    var user_detail=await User.findOne({ _id: requests.user_id });
+    user_detail.password=requests.new_password;
+    user_detail.reset_password_status = false;
+    await user_detail.save();
+    return res.apiResponse(true, "Password Updated", {user_detail})
 }
 exports.forgotPassword = async(req, res, next) => {
     var requests=req.bodyParams
