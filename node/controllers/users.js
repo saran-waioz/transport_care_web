@@ -258,9 +258,9 @@ exports.get_trips = async (req, res, next) => {
       trips_last_week:"23",
       trips_current_week:"5",
       trips_per_day:"5",
-      earnings_last_week:"KSh 85",
-      earnings_current_week:"KSh 15",
-      earnings_per_day:"KSh 5"
+      earnings_last_week:"$85",
+      earnings_current_week:"$15",
+      earnings_per_day:"$5"
     }
     if (pagination == "true") {
         Trip.paginate(match, options, function (err, trip_details) {
