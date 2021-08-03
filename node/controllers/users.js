@@ -223,7 +223,7 @@ exports.get_trips = async (req, res, next) => {
     match.trip_status = { $in: requests.status.split(',') }
   }
   if (requests.user_id && requests.user_id != "") {
-    match.user_id = RequestResponseStatusCode.user_id
+    match.user_id = requests.user_id
   }
   if (requests.driver_id && requests.driver_id != "") {
     match.driver_id = requests.driver_id
