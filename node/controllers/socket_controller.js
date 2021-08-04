@@ -14,7 +14,7 @@ module.exports.respond = function(socket_io){
     });
     socket_io.on('ping', function(data){
       console.log(socket_io.id,"ping")
-      socket_io.to(data.socket_id).emit('pong', {});
+      global.io.to(socket_io.id).emit('pong', {});
     });
     socket_io.on('room_for_user', function(room) {
       console.log(room,"room_for_user")
