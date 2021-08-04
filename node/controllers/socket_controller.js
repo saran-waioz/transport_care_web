@@ -6,12 +6,15 @@ const User = require("../models/user");
 
 // Controller agrees to implement the function called "respond"
 module.exports.respond = function(socket_io){
-    socket_io.on('pong', function(data){
+    socket_io.on('ping', function(data){
+      console.log(data.socket_id)
+      global.io.to(data.socket_id).emit('pong', {});
     });
     socket_io.on('room_for_user', function(room) {
       socket_io.join(room);
     });
     socket_io.on('update_location', async(data) => {
+      console.log(data)
       let location = {
         type: "Point",
         coordinates: [data.latitude,data.longitude]
