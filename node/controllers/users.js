@@ -400,9 +400,9 @@ exports.add_driver_attender = async (req, res, next) => {
   if(requests.type == "add") {
     var check_user = await User.find({ _id: requests.driver_id, role: 2 });
     if(check_user.length) {
-      var newAttender = new Attender(requests);
-      await newAttender.save();
-      return res.apiResponse(true, "Record Inserted Successfully")
+      var attender = new Attender(requests);
+      await attender.save();
+      return res.apiResponse(true, "Record Inserted Successfully",{attender})
     }
   }
   if(requests.type == "update") {
@@ -411,16 +411,17 @@ exports.add_driver_attender = async (req, res, next) => {
       await Attender.findOneAndUpdate(
         { _id: requests.id },
         { $set: requests },
-        { new: true }
-      ).exec();
-      return res.apiResponse(true, "Record Updated Successfully");
+        { new: true },
+        (err,attender)=>{
+          return res.apiResponse(true, "Record Updated Successfully",{attender});
+        }
+      ).exec();      
     }
   }
 }
 
 exports.delete_driver_attender = async (req, res, next) => {
   var requests = req.bodyParams;
-  console.log(requests);
   await Attender.findOne({ _id: requests.id }, async (err, driver_attender) => {
     if (driver_attender) {
       await driver_attender.remove();
