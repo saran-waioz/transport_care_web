@@ -11,6 +11,7 @@ module.exports.respond = function(socket_io){
       global.io.to(data.socket_id).emit('pong', {});
     });
     socket_io.on('room_for_user', function(room) {
+      console.log(room)
       socket_io.join(room);
     });
     socket_io.on('update_location', async(data) => {
