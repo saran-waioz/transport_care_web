@@ -264,7 +264,8 @@ exports.get_trips = async (req, res, next) => {
     }
     if (pagination == "true") {
         Trip.paginate(match, options, function (err, trip_details) {
-            return res.apiResponse(true, "Success", {trip_details,extra_detail} )
+          const c = Object.assign({}, trip_details, extra_detail);
+            return res.apiResponse(true, "Success", c )
         });
     }
     else {
