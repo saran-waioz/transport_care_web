@@ -490,9 +490,11 @@ exports.update_profile = async (req, res, next) => {
     await User.findOneAndUpdate(
       { _id: requests.id },
       { $set: requests },
-      { new: true }
+      { new: true },
+      (err,user_detail)=>{
+        return res.apiResponse(true, "Record Updated Successfully",{user_detail});
+      }
     ).exec();
-    return res.apiResponse(true, "Record Updated Successfully");
   }
 };
 
