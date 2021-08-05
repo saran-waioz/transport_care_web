@@ -93,7 +93,7 @@ exports.get_user_detail = async (req, res) => {
     requests.id != null &&
     requests.id != "null"
   ) {
-    var user_detail = await User.findOne({ _id: requests.id }).populate(['driver_status_detail']);
+    var user_detail = await User.findOne({ _id: requests.id }).populate(['driver_status_detail','category_detail']);
     var service_type = [
       { name: "Door to Door", image: commonHelper.getBaseurl() + "/media/assets/images/door_to_door_image.jpeg", is_care: true }, 
       { name: "Independent Trip", image: commonHelper.getBaseurl() + "/media/assets/images/independent_image.jpeg", is_care: false }, 

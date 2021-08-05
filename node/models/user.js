@@ -196,6 +196,12 @@ userSchema.virtual('default_category_detail', {
     foreignField : '_id',
     justOne : true
 });
+userSchema.virtual('category_detail', {
+    ref : 'Category',
+    localField : 'category_id',
+    foreignField : '_id',
+    justOne : true
+});
 
 userSchema.methods.comparePassword = function (password) {
     return this.password === this.hashPassword(password);
