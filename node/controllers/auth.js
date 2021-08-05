@@ -9,7 +9,7 @@ const _ = require("lodash");
 const util = require("util");
 const { request } = require("http");
 const Attender = require("../models/attender");
-
+const Category = require("../models/category");
 
 exports.sign_up = async (req, res, next) => {
     var requests = req.bodyParams
@@ -293,6 +293,8 @@ exports.update_otp = async (req, res, next) => {
             }
             var page_status = await commonHelper.get_page_status(user_detail);
             data.page_status = page_status;
+            var category_list = await Category.find();
+            data.category_list = category_list
             return res.apiResponse(true, "newUser", data)
         });
     }
