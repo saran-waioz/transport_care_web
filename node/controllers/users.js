@@ -594,7 +594,9 @@ exports.get_home_page_details = async (req, res, next) => {
     var user_detail = await User.findOne({_id:requests.driver_id});
     var current_trip_detail = await Trip.find({ driver_id: requests.driver_id, is_deleted: false, trip_status:{$in:['pending', 'arrived','accepted' , 'start_trip']} }).populate(trip_populate);
   }
-  return res.apiResponse(true, "Success", { user_detail, caregivers, service_type, current_trip_detail, nearby_drivers });
+  var category_list = await Category.find();
+
+  return res.apiResponse(true, "Success", { category_list,user_detail, caregivers, service_type, current_trip_detail, nearby_drivers });
 } 
 
 exports.calculate_fare_estimation = async (req, res, next) => {
