@@ -32,6 +32,10 @@ const userSchema = new mongoose.Schema({
         type:Date,
         default:Date.now
     },
+    age:{
+        type:String,
+        default:"19"
+    },
     gender:{
         type:String,
         default:'Male'
@@ -136,9 +140,7 @@ userSchema.pre('save', function (next) {
     }
     next();
 });
-userSchema.virtual('age').get(function(){
-    return (Math.floor((Date.now() - this.dob.getTime()) / (1000 * 3600 * 24 * 365))).toString();
-});
+
 userSchema.virtual('original_vehicle_rc_document').get(function () {
     if (this.vehicle_rc_document) {
         return commonHelper.getBaseurl() + "/media/assets/uploads/" + this.vehicle_rc_document;
