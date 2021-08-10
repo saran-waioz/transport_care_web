@@ -844,6 +844,17 @@ async function check_rating_for_complete_trip(trip_id) {
         { new: true }
       ).exec();
     }
+    else
+    {
+      await Trip.findOneAndUpdate({ _id: trip_id },
+        { $set: 
+          {
+            trip_status:'rating'
+          }
+        },
+        { new: true }
+      ).exec();
+    }
   }
 }
 exports.rate_user = async(req, res) => {
@@ -909,6 +920,7 @@ exports.rate_driver = async(req, res) => {
         one_star_rating = one_star_rating.length;
         var total_rating = (5 * five_star_rating + 4 * four_star_rating + 3 * three_star_rating + 2 * two_star_rating + 1 * one_star_rating) / (five_star_rating + four_star_rating + three_star_rating + two_star_rating + one_star_rating)
         total_rating = parseFloat(total_rating).toFixed(1).toString()
+        await check_rating_for_complete_trip(requests.trip_id);
         await User.findOneAndUpdate({ "_id": trip_details.driver_id }, { "$set": { 'user_rating': total_rating } }, { new: true }).exec();
         return res.apiResponse(true, "Review Updated Successfully")
     })
