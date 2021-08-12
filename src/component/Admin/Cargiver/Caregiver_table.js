@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { withRouter } from "react-router-dom";
 import { useHistory } from "react-router";
-import { Table, Button, Icon, Popconfirm } from "antd";
+import Table from "antd/lib/table";
+import Button from "antd/lib/button";
+import Icon from "antd/lib/icon";
+import Popconfirm from "antd/lib/popconfirm";
 import { Alert_msg } from "../../Comman/alert_msg";
 import Search from "antd/lib/input/Search";
 import Apicall from "../../../Api/Api";
@@ -11,7 +14,7 @@ const Caregiver_Table = () => {
   const [datas, setdata] = useState({
     role: "3",
     page: 1,
-    per_page: 5,
+    per_page: 10,
     search: "",
     sort: "",
   });
@@ -19,7 +22,8 @@ const Caregiver_Table = () => {
   const [loading,setloading]=useState(false)
   const [paginationInfo, setPaginationInfo] = useState({
     current: 1,
-    pageSize: 5,
+    pageSize: 10,
+    simple :true
   });
   const [serach, setsearch] = useState("");
 
@@ -33,17 +37,15 @@ const Caregiver_Table = () => {
     await Apicall(pagiante, "/user/get_users").then((res) => {
       setloading(false)
       setusers(res.data.data.docs);
-      console.log(res.data.data.docs);
       setPaginationInfo({
         current: res.data.data.page,
-        pageSize: 5,
+        pageSize: 10,
         total: res.data.data.totalDocs,
       });
     });
   };
 
   const onSearch = (value) => {
-    console.log("--->", value.target.value);
     setsearch(value.target.value);
     handlechange(paginationInfo);
   };
@@ -53,7 +55,6 @@ const Caregiver_Table = () => {
   }, [datas]);
 
   const deleteuser = (id) => {
-    console.log("----- here we are");
     Apicall({ id }, "/user/delete_user").then((res) => {
       handlechange(datas);
     });
@@ -150,8 +151,8 @@ const Caregiver_Table = () => {
           rowKey={record => record.id}
           columns={columns}
           size="middle"
-          pagination={handlechange}
-          // onChange={this.handleTableChange}
+          pagination={paginationInfo}
+          onChange={handlechange}
           loading={loading}
         />
       </div>

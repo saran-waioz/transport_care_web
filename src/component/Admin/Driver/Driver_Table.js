@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { withRouter } from "react-router-dom";
 import { useHistory } from "react-router";
-import { Table, Button, Icon, Popconfirm } from "antd";
+import Table from "antd/lib/table";
+import Button from "antd/lib/button";
+import Icon from "antd/lib/icon";
+import Popconfirm from "antd/lib/popconfirm";
 import { Alert_msg } from "../../Comman/alert_msg";
 import Search from "antd/lib/input/Search";
 import Apicall from "../../../Api/Api";
@@ -12,7 +15,7 @@ const Driver_Table = () => {
   const [datas, setdata] = useState({
     role: "2",
     page: 1,
-    per_page: 5,
+    per_page: 10,
     search: "",
     sort: "",
   });
@@ -20,7 +23,8 @@ const Driver_Table = () => {
   const [loading,setloading]=useState(false)
   const [paginationInfo, setPaginationInfo] = useState({
     current: 1,
-    pageSize: 5,
+    pageSize: 10,
+    simple :true
   });
   const [serach, setsearch] = useState("");
 
@@ -34,10 +38,9 @@ const Driver_Table = () => {
     await Apicall(pagiante, "/user/get_users").then((res) => {
       setloading(false)
       setusers(res.data.data.docs);
-      console.log(res.data.data.docs);
       setPaginationInfo({
         current: res.data.data.page,
-        pageSize: 5,
+        pageSize: 10,
         total: res.data.data.totalDocs,
       });
     });
@@ -162,8 +165,8 @@ const Driver_Table = () => {
           dataSource={users}
           columns={columns}
           size="middle"
-          pagination={handlechange}
-          // onChange={this.handleTableChange}
+          pagination={paginationInfo}
+          onChange={handlechange}
           loading={loading}
         />
       </div>
