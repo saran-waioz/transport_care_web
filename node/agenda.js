@@ -68,9 +68,6 @@ agenda.define('requestProcess',{lockLifetime: 10000}, async(job, done) => {
             }
             console.log("requested "+ delivery +' for order '+ driver_detail.email +' at '+ moment().format('HH:mm:ss'));
             await RequestDetail.findOneAndUpdate({ '_id': order_requests[0]._id }, { "$set": { is_deleted: true }}).exec();
-            // RequestDetail.findOne({ '_id': order_requests[0]._id, 'request_status': 'Cancelled' }, async (err, old_requests) =>{
-            //     await old_requests.remove()
-            // });
         }
         else
         {

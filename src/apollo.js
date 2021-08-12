@@ -7,7 +7,7 @@ import { getMainDefinition } from 'apollo-utilities';
 
 // const uri_link = 'localhost:8844';
 // const uri_link = '192.168.0.33:8844';
-const uri_link='tryout.waioz.com:8844';
+const uri_link='3.138.149.12:8990';
 const uri = `http://${uri_link}`;
 
 const links = createUploadLink({ uri: `http://${uri_link}/graphql`, });

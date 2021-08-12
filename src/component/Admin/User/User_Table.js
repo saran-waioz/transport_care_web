@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { withRouter } from "react-router-dom";
 // import { useHistory } from "react-router";
-import Table from "antd/lib/table";
-import Button from "antd/lib/button";
-import Icon from "antd/lib/icon";
-import Popconfirm from "antd/lib/popconfirm";
+import {Table,Button,Icon,Popconfirm} from "antd";
 import { Alert_msg } from "../../Comman/alert_msg";
 import Search from "antd/lib/input/Search";
 import Apicall from "../../../Api/Api";

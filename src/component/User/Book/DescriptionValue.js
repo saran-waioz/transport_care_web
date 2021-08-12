@@ -1,6 +1,6 @@
 import React from 'react'
 import { Icon,Modal,Alert } from 'antd';
-import ImageGallery from 'react-image-gallery';
+// import ImageGallery from 'react-image-gallery';
 import { Alert_msg } from '../../Comman/alert_msg';
 
 function DescriptionValue(props) {
@@ -36,11 +36,11 @@ function DescriptionValue(props) {
                 })
                 : <></>}
 
-            <Modal title="Upload Your Image" footer={<></>} className="new_modal upload_img" centered visible={open}  onCancel={() =>{setOpen(false)} }>
+            {/* <Modal title="Upload Your Image" footer={<></>} className="new_modal upload_img" centered visible={open}  onCancel={() =>{setOpen(false)} }>
                 <div>
                      <ImageGallery items={file} lazyLoad={true} showPlayButton={false} />
                 </div>
-            </Modal>
+            </Modal> */}
         </div>
 
     )
