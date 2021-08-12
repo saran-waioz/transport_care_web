@@ -7,17 +7,13 @@ const User = require("../models/user");
 // Controller agrees to implement the function called "respond"
 module.exports.respond = function(socket_io){
     socket_io.on('disconnect', function(reason){
-      console.log(socket_io.id,reason,"disconnect")
     });
     socket_io.on("disconnecting", (reason) => {
-      console.log(socket_io.rooms,"disconnecting"); // Set { ... }
     });
     socket_io.on('ping', function(data){
-      console.log(socket_io.id,"ping")
       global.io.to(socket_io.id).emit('pong', {});
     });
     socket_io.on('room_for_user', function(room) {
-      console.log(room,"room_for_user")
       socket_io.join(room);
     });
     socket_io.on('update_location', async(data) => {

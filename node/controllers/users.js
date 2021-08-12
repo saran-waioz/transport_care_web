@@ -1016,7 +1016,8 @@ async function function_request_order(requests,trip_detail) {
                 driver_id: get_drivers[i]._id,
                 request_status: 'Pending',
                 sort: i,
-                duration:duration
+                duration:duration,
+                is_deleted:false
               }
             } 
             else {
@@ -1027,7 +1028,8 @@ async function function_request_order(requests,trip_detail) {
                 driver_id: get_drivers[i]._id,
                 request_status: 'Requesting',
                 sort: i,
-                duration:duration
+                duration:duration,
+                is_deleted:false
               }
             }
             var new_request = new RequestDetail(new_request_data);
