@@ -104,7 +104,7 @@
         "socket.io-client": "^2.2.0",
         "source-map-explorer": "^2.4.0",
         "springedge": "^1.0.5",
-        "stripe": "^7.14.0",
+        "stripe": "^7.63.1",
         "subscriptions-transport-ws": "^0.9.16",
         "telesignsdk": "^2.2.1",
         "twilio": "^3.33.1",

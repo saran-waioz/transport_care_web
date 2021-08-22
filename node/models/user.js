@@ -101,7 +101,7 @@ const userSchema = new mongoose.Schema({
     vehicle_model: String,
     vehicle_color: String,
     vehicle_number: String,
-    
+    wallet_amount:String,
     // Driver attender details
     is_attender: String,//yes or no
     attender_age: String,
