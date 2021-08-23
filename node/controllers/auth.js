@@ -70,7 +70,7 @@ exports.sign_up = async (req, res, next) => {
                     if(requests.phone) {
                         var otp = (requests.phone == '9876543210') ? '1234' : Math.floor(1000 + Math.random() * 9000);
                         var smsMessage = otp + " is your " + commonHelper.siteName() + " OTP to login";
-                        commonHelper.sendSms(requests.phone, smsMessage);
+                        commonHelper.sendSms(requests.phone,requests.country_code, smsMessage);
                         var update = {}
                         update.verify_code = otp;
                         User.findOneAndUpdate({ "_id": newUser._id }, update, { new: true }).exec();
@@ -116,7 +116,7 @@ exports.sign_in = async (req, res, next) => {
                 if(user_detail.phone) {
                     var otp = (user_detail.phone == '9876543210') ? '1234' : Math.floor(1000 + Math.random() * 9000);
                     var smsMessage = otp + " is your " + commonHelper.siteName() + " OTP to login";
-                    commonHelper.sendSms(user_detail.phone, smsMessage);
+                    commonHelper.sendSms(user_detail.phone,user_detail.country_code, smsMessage);
                     var update = {}
                     update.verify_code = otp;
                     User.findOneAndUpdate({ "_id": user_detail._id }, update, { new: true }).exec();
@@ -211,7 +211,7 @@ exports.sent_otp = async (req, res, next) => {
         if (verify_code == "" || verify_code === undefined) {
             var otp = (requests.phone == '9876543210') ? '1234' : Math.floor(1000 + Math.random() * 9000);
             var smsMessage = otp + " is your " + commonHelper.siteName() + " OTP to login";
-            commonHelper.sendSms(requests.phone, smsMessage);
+            commonHelper.sendSms(requests.phone,requests.country_code, smsMessage);
             var update = {}
             update.verify_code = otp;
             update.last_verified = current_time;
@@ -222,12 +222,12 @@ exports.sent_otp = async (req, res, next) => {
             if (difference <= 15) {
                 var otp = verify_code;
                 var smsMessage = otp + " is your " + commonHelper.siteName() + " OTP to login";
-                commonHelper.sendSms(requests.phone, smsMessage);
+                commonHelper.sendSms(requests.phone,requests.country_code, smsMessage);
             }
             else {
                 var otp = (requests.phone == '9876543210') ? '1234' : Math.floor(1000 + Math.random() * 9000);
                 var smsMessage = otp + " is your " + commonHelper.siteName() + " OTP to login";
-                commonHelper.sendSms(requests.phone, smsMessage);
+                commonHelper.sendSms(requests.phone,requests.country_code, smsMessage);
                 var update = {}
                 update.verify_code = otp;
                 update.last_verified = current_time;
@@ -241,7 +241,7 @@ exports.sent_otp = async (req, res, next) => {
     else {
         var otp = (requests.phone == '9876543210') ? '1234' : Math.floor(1000 + Math.random() * 9000);
         var smsMessage = otp + " is your " + commonHelper.siteName() + " OTP to login";
-        commonHelper.sendSms(requests.phone, smsMessage);
+        commonHelper.sendSms(requests.phone,requests.country_code, smsMessage);
         // create a new user called newUser
         let location = {
             type: "Point",
