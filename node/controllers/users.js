@@ -1102,6 +1102,7 @@ exports.add_wallet = async(req, res, next) =>
       await user_detail.save();
       var transaction_data = {}
       transaction_data.amount = charge.amount;
+      transaction_data.orginal_amount = requests.total_amount;
       transaction_data.user_id = requests.user_id;
       transaction_data.type = 'wallet';
       transaction_data.transaction_id = charge.id;

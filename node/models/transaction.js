@@ -27,7 +27,14 @@ const transactionSchema = new  mongoose.Schema({
     payment_type: String,//wallet payment, payment gateway, manual etc..,
     amount:String,
     purpose:String,
-    transaction_id:String,
+    transaction_id:{
+        type: String,
+        default: 0
+      },
+    orginal_amount:{
+        type: String,
+        default: 0
+      },
     checkout_id:String,
     status:String
 }, schemaOptions);
