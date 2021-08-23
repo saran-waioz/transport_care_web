@@ -1095,7 +1095,7 @@ exports.add_wallet = async(req, res, next) =>
     else {
       var user_detail = await User.findOne({ "_id": requests.user_id });
       let current_user_wallet = 0
-      if(wallet_amount && wallet_amount !== 'NaN'){
+      if(user_detail.wallet_amount && user_detail.wallet_amount !== 'NaN'){
           current_user_wallet = user_detail.wallet_amount 
       }
       user_detail.wallet_amount = Number(parseFloat(current_user_wallet) + parseFloat(charge.amount)).toFixed(2);
