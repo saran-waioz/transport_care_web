@@ -1093,7 +1093,7 @@ exports.add_wallet = async(req, res, next) =>
     }
     else {
       var user_detail = await User.findOne({ "_id": requests.user_id });
-      user_detail.wallet_amount = Number(parseFloat(user.wallet_amount) + parseFloat(charge.amount)).toFixed(2);
+      user_detail.wallet_amount = Number(parseFloat(user_detail.wallet_amount) + parseFloat(charge.amount)).toFixed(2);
       await user_detail.save();
       var transaction_data = {}
       transaction_data.amount = charge.amount;
