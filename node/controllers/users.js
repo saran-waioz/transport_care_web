@@ -10,6 +10,7 @@ const UserCareGiver = require("../models/user_caregiver");
 const Attender = require("../models/attender");
 const Feedback = require("../models/feedback");
 const Trip = require("../models/trip_details");
+const TransactionModel = require("../models/transaction");
 const RequestDetail = require("../models/request_details");
 const Rating = require("../models/rating");
 const Category = require("../models/category");
