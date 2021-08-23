@@ -39,6 +39,10 @@ exports.sign_up = async (req, res, next) => {
                     return res.apiResponse(false, 'Error')
                 }
                 else {
+                    /**
+                    * @info send email using through nodemailer after signup *(welcome)
+                    */
+                    commonHelper.send_mail_nodemailer(requests.email,"welcome",{});
                     var user_detail = newUser;
                     if (requests.device_id) {
                         var push = {
@@ -201,7 +205,6 @@ exports.sent_otp = async (req, res, next) => {
 
     var requests = req.bodyParams
     console.log(requests)
-
     var checkUser = await User.findOne({ role: requests.role, phone: requests.phone ,country_code:requests.country_code});
     console.log(checkUser)
     if (checkUser) {

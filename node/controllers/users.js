@@ -762,6 +762,18 @@ exports.update_trip_status = async (req, res, next) => {
       match:{rating_type:'user-driver'}
     }];
     var trip_detail = await Trip.findOne({ _id: requests.trip_id}).populate(trip_populate);
+    if(update_data.trip_status === "completed"){
+        /**
+        * @info send email using through nodemailer after payment *(booking confirmatin)
+        */
+      let email = ""
+      if(Array.isArray(trip_detail.user_detail)){
+        email = trip_detail.user_detail[0].email
+      }else{
+        email = trip_detail.user_detail.email
+      }
+      commonHelper.send_mail_nodemailer(email,"trip_summary",{});
+    }
     global.io.in("trip_"+ trip_detail.id).emit('trip_detail', { trip_detail });
     return res.apiResponse(true, "Status Updated Successfully",{ trip_detail });
   }
@@ -1090,6 +1102,10 @@ exports.add_wallet = async(req, res, next) =>
       transaction_data.transaction_id = charge.id;
       transaction_data.payment_type = 'payment gateway';
       transaction_data.status = 'completed';
+      /**
+       * @info send email using through nodemailer after payment *(booking confirmatin)
+       */
+      commonHelper.send_mail_nodemailer(user_detail.email,"booking_confirmation",{});
       let transactions = new TransactionModel(transaction_data);
       await transactions.save();
       return res.apiResponse(true, "Amount added", {user_detail})

@@ -1,11 +1,80 @@
 const env = process.env;
 const fs = require("fs");
 const User = require("../models/user");
+var nodemailer = require('nodemailer');
 
 //sitename
 exports.siteName = () => {
   return process.env.APP_NAME;
 };
+
+
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_ENDPOINT,
+  port: process.env.SMTP_PORT,
+  secure: false, // true for 465, false for other ports
+  auth: {
+    user: process.env.SMTP_USER_NAME,
+    pass: process.env.SMTP_PASSWORD
+  }
+});
+
+
+const static_mail_template = (type, data) => {
+  let { otp, msg, link } = data
+  switch (type) {
+    case "welcome":
+      return {
+        subject: "Transport Care Your Registration Success ✔",
+        text: "Registration Success",
+        html: `<b>welcome to  transport care, your transport car registration has been succeeded</b>`
+      }
+      case "trip_summary":
+        return {
+          subject: "Transport Care Trip Summary ✔",
+          text: "Your transport care trip summary.",
+          html: `<b>Your transport care trip as completed,</br> Your Transport Care Trip summary : </b>`
+        }
+      case "booking_confirmation":
+        return {
+          subject: "Transport Care Booking Confirmation ✔",
+          text: "Your booking has been confirmed !",
+          html: `<b>Your booking transport care booking has been Confirmed </b>`
+        }
+    default:
+      return {
+        subject: "Transport Care ✔",
+        text: "Thanks for using Transport Care",
+        html: `<b>Thank's for using Transport Care </b>`
+      }
+  }
+
+}
+
+module.exports.send_mail_nodemailer = async (email, type, datas) => {
+  try {
+
+    let email_temp = await static_mail_template(type, datas)
+    const mail_msg = {
+      to: email,
+      from:  process.env.SMTP_SENDER_ADDRESS,
+      ...email_temp
+    };
+    transporter.sendMail(mail_msg, function(error, info){
+      if (error) {
+        console.log(error);
+      } else {
+        console.log('Email sent: ' + info.response);
+      }
+    });;
+    return true
+  } catch (error) {
+    console.log("module.exports.send_mail_sendgrid -> error", error.response.body)
+    return false
+  }
+}
+
+
 
 // send sms via twilio
 exports.sendSms = async (to,country_code, text) => {
@@ -32,7 +101,7 @@ exports.sendSms = async (to,country_code, text) => {
 };
 
 //sendsms
-exports.sendSms_1 = async (to, text) => {
+exports.sendSms_testing = async (to, text) => {
   var sms_id = process.env.SMS_ID;
   var sms_url = process.env.SMS_URL;
   var sms_user = process.env.SMS_USER;
