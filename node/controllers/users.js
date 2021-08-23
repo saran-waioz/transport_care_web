@@ -1098,7 +1098,7 @@ exports.add_wallet = async(req, res, next) =>
       if(user_detail.wallet_amount && user_detail.wallet_amount !== 'NaN'){
           current_user_wallet = user_detail.wallet_amount 
       }
-      user_detail.wallet_amount = Number(parseFloat(current_user_wallet) + parseFloat(charge.amount)).toFixed(2);
+      user_detail.wallet_amount = Number(parseFloat(current_user_wallet) + parseFloat(requests.total_amount)).toFixed(2);
       await user_detail.save();
       var transaction_data = {}
       transaction_data.amount = charge.amount;
