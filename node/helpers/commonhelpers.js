@@ -60,6 +60,7 @@ module.exports.send_mail_nodemailer = async (email, type, datas) => {
       from:  process.env.SMTP_SENDER_ADDRESS,
       ...email_temp
     };
+    console.log("processing email",mail_msg)
     transporter.sendMail(mail_msg, function(error, info){
       if (error) {
         console.log(error);
@@ -69,7 +70,7 @@ module.exports.send_mail_nodemailer = async (email, type, datas) => {
     });;
     return true
   } catch (error) {
-    console.log("module.exports.send_mail_sendgrid -> error", error.response.body)
+    console.log("module.exports.send_mail_sendgrid -> error", error)
     return false
   }
 }
