@@ -1,5 +1,5 @@
 var FCM = require('fcm-node');
-var serverKey = "AAAAjY_2cx8:APA91bH3BA3zy1tLRjWmrMZSELE2zWkQfYOojYaYLSVGqTQnaBsyxAN-opAItKi6n87YQbv9SbyrpUEWuCAXwExRXwnElIhE61VTlUMDV1xEt0XeHRovn0IiRHsCcFqctq7vCUU_519m"
+var serverKey = "AAAAuyCaHec:APA91bGzwHDDdHDOODz4Pr_VL34CbIs9iyTWz_sWfjO72b8EtdPGgNBDd5DtQyWDhdSY_3Q74rQAe5YuR9CfEJHjJM4tkHs3K0OJvACxoj7lJ3kG_j8vy1PcOBy9v7xlcoecU5QI5nkZ"
 var fcm = new FCM(serverKey);
 exports.singleNotification = async(token,title,body,date,data=null,language='en') => {
   var body = body;
