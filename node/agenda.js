@@ -62,7 +62,8 @@ agenda.define('requestProcess',{lockLifetime: 10000}, async(job, done) => {
             {
                 for(let i=0;i<driver_detail.device_id.length;++i)
                 {
-                    Firebase.singleNotification(driver_detail.device_id[i]);
+                    Firebase.singleNotification(driver_detail.device_id[i],  "Job Request",
+                    "You have a job request from transport care");
                     console.log(driver_detail.device_id[i]);
                 }
             }
