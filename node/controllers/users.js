@@ -87,7 +87,24 @@ exports.get_export_user = async (req, res) => {
     return res.apiResponse(true, "Success", result);
   }).populate(["store_detail"]);
 };
-
+async function get_default_category(user_detail,category_list) {
+  if(!user_detail.default_category_id && category_list.length)
+  {
+    await User.findOneAndUpdate({ _id: user_detail.id},
+      { $set: 
+        {
+        'default_category_id': category_list[0]._id
+        }  
+      },
+      { new: true },(err, doc, raw) => { 
+        return category_list[0]._id
+      }).exec();
+  }
+  else
+  {
+    return user_detail.default_category_id
+  }
+}
 exports.get_user_detail = async (req, res) => {
   var requests = req.bodyParams;
   if (
@@ -95,48 +112,39 @@ exports.get_user_detail = async (req, res) => {
     requests.id != "" &&
     requests.id != null &&
     requests.id != "null"
-  ) {
-    
+  ) 
+  {
     var user_detail = await User.findOne({ _id: requests.id }).populate(['driver_status_detail','category_detail']);
     var category_list = await Category.find();
-    if(!user_detail.default_category_id && category_list.length)
-    {
-      await User.findOneAndUpdate({ _id: user_detail.id},
-        { $set: 
-          {
-          'default_category_id': category_list[0]._id
-          }  
-        },
-        { new: true }
-      ).exec();
+    get_default_category(user_detail,category_list).then(async(category_det) => {
       var user_detail = await User.findOne({ _id: requests.id }).populate(['driver_status_detail','category_detail']);
-    }
-    user_detail = JSON.parse(JSON.stringify(user_detail));
-    user_detail.default_category_name = user_detail.default_category_detail.name
-    var service_type = [
-      { name: "Door to Door", image: commonHelper.getBaseurl() + "/media/assets/images/door_to_door_image.jpeg", is_care: true }, 
-      { name: "Independent Trip", image: commonHelper.getBaseurl() + "/media/assets/images/independent_image.jpeg", is_care: false }, 
-      { name: "Caregiver", image: commonHelper.getBaseurl() + "/media/assets/images/caregiver_image.jpeg", is_care: true }
-    ];
-    var populate=['user_detail','caregiver_detail','driver_detail',
-    {
-      path:'user_rating',
-      match:{rating_type:'driver-user'}
-    },
-    {
-      path:'driver_rating',
-      match:{rating_type:'user-driver'}
-    },
-    {
-      path:'is_user_rated',
-      match:{rating_type:'driver-user'}
-    },
-    {
-      path:'is_driver_rated',
-      match:{rating_type:'user-driver'}
-    }];
-    var trip_details = await Trip.find({user_id:requests.user_id}).populate(populate);
-    return res.apiResponse(true, "Success", { user_detail,service_type,category_list,trip_details });
+      user_detail = JSON.parse(JSON.stringify(user_detail));
+      user_detail.default_category_name = user_detail.default_category_detail.name
+      var service_type = [
+        { name: "Door to Door", image: commonHelper.getBaseurl() + "/media/assets/images/door_to_door_image.jpeg", is_care: true }, 
+        { name: "Independent Trip", image: commonHelper.getBaseurl() + "/media/assets/images/independent_image.jpeg", is_care: false }, 
+        { name: "Caregiver", image: commonHelper.getBaseurl() + "/media/assets/images/caregiver_image.jpeg", is_care: true }
+      ];
+      var populate=['user_detail','caregiver_detail','driver_detail',
+      {
+        path:'user_rating',
+        match:{rating_type:'driver-user'}
+      },
+      {
+        path:'driver_rating',
+        match:{rating_type:'user-driver'}
+      },
+      {
+        path:'is_user_rated',
+        match:{rating_type:'driver-user'}
+      },
+      {
+        path:'is_driver_rated',
+        match:{rating_type:'user-driver'}
+      }];
+      var trip_details = await Trip.find({user_id:requests.user_id}).populate(populate).limit(1).sort({createdAt:-1});
+      return res.apiResponse(true, "Success", { user_detail,service_type,category_list,trip_details });
+    })
   } else {
     return res.apiResponse(false, "Success");
   }
