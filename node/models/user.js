@@ -69,6 +69,10 @@ const userSchema = new mongoose.Schema({
         default:'Door to Door'
     },
     default_category_id: String,
+    default_category_name: {
+        type:String,
+        default:""
+    },
     category_id: String,
 
     //only for driver
@@ -124,6 +128,7 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    stripe_customer: String,
 }, schemaOptions);
 
 /**

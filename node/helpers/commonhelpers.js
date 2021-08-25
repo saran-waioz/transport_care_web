@@ -25,25 +25,25 @@ const static_mail_template = (type, data) => {
   switch (type) {
     case "welcome":
       return {
-        subject: "Transport Care Your Registration Success ✔",
+        subject: "Transport Care Your Registration Success",
         text: "Registration Success",
         html: `<b>welcome to  transport care, your transport car registration has been succeeded</b>`
       }
       case "trip_summary":
         return {
-          subject: "Transport Care Trip Summary ✔",
+          subject: "Transport Care Trip Summary",
           text: "Your transport care trip summary.",
           html: `<b>Your transport care trip as completed,</br> Your Transport Care Trip summary : </b>`
         }
       case "booking_confirmation":
         return {
-          subject: "Transport Care Booking Confirmation ✔",
+          subject: "Transport Care Booking Confirmation",
           text: "Your booking has been confirmed !",
           html: `<b>Your booking transport care booking has been Confirmed </b>`
         }
     default:
       return {
-        subject: "Transport Care ✔",
+        subject: "no_type_found",
         text: "Thanks for using Transport Care",
         html: `<b>Thank's for using Transport Care </b>`
       }
@@ -53,22 +53,30 @@ const static_mail_template = (type, data) => {
 
 module.exports.send_mail_nodemailer = async (email, type, datas) => {
   try {
-
     let email_temp = await static_mail_template(type, datas)
-    const mail_msg = {
-      to: email,
-      from:  process.env.SMTP_SENDER_ADDRESS,
-      ...email_temp
-    };
-    console.log("processing email",mail_msg)
-    transporter.sendMail(mail_msg, function(error, info){
-      if (error) {
-        console.log(error);
-      } else {
-        console.log('Email sent: ' + info.response);
-      }
-    });;
-    return true
+    if(email_temp.subject!="no_type_found")
+    {
+      var mail_content="";
+      mail_content+='<div style="background-color:rgb(237,239,244);padding-top:15px;padding-bottom:15px;width:100%;font-family:verdana, helvetica;"><div style="max-width:600px;margin:0 auto;background: #fff;border-radius: 5px;"><div style="width: 100%;background: #2a2b74;height: 5px;border-top-left-radius: 5px;border-top-right-radius: 5px;"></div><div style="text-align:center;width: 100%;"><img style="height:50px;padding:20px" src="'+process.env.APP_URL+'/static/media/logo.04ba26f8.png" alt="TransportCare" /></div><div style="padding:10px">';
+      mail_content+=email_temp.html;
+      mail_content+='</div><div style="width: 100%;background: #f7a706;height: 5px;border-bottom-left-radius: 5px;border-bottom-right-radius: 5px;"></div></div></div>';
+      const mail_msg = {
+        to: email,
+        from: 'TransportCare <'+process.env.SMTP_SENDER_ADDRESS+">",
+        html:mail_content,
+        subject:email_temp.subject,
+        text:email_temp.text
+      };
+      console.log("processing email",mail_msg)
+      transporter.sendMail(mail_msg, function(error, info){
+        if (error) {
+          console.log(error);
+        } else {
+          console.log('Email sent: ' + info.response);
+        }
+      });;
+      return true 
+    }
   } catch (error) {
     console.log("module.exports.send_mail_sendgrid -> error", error)
     return false

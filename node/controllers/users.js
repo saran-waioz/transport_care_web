@@ -2,6 +2,7 @@ var mongodb = require("mongodb");
 var ObjectId = mongodb.ObjectID;
 const commonHelper=require('../helpers/commonhelpers')
 const User = require("../models/user");
+const StripeCards = require("../models/stripe_cards");
 const Log = require("../models/log");
 const Firebase = require("../config/firebase");
 const moment = require("moment");
@@ -95,14 +96,47 @@ exports.get_user_detail = async (req, res) => {
     requests.id != null &&
     requests.id != "null"
   ) {
+    
     var user_detail = await User.findOne({ _id: requests.id }).populate(['driver_status_detail','category_detail']);
+    var category_list = await Category.find();
+    if(!user_detail.default_category_id && category_list.length)
+    {
+      await User.findOneAndUpdate({ _id: user_detail.id},
+        { $set: 
+          {
+          'default_category_id': category_list[0]._id
+          }  
+        },
+        { new: true }
+      ).exec();
+      var user_detail = await User.findOne({ _id: requests.id }).populate(['driver_status_detail','category_detail']);
+    }
+    user_detail = JSON.parse(JSON.stringify(user_detail));
+    user_detail.default_category_name = user_detail.default_category_detail.name
     var service_type = [
       { name: "Door to Door", image: commonHelper.getBaseurl() + "/media/assets/images/door_to_door_image.jpeg", is_care: true }, 
       { name: "Independent Trip", image: commonHelper.getBaseurl() + "/media/assets/images/independent_image.jpeg", is_care: false }, 
       { name: "Caregiver", image: commonHelper.getBaseurl() + "/media/assets/images/caregiver_image.jpeg", is_care: true }
     ];
-    var category_list = await Category.find();
-    return res.apiResponse(true, "Success", { user_detail,service_type,category_list });
+    var populate=['user_detail','caregiver_detail','driver_detail',
+    {
+      path:'user_rating',
+      match:{rating_type:'driver-user'}
+    },
+    {
+      path:'driver_rating',
+      match:{rating_type:'user-driver'}
+    },
+    {
+      path:'is_user_rated',
+      match:{rating_type:'driver-user'}
+    },
+    {
+      path:'is_driver_rated',
+      match:{rating_type:'user-driver'}
+    }];
+    var trip_details = await Trip.find({user_id:requests.user_id}).populate(populate);
+    return res.apiResponse(true, "Success", { user_detail,service_type,category_list,trip_details });
   } else {
     return res.apiResponse(false, "Success");
   }
@@ -992,7 +1026,7 @@ async function function_request_order(requests,trip_detail) {
         role: 2,
         status: 'active'    
       }
-    // match['trip_status'] = 'online';
+    match['trip_status'] = 'online';
     // match['category_id'] = 'online';
     match['location'] = { 
         $nearSphere: {
@@ -1065,28 +1099,113 @@ async function function_request_order(requests,trip_detail) {
 }
 exports.create_stripe_token = async(req, res, next) => 
 {
+  // var requests = req.bodyParams;
+  // var charge = stripe.sources.create({  // stripe payment start
+  //   type: 'ach_credit_transfer',
+  //   currency: 'usd',
+  //   owner: {
+  //     email: 'jenny.rosen@example.com'
+  //   }
+  // }, async (err, charge) => {
+  //   if (err) {
+  //     return res.apiResponse(false, "Failed", {err})
+  //   }
+  //   else {
+  //     return res.apiResponse(true, "Charged", {charge})
+  //   }
+  // })
+  commonHelper.send_mail_nodemailer("ak@waioz.com","booking_confirmation",{});
+  return res.apiResponse(true, "Charged")
+}
+async function get_stripe_customer_id(user_detail) {
+  if(user_detail.stripe_customer)
+  {
+    return user_detail.stripe_customer;
+  }
+  else
+  {
+    var create_customer = stripe.customers.create({  // stripe payment start
+      name:  user_detail.name,
+      email:  user_detail.email,
+      phone:  user_detail.phone,
+      currency:'sgd',
+      description:  "Transport Care Customer "+user_detail.email
+    }, async (err, customer) => {
+      if (err) {
+        return false;
+      }
+      else {
+        await User.findOneAndUpdate({ _id: user_detail.id},
+          { $set: 
+            {
+            'stripe_customer': customer.id
+            }  
+          },
+          { new: true }
+        ).exec();
+        return customer.id;
+      }
+    })
+  }
+}
+exports.add_stripe_card = async(req, res, next) => 
+{
   var requests = req.bodyParams;
-  var charge = stripe.sources.create({  // stripe payment start
-    type: 'ach_credit_transfer',
-    currency: 'usd',
-    owner: {
-      email: 'jenny.rosen@example.com'
+  var user_detail = await User.findOne({ "_id": requests.user_id });
+  get_stripe_customer_id(user_detail).then(async(customer_id) => {
+    if(customer_id)
+    {
+      var card_details = stripe.customers.createSource(customer_id,{
+        source: requests.token
+      }, async (err, card_details) => {
+        if (err) {
+          return res.apiResponse(false, "Failed", {err})
+        }
+        else {
+          var card_data = {}
+          card_data.card_id = card_details.id;
+          card_data.card_details = card_details;
+          card_data.user_id = requests.user_id;
+          let stripe_card_data = new StripeCards(card_data);
+          await stripe_card_data.save();
+          return res.apiResponse(true, "Card added succesfully")
+        }
+      })
     }
-  }, async (err, charge) => {
-    if (err) {
-      return res.apiResponse(false, "Failed", {err})
-    }
-    else {
-      return res.apiResponse(true, "Charged", {charge})
+    else
+    {
+      return res.apiResponse(false, "Error on creating stripe customer")
     }
   })
+}
+exports.delete_stripe_card = async(req, res, next) => 
+{
+  var requests = req.bodyParams;
+  await StripeCards.findById(requests.card_id, async (err, card) => {
+    if (card) {
+      await card.remove();
+      return res.apiResponse(true, "Card deleted successfully")
+    }
+    else
+    {
+      return res.apiResponse(false, "Invalid Card Id")
+    }
+  });
+}
+exports.get_stripe_cards = async(req, res, next) => 
+{
+  var requests = req.bodyParams;
+  var match={}
+  match.user_id=requests.user_id;
+  var stripe_cards = await StripeCards.find(match).sort({createdAt:-1});
+  return res.apiResponse(true, "Success", {stripe_cards})
 }
 exports.add_wallet = async(req, res, next) => 
 {
   var requests = req.bodyParams;
   var charge = stripe.charges.create({  // stripe payment start
     amount:  Math.round(parseInt(requests.total_amount)*100),
-    currency: 'usd',
+    currency: 'sgd',
     source: requests.token
   }, async (err, charge) => {
     if (err) {

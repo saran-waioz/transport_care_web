@@ -9,7 +9,7 @@ exports.sendMail = async(req, res, next) => {
     var admin_email = await adminEmail.findOne({ slug:req.slug});
     var mail_content="";
     var subject = "";
-    mail_content+='<div style="width:100%;font-size:15px;font-family:Google Sans,Roboto,RobotoDraft,Helvetica,Arial,sans-serif;"><div style="max-width:600px;margin:0 auto;background: #fff;border-radius: 5px;border: 1px solid #0c753c1f;"><div style="width: 100%;background: #3879CB;height: 5px;border-top-left-radius: 5px;border-top-right-radius: 5px;"></div><div style="text-align:center;width: 100%;"><img style="height:109px" src="'+process.env.APP_URL+'/assets/black_single.png"  /></div><div style="padding:10px">';
+    mail_content+='<div style="background-color:rgb(237,239,244);padding-top:15px;padding-bottom:15px;width:100%;font-size:15px;font-family:Google Sans,Roboto,RobotoDraft,Helvetica,Arial,sans-serif;"><div style="max-width:600px;margin:0 auto;background: #fff;border-radius: 5px;border: 1px solid #0c753c1f;"><div style="width: 100%;background: #3879CB;height: 5px;border-top-left-radius: 5px;border-top-right-radius: 5px;"></div><div style="text-align:center;width: 100%;"><img style="height:109px" src="'+process.env.APP_URL+'/static/media/logo.04ba26f8.png"  /></div><div style="padding:10px">';
     if(admin_email && email_from!="")
     {
         mail_content+=strtr(admin_email.content, req.data);
