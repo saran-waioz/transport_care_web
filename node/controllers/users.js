@@ -142,7 +142,7 @@ exports.get_user_detail = async (req, res) => {
         path:'is_driver_rated',
         match:{rating_type:'user-driver'}
       }];
-      var trip_details = await Trip.find({user_id:requests.user_id}).populate(populate).limit(1).sort({createdAt:-1});
+      var trip_details = await Trip.find({user_id:requests.id}).populate(populate).limit(1).sort({createdAt:-1});
       return res.apiResponse(true, "Success", { user_detail,service_type,category_list,trip_details });
     })
   } else {
