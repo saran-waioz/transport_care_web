@@ -1320,9 +1320,9 @@ exports.add_stripe_card = async(req, res, next) =>
           card_data.card_id = card_details.id;
           card_data.card_details = card_details;
           card_data.user_id = requests.user_id;
-          let card = new StripeCards(card_data);
-          await card.save();
-          return res.apiResponse(true, "Card added succesfully",{card})
+          let stripe_card = new StripeCards(card_data);
+          await stripe_card.save();
+          return res.apiResponse(true, "Card added succesfully",{stripe_card})
         }
       })
     }
