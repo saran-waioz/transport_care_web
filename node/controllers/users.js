@@ -749,7 +749,7 @@ exports.trip_update = async (req, res, next) => {
       requests
     },
     { new: true },
-    (err,doc,trip_detail)=>{
+    async(err,doc,trip_detail)=>{
       if(err)
       {
         return res.apiResponse(false, "Invalid Data");
@@ -982,7 +982,7 @@ exports.cancel_request = async (req, res, next) => {
   var requests = req.bodyParams;
   if(requests.type=="user")
   {
-    await Trip.findOneAndUpdate({ "_id": requests.trip_id }, { "$set": { 'cancelled_at':moment(),'trip_status': 'cancelled' } }, { new: true },(err,doc,trip_detail)=>{
+    await Trip.findOneAndUpdate({ "_id": requests.trip_id }, { "$set": { 'cancelled_at':moment(),'trip_status': 'cancelled' } }, { new: true },async(err,doc,trip_detail)=>{
       await caregiver_push_notifications(trip_detail);
     }).exec();
     await RequestDetail.deleteMany({'trip_id':requests.trip_id},function(){});
