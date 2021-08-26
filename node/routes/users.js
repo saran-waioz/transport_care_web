@@ -1,6 +1,8 @@
 const express=require("express")
 const router=express.Router();
 const Usercontroller=require('../controllers/users')
+const CronJob = require('cron').CronJob;
+new CronJob('*/1 * * * *', Usercontroller.caregiver_reminder_cron, null, true);
 
 router.post('/get_users',Usercontroller.get_users)
 router.post('/export_get_user',Usercontroller.get_export_user)

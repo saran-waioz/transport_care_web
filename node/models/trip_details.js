@@ -47,6 +47,8 @@ const TripDetailSchema = new mongoose.Schema({
     arrived_at:Date,
     started_at:Date,
     ended_at:Date,
+    paid_at:Date,
+    refunded_at:Date,
     completed_at:Date,
     cancelled_by:String,
     cancelled_at:Date,

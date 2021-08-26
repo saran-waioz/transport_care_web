@@ -816,17 +816,23 @@ exports.update_trip_status = async (req, res, next) => {
       },
       { new: true }
     ).exec();
-    if(old_detail.driver_id && (requests.status == 'completed' || requests.status == 'cancelled')) {
+    if(old_detail.driver_id && (requests.status == 'end_trip' || requests.status == 'cancelled')) {
       await User.findOneAndUpdate({ _id: old_detail.driver_id, role: 2 },
-        { $set: 
-          {
-          'trip_status': 'online'
-          }  
-        },
-        { new: true },
-        (err, doc, raw) => { 
-          commonHelper.send_mail_nodemailer(raw.email,"booking_confirmation",old_detail);
-        }).exec();
+      { $set: 
+        {
+        'trip_status': 'online',
+        'current_trip_id':''
+        }  
+      },
+      { new: true },
+      (err, doc, raw) => { 
+        
+      }).exec();
+    }
+    if(requests.status == 'completed')
+    {
+      var user_detail = await User.findOne({ _id: old_detail.user_id})
+      commonHelper.send_mail_nodemailer(user_detail.email,"booking_confirmation",old_detail);
     }
     var trip_populate=['user_detail','caregiver_detail','driver_detail',
     {
@@ -846,6 +852,7 @@ exports.update_trip_status = async (req, res, next) => {
       match:{rating_type:'user-driver'}
     }];
     var trip_detail = await Trip.findOne({ _id: requests.trip_id}).populate(trip_populate);
+    await caregiver_push_notifications(trip_detail);
     if(update_data.trip_status === "completed"){
         /**
         * @info send email using through nodemailer after payment *(booking confirmatin)
@@ -882,6 +889,11 @@ exports.accept_request = async (req, res, next) => {
       },
       { new: true }
     ).exec();
+
+
+    //updating trip id in driver table(user table) for send driver instance location to all using sockets
+    await User.findOneAndUpdate({ _id: requests.driver_id },{ $set: {'current_trip_id': requests.trip_id}},{ new: true }).exec();
+    
     var trip_populate=['user_detail','caregiver_detail','driver_detail',
     {
       path:'user_rating',
@@ -900,6 +912,7 @@ exports.accept_request = async (req, res, next) => {
       match:{rating_type:'user-driver'}
     }];
     var trip_detail = await Trip.findOne({ _id: requests.trip_id }).populate(trip_populate);
+    await caregiver_push_notifications(trip_detail);
     global.io.in("user_"+ trip_detail.user_id).emit('trip_detail', { trip_detail });
     return res.apiResponse(true, "Request Accepted Successfully", { trip_detail } );
   }
@@ -908,12 +921,70 @@ exports.accept_request = async (req, res, next) => {
     return res.apiResponse(false, "Request Already Accepted");
   }
 };
-
+exports.caregiver_reminder_cron = async(req,res,next)=>{
+  await func_caregiver_reminder_cron().then(async(data) => {
+    if(req)
+    {
+      return res.apiResponse(true, "Order updated Successfully",data)
+    }
+  });
+}
+async function func_caregiver_reminder_cron() {
+  const today = moment().startOf('day')
+  var trips = await Trip.find({trip_status:'start_trip'});
+  if(trips.length)
+  {
+    for(var i=0; i<trips.length;i++)
+    {
+      var estimated_time = moment(trips[i].started_at).add(trips[i].distances.durationValue, 'seconds');  // see the cloning?
+      if(moment(estimated_time).isSameOrAfter())
+      {
+        var a = moment();//now
+        var b = moment(estimated_time);
+        if(b.diff(a, 'minutes')==5)
+        {
+          var trip_populate=['user_detail','caregiver_detail','driver_detail',
+          {
+            path:'user_rating',
+            match:{rating_type:'driver-user'}
+          },
+          {
+            path:'driver_rating',
+            match:{rating_type:'user-driver'}
+          },
+          {
+            path:'is_user_rated',
+            match:{rating_type:'driver-user'}
+          },
+          {
+            path:'is_driver_rated',
+            match:{rating_type:'user-driver'}
+          }];
+          var trip_detail = await Trip.findOne({ _id: trips[i]._id}).populate(trip_populate);
+          global.io.in("user_" + trips[i].care_giver_id).emit('caregiver_reminder', {trip_detail});
+          var caregiver_detail = await User.findOne({'_id':trips[i].care_giver_id});
+          if (caregiver_detail.device_id && caregiver_detail.device_id.length) {
+            for (let i = 0; i < caregiver_detail.device_id.length; ++i) {
+              Firebase.singleNotification(
+                caregiver_detail.device_id[i],
+                "Under Care ["+user_detail.name+"]",
+                trip_detail.invoice_id+" - Almost near you, we will reach you in 5 minutes"
+              );
+            }
+          }
+        }
+      }
+    }
+  }
+  return trips;
+}
 exports.cancel_request = async (req, res, next) => {
   var requests = req.bodyParams;
   if(requests.type=="user")
   {
-    await Trip.findOneAndUpdate({ "_id": requests.trip_id }, { "$set": { 'cancelled_at':moment(),'trip_status': 'cancelled' } }, { new: true }).exec();
+    await Trip.findOneAndUpdate({ "_id": requests.trip_id }, { "$set": { 'cancelled_at':moment(),'trip_status': 'cancelled' } }, { new: true },(err,doc,trip_detail)=>{
+      await caregiver_push_notifications(trip_detail);
+    }).exec();
     await RequestDetail.deleteMany({'trip_id':requests.trip_id},function(){});
   }
   else
@@ -1063,6 +1134,7 @@ exports.request_order = async(req, res, next) =>
     }
     else
     {
+      await caregiver_push_notifications(trip_detail);
       return res.apiResponse(true, "Trip request processing", { trip_detail } )
     }
   });
@@ -1076,7 +1148,7 @@ async function function_request_order(requests,trip_detail) {
         status: 'active'    
       }
     match['trip_status'] = 'online';
-    // match['category_id'] = 'online';
+    match['category_id'] = requests.category_id;
     match['location'] = { 
         $nearSphere: {
             $maxDistance: 20 * 1000,
@@ -1291,6 +1363,47 @@ async function add_stripe_card_while_payment(requests,user_detail,trip_details) 
     return {status:true,token:requests.token, type:"token"}
   }
 }
+async function caregiver_push_notifications(trip_details) {
+  var caregiver_detail = await User.findOne({'_id':trip_details.care_giver_id});
+  var user_detail = await User.findOne({'_id':trip_details.user_id});
+  var driver_detail = await User.findOne({'_id':trip_details.driver_id});
+  if(user_detail && (user_detail.role==1 || user_detail.role=="1") && trip_details.care_giver_id)
+  {
+    var message=""
+    // processing, accepted ,arrived, start_trip, end_trip, payment, rating, completed, cancelled
+    switch (trip_details.trip_status) {
+      case "processing":
+        message=trip_details.invoice_id+" - "+"Trying to reach your place, Requesting drivers now"
+        break;
+      case "accepted":
+        message=trip_details.invoice_id+" - "+driver_detail.name+" accepted request";
+        break;
+      case "arrived":
+        message=trip_details.invoice_id+" - "+driver_detail.name+" reached undercare's location and ready to pickup";
+        break;
+      case "start_trip":
+        message=trip_details.invoice_id+" - "+" Trip Started, will be reach in "+trip_details.duration;
+      break;
+      case "end_trip":
+        message=trip_details.invoice_id+" - "+" Reached your location";
+      break;
+      case "cancelled":
+        message=trip_details.invoice_id+" - "+" Cancelled the appointment";
+      break;
+      default:
+        break;
+    }
+    if (caregiver_detail.device_id && caregiver_detail.device_id.length) {
+      for (let i = 0; i < caregiver_detail.device_id.length; ++i) {
+        Firebase.singleNotification(
+          caregiver_detail.device_id[i],
+          "Under Care ["+user_detail.name+"]",
+          message
+        );
+      }
+    }
+  }
+}
 async function make_payment(payment_data,trip_details) {
   var payment_mode = trip_details.payment_mode;
   if(payment_mode=="card")
@@ -1345,7 +1458,7 @@ exports.trip_payment = async(req, res, next) =>
           transaction_data.status = 'completed';
           let transactions = new TransactionModel(transaction_data);
           await transactions.save();
-          await Trip.findOneAndUpdate({ _id: requests.trip_id },{ $set: {'trip_status': 'rating'}},{ new: true }).exec();
+          await Trip.findOneAndUpdate({ _id: requests.trip_id },{ $set: {'paid_at':moment(),'payment_status':'Paid','trip_status': 'rating'}},{ new: true }).exec();
           return res.apiResponse(true, "Payment Success")
         })
       }

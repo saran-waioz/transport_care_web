@@ -124,6 +124,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "offline"
     },
+    current_trip_id: String,
     is_deleted: {
         type: Boolean,
         default: false

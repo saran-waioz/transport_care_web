@@ -1,7 +1,7 @@
 const _ = require("lodash")
 const moment = require("moment");
 const User = require("../models/user");
-
+const Trip = require("../models/trip_details");
 
 
 // Controller agrees to implement the function called "respond"
@@ -25,5 +25,10 @@ module.exports.respond = function(socket_io){
       update.location = location;
       update.bearing = data.bearing;
       await User.findOneAndUpdate({ "_id": data.user_id }, { "$set": update}).exec();
+      var user_detail = await User.findOne({ _id: data.user_id})
+      if(user_detail && user_detail.current_trip_id && user_detail.current_trip_id!="")
+      {
+        global.io.in("trip_"+ user_detail.current_trip_id).emit('driver_location', { data });
+      }
     })
 }
