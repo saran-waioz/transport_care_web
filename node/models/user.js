@@ -130,6 +130,22 @@ const userSchema = new mongoose.Schema({
         default: false
     },
     stripe_customer: String,
+    bank_name:{
+        type: String,
+        default: ""
+    },
+    bank_code:{
+        type: String,
+        default: ""
+    },
+    branch_code:{
+        type: String,
+        default: ""
+    },
+    account_no:{
+        type: String,
+        default: ""
+    },
 }, schemaOptions);
 
 /**
