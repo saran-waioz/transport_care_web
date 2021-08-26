@@ -1249,7 +1249,6 @@ async function get_stripe_customer_id(user_detail) {
       name:  user_detail.name,
       email:  user_detail.email,
       phone:  user_detail.phone,
-      currency:'sgd',
       description:  "Transport Care Customer "+user_detail.email
     }, async (err, customer) => {
       if (err) {
