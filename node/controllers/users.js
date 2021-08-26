@@ -1253,6 +1253,7 @@ async function get_stripe_customer_id(user_detail) {
       description:  "Transport Care Customer "+user_detail.email
     }, async (err, customer) => {
       if (err) {
+        console.log("1256",err)
         return false;
       }
       else {
