@@ -25,6 +25,10 @@ const TripDetailSchema = new mongoose.Schema({
     service_type: String,
     category_detail: Object,
     price_detail: Object,
+    payment_mode: {
+      type: String,
+      default: "coh"  //coh,wallet,card//coh-cash on hand
+    },
     admin_commission: Number,
     driver_earnings: Number,
     payment_status: {

@@ -19,6 +19,7 @@ const distance = require("google-distance");
 const Agenda = require("../agenda");
 const geolib = require('geolib');
 const { RequestResponseStatusCode } = require("nexmo");
+const { request } = require("express");
 const stripe = require('stripe')('sk_test_51JOl26GwzlPF3YojClmory2WxpKjuUsQZMTJJtvaYbZ6oDeitr0mOsDsrokLCy2zoN2dmlTbrvDq4cwu8r4F8aZ800Xf3bpd84');
 
 
@@ -741,6 +742,44 @@ exports.calculate_fare_estimation = async (req, res, next) => {
   }
 }
 
+exports.trip_update = async (req, res, next) => {
+  var requests = req.bodyParams;
+  await Trip.findOneAndUpdate({ _id: requests.id },
+    { $set: 
+      requests
+    },
+    { new: true },
+    (err,doc,trip_detail)=>{
+      if(err)
+      {
+        return res.apiResponse(false, "Invalid Data");
+      }
+      else
+      {
+        var trip_populate=['user_detail','caregiver_detail','driver_detail',
+        {
+          path:'user_rating',
+          match:{rating_type:'driver-user'}
+        },
+        {
+          path:'driver_rating',
+          match:{rating_type:'user-driver'}
+        },
+        {
+          path:'is_user_rated',
+          match:{rating_type:'driver-user'}
+        },
+        {
+          path:'is_driver_rated',
+          match:{rating_type:'user-driver'}
+        }];
+        var trip_detail = await Trip.findOne({ _id: trip_detail._id}).populate(trip_populate);
+        global.io.in("trip_"+ trip_detail.id).emit('trip_detail', { trip_detail });
+        return res.apiResponse(true, "Status Updated Successfully",{ trip_detail });
+      }
+    }
+  ).exec();
+}
 exports.update_trip_status = async (req, res, next) => {
   var requests = req.bodyParams;
   var old_detail = await Trip.findOne({ _id: requests.trip_id });
@@ -784,8 +823,10 @@ exports.update_trip_status = async (req, res, next) => {
           'trip_status': 'online'
           }  
         },
-        { new: true }
-      ).exec();
+        { new: true },
+        (err, doc, raw) => { 
+          commonHelper.send_mail_nodemailer(raw.email,"booking_confirmation",old_detail);
+        }).exec();
     }
     var trip_populate=['user_detail','caregiver_detail','driver_detail',
     {
@@ -1207,6 +1248,117 @@ exports.get_stripe_cards = async(req, res, next) =>
   match.user_id=requests.user_id;
   var stripe_cards = await StripeCards.find(match).sort({createdAt:-1});
   return res.apiResponse(true, "Success", {stripe_cards})
+}
+async function add_stripe_card_while_payment(requests,user_detail,trip_details) {
+  if(trip_details.payment_mode=="wallet" || trip_details.payment_mode=="coh")
+  {
+    return {status:true,token:trip_details.payment_mode, type:"saved_card"}
+  }
+  else if(requests.card_type=="existing")
+  {
+    return {status:true,token:requests.token, type:"saved_card"}
+  }
+  else if(requests.save_card && requests.card_type=="new")
+  {
+    get_stripe_customer_id(user_detail).then(async(customer_id) => {
+      if(customer_id)
+      {
+        var card_details = stripe.customers.createSource(customer_id,{
+          source: requests.token
+        }, async (err, card_details) => {
+          if (err) {
+            return {status:false,token:requests.token, type:"Error on saving stripe card"}
+          }
+          else {
+            var card_data = {}
+            card_data.card_id = card_details.id;
+            card_data.card_details = card_details;
+            card_data.user_id = requests.user_id;
+            let stripe_card_data = new StripeCards(card_data);
+            await stripe_card_data.save();
+            return {status:true,token:card_details.id, type:"saved_card"}
+          }
+        })
+      }
+      else
+      {
+        return {status:false,token:requests.token, type:"Error on creating stripe customer"}
+      }
+    })
+  }
+  else
+  {
+    return {status:true,token:requests.token, type:"token"}
+  }
+}
+async function make_payment(payment_data,trip_details) {
+  var payment_mode = trip_details.payment_mode;
+  if(payment_mode=="card")
+  {
+    stripe.charges.create(payment_data, async (err, charge) => {
+      if (err) {
+        return {status:false,message:"Payment Failed"}
+      }
+      else {
+        return {status:true,message:charge.id,payment_type:"payment_gateway"}
+      }
+    })
+  }
+  else if(payment_mode=="wallet")
+  {
+    return {status:true,message:"",payment_type:"wallet_payment"}
+  }
+  else
+  {
+    return {status:true,message:"",payment_type:"cash"}
+  }
+}
+exports.trip_payment = async(req, res, next) => 
+{
+  var requests = req.bodyParams;
+  var trip_details = await Trip.findOne({_id:requests.trip_id});
+  if(trip_details)
+  {
+    var user_detail = await User.findOne({ "_id": requests.user_id });
+    add_stripe_card_while_payment(requests,user_detail,trip_details).then(async(results) => {
+      if(results.status)
+      {
+        var payment_amount = Math.round(parseFloat(trip_details.price_detail.total));
+        var payment_data={
+          amount:  payment_amount*100,
+          currency: 'sgd',
+          source: results.token,
+          receipt_email:user_detail.email
+        }
+        if(user_detail.stripe_customer)
+        {
+          payment_data.customer = user_detail.stripe_customer
+        }
+        make_payment(payment_data,trip_details).then(async(payment_results) => {
+          var transaction_data = {}
+          transaction_data.amount = trip_details.price_detail.total;
+          transaction_data.orginal_amount = trip_details.price_detail.total;
+          transaction_data.user_id = requests.user_id;
+          transaction_data.type = 'order_payment';
+          transaction_data.transaction_id = payment_results.message;
+          transaction_data.payment_type = payment_results.payment_type;
+          transaction_data.status = 'completed';
+          let transactions = new TransactionModel(transaction_data);
+          await transactions.save();
+          await Trip.findOneAndUpdate({ _id: requests.trip_id },{ $set: {'trip_status': 'rating'}},{ new: true }).exec();
+          return res.apiResponse(true, "Payment Success")
+        })
+      }
+      else
+      {
+        return res.apiResponse(false, results.type)
+      }
+    })
+  }
+  else
+  {
+    return res.apiResponse(false, "Invalid Trip Id")
+  }
 }
 exports.add_wallet = async(req, res, next) => 
 {

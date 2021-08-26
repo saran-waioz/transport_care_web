@@ -23,8 +23,9 @@ const transactionSchema = new  mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
-    type:String,//wallet, order payment, order refund, subscriptions, feature plans, credit_points
-    payment_type: String,//wallet payment, payment gateway, manual etc..,
+    order_id:String,
+    type:String,//wallet, order_payment, order_refund
+    payment_type: String,//wallet_payment, payment_gateway, cash etc..,
     amount:String,
     purpose:String,
     transaction_id:{

@@ -28,6 +28,8 @@ router.post('/rate_user', Usercontroller.rate_user);
 router.post('/rate_driver', Usercontroller.rate_driver);
 router.post('/create_stripe_token', Usercontroller.create_stripe_token);
 router.post('/add_wallet', Usercontroller.add_wallet);
+router.post('/trip_payment', Usercontroller.trip_payment);
+router.post('/trip_update', Usercontroller.trip_update);
 router.post('/get_stripe_cards', Usercontroller.get_stripe_cards);
 router.post('/add_stripe_card', Usercontroller.add_stripe_card);
 router.post('/delete_stripe_card', Usercontroller.delete_stripe_card);
