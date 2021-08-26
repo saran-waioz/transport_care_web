@@ -16,7 +16,7 @@ const logSchema = new mongoose.Schema({
     user_id: String,
     message: String,
     info: Object,
-    type: String //status ,error,warning
+    type: String //status ,error,warning,info
 
 },schemaOptions);
 

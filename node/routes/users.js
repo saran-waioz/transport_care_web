@@ -35,6 +35,7 @@ router.post('/trip_update', Usercontroller.trip_update);
 router.post('/get_stripe_cards', Usercontroller.get_stripe_cards);
 router.post('/add_stripe_card', Usercontroller.add_stripe_card);
 router.post('/delete_stripe_card', Usercontroller.delete_stripe_card);
+router.post('/get_logs', Usercontroller.get_logs);
 // router.post('/get_pagination',Usercontroller.get_pagination)
 // router.post('/get_users',Usercontroller.get_users)
 

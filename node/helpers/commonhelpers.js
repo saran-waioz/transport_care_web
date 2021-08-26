@@ -1,13 +1,18 @@
 const env = process.env;
 const fs = require("fs");
 const User = require("../models/user");
+const Logs = require("../models/log");
 var nodemailer = require('nodemailer');
 
 //sitename
 exports.siteName = () => {
   return process.env.APP_NAME;
 };
-
+exports.put_logs = async(user_id,message,type="info",info={}) => {
+  var new_log = new Logs({user_id:user_id,message:message,type:type,info:info});
+  await new_log.save();
+  return true;
+}
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_ENDPOINT,

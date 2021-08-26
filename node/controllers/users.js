@@ -199,6 +199,39 @@ exports.update_driver_status = async (req, res, next) => {
   return res.apiResponse(true, "Status updated Successfully");
 };
 
+exports.get_logs = async (req, res, next) => {
+  var requests = req.bodyParams;
+  var match =  {
+    user_id:requests.user_id
+  };
+  var page = requests.page || 1
+  var per_page = requests.per_page || 10
+  var pagination = requests.pagination || "false"
+  const myCustomLabels = {
+    totalDocs: 'totalDocs',
+    docs: 'notifications',
+    limit: 'limit',
+    page: 'page',
+    nextPage: 'nextPage',
+    prevPage: 'prevPage',
+    totalPages: 'totalPages',
+    pagingCounter: 'pagingCounter'
+  };
+  const options = {
+    page: page,
+    limit: per_page,
+    customLabels:myCustomLabels
+  };
+  if (pagination == "true") {
+      Log.paginate(match, options, function (err, notifications) {
+          return res.apiResponse(true, "Success", notifications)
+      });
+  }
+  else {
+      var notifications = await Log.find(match);
+      return res.apiResponse(true, "Success", { notifications })
+  }
+}
 // exports.get_pagination = async (req, res, next) => {
 //   var requests = req.bodyParams;
 //   var match =  {};
@@ -1287,9 +1320,9 @@ exports.add_stripe_card = async(req, res, next) =>
           card_data.card_id = card_details.id;
           card_data.card_details = card_details;
           card_data.user_id = requests.user_id;
-          let stripe_card_data = new StripeCards(card_data);
-          await stripe_card_data.save();
-          return res.apiResponse(true, "Card added succesfully")
+          let card = new StripeCards(card_data);
+          await card.save();
+          return res.apiResponse(true, "Card added succesfully",{card})
         }
       })
     }
