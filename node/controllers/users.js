@@ -1349,6 +1349,7 @@ exports.create_stripe_token = async(req, res, next) =>
 async function get_stripe_customer_id(user_detail) {
   if(user_detail.stripe_customer)
   {
+    console.log("1352",user_detail.stripe_customer)
     return user_detail.stripe_customer;
   }
   else
@@ -1383,6 +1384,7 @@ exports.add_stripe_card = async(req, res, next) =>
   var requests = req.bodyParams;
   var user_detail = await User.findOne({ "_id": requests.user_id });
   get_stripe_customer_id(user_detail).then(async(customer_id) => {
+    console.log("1387",customer_id)
     if(customer_id)
     {
       var card_details = stripe.customers.createSource(customer_id,{
