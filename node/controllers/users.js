@@ -186,6 +186,7 @@ exports.update_driver_status = async (req, res, next) => {
     message: requests.driver_status,
     info: requests.info,
   });
+  commonHelper.put_logs(requests.id,"You are updated into " + requests.driver_status + " status");
   newLog.save();
   if (old_user_detail.device_id && old_user_detail.device_id.length) {
     for (let i = 0; i < old_user_detail.device_id.length; ++i) {
@@ -403,6 +404,8 @@ exports.add_user_caregiver = async (req, res, next) => {
           path: 'user_detail',
         }   
       ])
+      commonHelper.put_logs(requests.user_id,"New caregiver added "+caregiver.caregiver_detail.name);
+      commonHelper.put_logs(requests.care_giver_id,"New undercare added "+caregiver.user_detail.name);
       return res.apiResponse(true, "Record Inserted Successfully", {caregiver})
     }
   }
@@ -417,6 +420,8 @@ exports.delete_user_caregiver = async (req, res, next) => {
   await UserCareGiver.findOne({ user_id: requests.user_id, care_giver_id: requests.care_giver_id}, async (err, user_caregiver) => {
     if (user_caregiver) {
       await user_caregiver.remove();
+      commonHelper.put_logs(requests.user_id,"Caregiver removed "+caregiver.caregiver_detail.name);
+      commonHelper.put_logs(requests.care_giver_id,"Undercare removed "+caregiver.user_detail.name);
     }
   });
   return res.apiResponse(true, "Record Deleted Successfully");
@@ -885,6 +890,30 @@ exports.update_trip_status = async (req, res, next) => {
       match:{rating_type:'user-driver'}
     }];
     var trip_detail = await Trip.findOne({ _id: requests.trip_id}).populate(trip_populate);
+    switch (update_data.trip_status) {
+      case 'arrived':
+        commonHelper.put_logs(trip_detail.driver_id,trip_detail.invoice_id+" - Arrived");
+        commonHelper.put_logs(trip_detail.user_id,trip_detail.invoice_id+" - "+trip_detail.driver_detail.name+" arrived your location");
+        break;
+      case 'start_trip':
+        commonHelper.put_logs(trip_detail.driver_id,trip_detail.invoice_id+" - Trip Started");
+        commonHelper.put_logs(trip_detail.user_id,trip_detail.invoice_id+" - Trip Started");
+        break;
+      case 'end_trip':
+        commonHelper.put_logs(trip_detail.driver_id,trip_detail.invoice_id+" - Reached Destination");
+        commonHelper.put_logs(trip_detail.user_id,trip_detail.invoice_id+" - Reached Destination");
+        break;
+      case 'completed':
+        commonHelper.put_logs(trip_detail.driver_id,trip_detail.invoice_id+" - Trip Completed");
+        commonHelper.put_logs(trip_detail.user_id,trip_detail.invoice_id+" - Trip Completed");
+        break; 
+      case 'cancelled':
+        commonHelper.put_logs(trip_detail.driver_id,trip_detail.invoice_id+" - Trip Cancelled");
+        commonHelper.put_logs(trip_detail.user_id,trip_detail.invoice_id+" - Trip Cancelled");
+        break;    
+      default:
+        break;
+    }
     await caregiver_push_notifications(trip_detail);
     if(update_data.trip_status === "completed"){
         /**
@@ -945,6 +974,8 @@ exports.accept_request = async (req, res, next) => {
       match:{rating_type:'user-driver'}
     }];
     var trip_detail = await Trip.findOne({ _id: requests.trip_id }).populate(trip_populate);
+    commonHelper.put_logs(trip_detail.driver_id,trip_detail.invoice_id+" - Request accepted");
+    commonHelper.put_logs(trip_detail.user_id,trip_detail.invoice_id+" - Request accepted by "+trip_detail.driver_detail.name);
     await caregiver_push_notifications(trip_detail);
     global.io.in("user_"+ trip_detail.user_id).emit('trip_detail', { trip_detail });
     return res.apiResponse(true, "Request Accepted Successfully", { trip_detail } );
@@ -1148,6 +1179,7 @@ exports.request_order = async(req, res, next) =>
     service_type: requests.service_type,
     category_detail: category_detail,
     distances: requests.distances,
+    payment_mode: requests.payment_mode,
     price_detail:price_detail,
     is_care_giver:(requests.service_type=='Independent Trip')?false:true
   };
@@ -1236,6 +1268,7 @@ async function function_request_order(requests,trip_detail) {
             var new_request = new RequestDetail(new_request_data);
             await new_request.save();
         }
+        commonHelper.put_logs(trip_detail.user_id,trip_detail.invoice_id+" - Requesting Drivers");
         Agenda.now('requestProcess', { trip_detail }) // requests
         return trip_detail;
       } 
@@ -1410,6 +1443,7 @@ async function caregiver_push_notifications(trip_details) {
         break;
       case "accepted":
         message=trip_details.invoice_id+" - "+driver_detail.name+" accepted request";
+        commonHelper.put_logs(trip_detail.care_giver_id,trip_detail.invoice_id+" - Request accepted by "+trip_detail.driver_detail.name);
         break;
       case "arrived":
         message=trip_details.invoice_id+" - "+driver_detail.name+" reached undercare's location and ready to pickup";
@@ -1426,6 +1460,7 @@ async function caregiver_push_notifications(trip_details) {
       default:
         break;
     }
+    commonHelper.put_logs(trip_details.care_giver_id,message);
     if (caregiver_detail.device_id && caregiver_detail.device_id.length) {
       for (let i = 0; i < caregiver_detail.device_id.length; ++i) {
         Firebase.singleNotification(

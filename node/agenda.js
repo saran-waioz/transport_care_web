@@ -7,7 +7,7 @@ const moment = require("moment");
 const Trip = require('../node/models/trip_details');
 const Firebase = require('../node/config/firebase');
 const User = require('../node/models/user');
-
+const commonHelper = require('../helpers/commonhelpers')
 const RequestDetail = require('../node/models/request_details');
 
 agenda.define('requestProcess',{lockLifetime: 10000}, async(job, done) => {
@@ -56,6 +56,7 @@ agenda.define('requestProcess',{lockLifetime: 10000}, async(job, done) => {
                 angle:0,
                 status:true
             }
+            commonHelper.put_logs(order_requests[0].driver_id,"You have a new trip request" + trip_detail.invoice_id);
             global.io.in("user_"+ order_requests[0].driver_id).emit('new_trip', { trip_detail, response_time });
             var driver_detail = await User.findOne({'_id':order_requests[0].driver_id});
             if(driver_detail.device_id.length)

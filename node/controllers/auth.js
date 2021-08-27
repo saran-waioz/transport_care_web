@@ -43,6 +43,7 @@ exports.sign_up = async (req, res, next) => {
                     * @info send email using through nodemailer after signup *(welcome)
                     */
                     commonHelper.send_mail_nodemailer(requests.email,"welcome",{});
+                    commonHelper.put_logs(newUser._id,"Account Created");
                     var user_detail = newUser;
                     if (requests.device_id) {
                         var push = {
@@ -163,10 +164,14 @@ exports.update_user = async (req, res, next) => {
             User.findOneAndUpdate({ "_id": checkUser._id }, update, { new: true })
         }
         if(requests.trip_status && checkUser.driver_status == 'approved') {
-            var update = {
-                trip_status: requests.trip_status
+            if(!checkUser.current_trip_id || checkUser.current_trip_id=="")
+            {
+                var update = {
+                    trip_status: requests.trip_status
+                }
+                User.findOneAndUpdate({ "_id": checkUser._id }, update, { new: true })
+                commonHelper.put_logs(checkUser._id,"Availability Status updated to " + requests.trip_status);
             }
-            User.findOneAndUpdate({ "_id": checkUser._id }, update, { new: true })
         }
         if(requests.is_attender == 'yes' && requests.attender_name != undefined) {
             console.log("is_attender");
