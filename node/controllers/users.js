@@ -1349,7 +1349,6 @@ exports.create_stripe_token = async(req, res, next) =>
 async function get_stripe_customer_id(user_detail) {
   if(user_detail.stripe_customer)
   {
-    console.log("1352",user_detail.stripe_customer)
     return user_detail.stripe_customer;
   }
   else
@@ -1362,11 +1361,10 @@ async function get_stripe_customer_id(user_detail) {
     })
     if(!customer.id)
     {
-      console.log("1365",err)
       return false;
     }
     else{
-      console.log("1369",customer)
+      console.log("1367",customer.id)
       await User.findOneAndUpdate({ _id: user_detail.id},
         { $set: 
           {
@@ -1385,10 +1383,10 @@ exports.add_stripe_card = async(req, res, next) =>
   var requests = req.bodyParams;
   var user_detail = await User.findOne({ "_id": requests.user_id });
   await get_stripe_customer_id(user_detail).then(async(customer_id) => {
-    console.log("1387",customer_id)
+    console.log("1386",customer_id)
     if(customer_id)
     {
-      var card_details = stripe.customers.createSource(customer_id,{
+      var card_details = await stripe.customers.createSource(customer_id,{
         source: requests.token
       }, async (err, card_details) => {
         if (err) {
@@ -1447,7 +1445,7 @@ async function add_stripe_card_while_payment(requests,user_detail,trip_details) 
     get_stripe_customer_id(user_detail).then(async(customer_id) => {
       if(customer_id)
       {
-        var card_details = stripe.customers.createSource(customer_id,{
+        var card_details = await stripe.customers.createSource(customer_id,{
           source: requests.token
         }, async (err, card_details) => {
           if (err) {
@@ -1522,7 +1520,7 @@ async function make_payment(payment_data,trip_details) {
   var payment_mode = trip_details.payment_mode;
   if(payment_mode=="card")
   {
-    stripe.charges.create(payment_data, async (err, charge) => {
+    await stripe.charges.create(payment_data, async (err, charge) => {
       if (err) {
         return {status:false,message:"Payment Failed"}
       }
@@ -1612,7 +1610,7 @@ exports.trip_payment = async(req, res, next) =>
 exports.add_wallet = async(req, res, next) => 
 {
   var requests = req.bodyParams;
-  var charge = stripe.charges.create({  // stripe payment start
+  var charge = await stripe.charges.create({  // stripe payment start
     amount:  Math.round(parseInt(requests.total_amount)*100),
     currency: 'sgd',
     source: requests.token
