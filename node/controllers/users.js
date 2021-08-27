@@ -1381,9 +1381,8 @@ exports.add_stripe_card = async(req, res, next) =>
 {
   var requests = req.bodyParams;
   var user_detail = await User.findOne({ "_id": requests.user_id });
-  await get_stripe_customer_id(user_detail).then(async(customer_id,customer_id1) => {
+  await get_stripe_customer_id(user_detail).then(async(customer_id) => {
     console.log("1385",customer_id)
-    console.log("1386",customer_id1)
     if(customer_id)
     {
       var card_details = await stripe.customers.createSource(customer_id,{
