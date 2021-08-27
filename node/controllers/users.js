@@ -704,7 +704,7 @@ exports.get_home_page_details = async (req, res, next) => {
   else if (typeof requests.driver_id != "undefined" && requests.driver_id != "") 
   {
     var user_detail = await User.findOne({_id:requests.driver_id});
-    var current_trip_detail = await Trip.find({ driver_id: requests.driver_id, is_deleted: false, trip_status:{$in:['pending', 'arrived','accepted' , 'start_trip']} }).populate(trip_populate);
+    var current_trip_detail = await Trip.find({ driver_id: requests.driver_id, is_deleted: false, trip_status:{$in:['pending', 'arrived','accepted' , 'start_trip','end_trip']} }).populate(trip_populate);
   }
   var category_list = await Category.find();
 
