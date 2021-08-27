@@ -1545,6 +1545,8 @@ exports.trip_payment = async(req, res, next) =>
               match:{rating_type:'user-driver'}
             }];
             var trip_detail = await Trip.findOne({ _id: requests.trip_id}).populate(trip_populate);
+            commonHelper.put_logs(trip_detail.user_id,trip_detail.invoice_id+" Trip Completed");
+            commonHelper.put_logs(trip_detail.driver_id,trip_detail.invoice_id+" Trip Completed");
             global.io.in("trip_"+ trip_detail.id).emit('trip_detail', { trip_detail });
           }).exec();
           return res.apiResponse(true, "Payment Success")
