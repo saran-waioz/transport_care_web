@@ -9,7 +9,6 @@ const Firebase = require('../node/config/firebase');
 const User = require('../node/models/user');
 const commonHelper = require('../helpers/commonhelpers')
 const RequestDetail = require('../node/models/request_details');
-const commonHelper=require('../helpers/commonhelpers')
 
 agenda.define('requestProcess',{lockLifetime: 10000}, async(job, done) => {
     job.repeatEvery('10 seconds', {
