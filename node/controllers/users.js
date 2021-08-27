@@ -1443,7 +1443,7 @@ async function caregiver_push_notifications(trip_details) {
         break;
       case "accepted":
         message=trip_details.invoice_id+" - "+driver_detail.name+" accepted request";
-        commonHelper.put_logs(trip_detail.care_giver_id,trip_detail.invoice_id+" - Request accepted by "+trip_detail.driver_detail.name);
+        commonHelper.put_logs(trip_details.care_giver_id,trip_details.invoice_id+" - Request accepted by "+trip_details.driver_detail.name);
         break;
       case "arrived":
         message=trip_details.invoice_id+" - "+driver_detail.name+" reached undercare's location and ready to pickup";
