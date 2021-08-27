@@ -1354,7 +1354,7 @@ async function get_stripe_customer_id(user_detail) {
   }
   else
   {
-    var create_customer = stripe.customers.create({  // stripe payment start
+    stripe.customers.create({  // stripe payment start
       name:  user_detail.name,
       email:  user_detail.email,
       phone:  user_detail.phone,
@@ -1372,9 +1372,11 @@ async function get_stripe_customer_id(user_detail) {
             'stripe_customer': customer.id
             }  
           },
-          { new: true }
+          { new: true },(err,det)=>{
+            return customer.id;
+          }
         ).exec();
-        return customer.id;
+        
       }
     })
   }
