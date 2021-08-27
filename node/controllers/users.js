@@ -1364,7 +1364,6 @@ async function get_stripe_customer_id(user_detail) {
       return false;
     }
     else{
-      console.log("1367",customer.id)
       await User.findOneAndUpdate({ _id: user_detail.id},
         { $set: 
           {
@@ -1382,7 +1381,6 @@ exports.add_stripe_card = async(req, res, next) =>
   var requests = req.bodyParams;
   var user_detail = await User.findOne({ "_id": requests.user_id });
   await get_stripe_customer_id(user_detail).then(async(customer_id) => {
-    console.log("1385",customer_id)
     if(customer_id)
     {
       var card_details = await stripe.customers.createSource(customer_id,{
@@ -1515,7 +1513,7 @@ async function caregiver_push_notifications(trip_details) {
     }
   }
 }
-async function make_payment(payment_data,trip_details) {
+async function make_payment(payment_data,trip_details,user_detail) {
   var payment_mode = trip_details.payment_mode;
   if(payment_mode=="card")
   {
@@ -1530,7 +1528,19 @@ async function make_payment(payment_data,trip_details) {
   }
   else if(payment_mode=="wallet")
   {
-    return {status:true,message:"",payment_type:"wallet_payment"}
+    if(parseFloat(user_detail.wallet_amount)<=parseFloat(payment_data.amount/100))
+    {
+      var updated_wallet_amount = (parseFloat(user_detail.wallet_amount)- parseFloat(payment_data.amount/100)).toFixed(2)
+      await User.findOneAndUpdate(
+        { _id: user_detail.id },
+        { $set: {wallet_amount: updated_wallet_amount} },
+      ).exec();
+      return {status:true,message:"",payment_type:"wallet_payment"}
+    }
+    else
+    {
+      return {status:false,message:"Insufficient balance in your wallet",payment_type:"wallet_payment"}
+    }
   }
   else
   {
@@ -1558,41 +1568,46 @@ exports.trip_payment = async(req, res, next) =>
         {
           payment_data.customer = user_detail.stripe_customer
         }
-        make_payment(payment_data,trip_details).then(async(payment_results) => {
-          var transaction_data = {}
-          transaction_data.amount = trip_details.price_detail.total;
-          transaction_data.orginal_amount = trip_details.price_detail.total;
-          transaction_data.user_id = requests.user_id;
-          transaction_data.type = 'order_payment';
-          transaction_data.transaction_id = payment_results.message;
-          transaction_data.payment_type = payment_results.payment_type;
-          transaction_data.status = 'completed';
-          let transactions = new TransactionModel(transaction_data);
-          await transactions.save();
-          await Trip.findOneAndUpdate({ _id: requests.trip_id },{ $set: {'paid_at':moment(),'payment_status':'Paid','trip_status': 'rating'}},{ new: true },async(err,trip_detail)=>{
-            var trip_populate=['user_detail','caregiver_detail','driver_detail',
-            {
-              path:'user_rating',
-              match:{rating_type:'driver-user'}
-            },
-            {
-              path:'driver_rating',
-              match:{rating_type:'user-driver'}
-            },
-            {
-              path:'is_user_rated',
-              match:{rating_type:'driver-user'}
-            },
-            {
-              path:'is_driver_rated',
-              match:{rating_type:'user-driver'}
-            }];
-            var trip_detail = await Trip.findOne({ _id: requests.trip_id}).populate(trip_populate);
-            commonHelper.put_logs(trip_detail.user_id,trip_detail.invoice_id+" Trip Completed");
-            commonHelper.put_logs(trip_detail.driver_id,trip_detail.invoice_id+" Trip Completed");
-            global.io.in("trip_"+ trip_detail.id).emit('trip_detail', { trip_detail });
-          }).exec();
-          return res.apiResponse(true, "Payment Success")
+        make_payment(payment_data,trip_details,user_detail).then(async(payment_results) => {
+          if(payment_results.status)
+          {
+            var transaction_data = {}
+            transaction_data.amount = trip_details.price_detail.total;
+            transaction_data.orginal_amount = trip_details.price_detail.total;
+            transaction_data.user_id = requests.user_id;
+            transaction_data.type = 'order_payment';
+            transaction_data.transaction_id = payment_results.message;
+            transaction_data.payment_type = payment_results.payment_type;
+            transaction_data.status = 'completed';
+            let transactions = new TransactionModel(transaction_data);
+            await transactions.save();
+            await Trip.findOneAndUpdate({ _id: requests.trip_id },{ $set: {'paid_at':moment(),'payment_status':'Paid','trip_status': 'rating'}},{ new: true },async(err,trip_detail)=>{
+              var trip_populate=['user_detail','caregiver_detail','driver_detail',
+              {
+                path:'user_rating',
+                match:{rating_type:'driver-user'}
+              },
+              {
+                path:'driver_rating',
+                match:{rating_type:'user-driver'}
+              },
+              {
+                path:'is_user_rated',
+                match:{rating_type:'driver-user'}
+              },
+              {
+                path:'is_driver_rated',
+                match:{rating_type:'user-driver'}
+              }];
+              var trip_detail = await Trip.findOne({ _id: requests.trip_id}).populate(trip_populate);
+              global.io.in("trip_"+ trip_detail.id).emit('trip_detail', { trip_detail });
+            }).exec();
+            return res.apiResponse(true, "Payment Success")
+          }
+          else
+          {
+            return res.apiResponse(false, payment_results.message)
+          }
         })
       }
       else
