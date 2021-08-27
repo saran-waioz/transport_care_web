@@ -1383,7 +1383,7 @@ exports.add_stripe_card = async(req, res, next) =>
 {
   var requests = req.bodyParams;
   var user_detail = await User.findOne({ "_id": requests.user_id });
-  get_stripe_customer_id(user_detail).then(async(customer_id) => {
+  await get_stripe_customer_id(user_detail).then(async(customer_id) => {
     console.log("1387",customer_id)
     if(customer_id)
     {
