@@ -787,7 +787,7 @@ exports.trip_update = async (req, res, next) => {
       requests
     },
     { new: true },
-    async(err,doc,trip_detail)=>{
+    async(err,trip_detail)=>{
       if(err)
       {
         return res.apiResponse(false, "Invalid Data");
