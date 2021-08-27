@@ -1364,6 +1364,7 @@ async function get_stripe_customer_id(user_detail) {
         return false;
       }
       else {
+        console.log("1367",customer)
         await User.findOneAndUpdate({ _id: user_detail.id},
           { $set: 
             {
