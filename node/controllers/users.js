@@ -1354,31 +1354,30 @@ async function get_stripe_customer_id(user_detail) {
   }
   else
   {
-    stripe.customers.create({  // stripe payment start
+    var customer = await stripe.customers.create({  // stripe payment start
       name:  user_detail.name,
       email:  user_detail.email,
       phone:  user_detail.phone,
       description:  "Transport Care Customer "+user_detail.email
-    }, async (err, customer) => {
-      if (err) {
-        console.log("1256",err)
-        return false;
-      }
-      else {
-        console.log("1367",customer)
-        await User.findOneAndUpdate({ _id: user_detail.id},
-          { $set: 
-            {
-            'stripe_customer': customer.id
-            }  
-          },
-          { new: true },(err,det)=>{
-            return customer.id;
-          }
-        ).exec();
-        
-      }
     })
+    if(!customer.id)
+    {
+      console.log("1365",err)
+      return false;
+    }
+    else{
+      console.log("1369",customer)
+      await User.findOneAndUpdate({ _id: user_detail.id},
+        { $set: 
+          {
+          'stripe_customer': customer.id
+          }  
+        },
+        { new: true },(err,det)=>{
+          return customer.id;
+        }
+      ).exec();
+    }
   }
 }
 exports.add_stripe_card = async(req, res, next) => 
