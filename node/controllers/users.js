@@ -106,6 +106,48 @@ async function get_default_category(user_detail,category_list) {
     return user_detail.default_category_id
   }
 }
+exports.get_wallet_data = async (req, res) => {
+  var requests = req.bodyParams;
+  var user_detail = await User.findOne({ _id: requests.user_id });
+  var match={ user_id: requests.user_id }
+  match = {$or:[
+    {type:'wallet'},
+    {payment_type:'wallet_payment'}
+  ]}
+  var page = requests.page || 1
+  var per_page = requests.per_page || 10
+  var pagination = requests.pagination || "false"
+  const myCustomLabels = {
+    totalDocs: 'totalDocs',
+    docs: 'wallet_history',
+    limit: 'limit',
+    page: 'page',
+    nextPage: 'nextPage',
+    prevPage: 'prevPage',
+    totalPages: 'totalPages',
+    pagingCounter: 'pagingCounter'
+  };
+  const options = {
+    page: page,
+    limit: per_page,
+    customLabels:myCustomLabels
+  };
+  if (pagination == "true") {
+    TransactionModel.paginate(match, options, function (err, wallet_history) {
+        var wallet_details={}
+        wallet_details.wallet_amount = user_detail.wallet_amount
+        wallet_details.wallet_history = wallet_history
+        return res.apiResponse(true, "Success", wallet_details)
+    });
+  }
+  else {
+    var wallet_history = await TransactionModel.find(match);
+    var wallet_details={}
+    wallet_details.wallet_amount = user_detail.wallet_amount
+    wallet_details.wallet_history = wallet_history
+    return res.apiResponse(true, "Success", wallet_details)
+  }
+}
 exports.get_user_detail = async (req, res) => {
   var requests = req.bodyParams;
   if (
