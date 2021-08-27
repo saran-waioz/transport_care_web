@@ -7,7 +7,7 @@ const moment = require("moment");
 const Trip = require('../node/models/trip_details');
 const Firebase = require('../node/config/firebase');
 const User = require('../node/models/user');
-const commonHelper = require('../helpers/commonhelpers')
+const commonHelper = require('../node/helpers/commonhelpers')
 const RequestDetail = require('../node/models/request_details');
 
 agenda.define('requestProcess',{lockLifetime: 10000}, async(job, done) => {
