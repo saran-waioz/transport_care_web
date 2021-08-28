@@ -136,8 +136,8 @@ exports.get_wallet_data = async (req, res) => {
     TransactionModel.paginate(match, options, function (err, wallet_history) {
         var wallet_details={}
         wallet_details.wallet_amount = user_detail.wallet_amount
-        wallet_details.wallet_history = wallet_history
-        return res.apiResponse(true, "Success", wallet_details)
+        const c = Object.assign({}, wallet_history, {wallet_details});
+        return res.apiResponse(true, "Success", c )
     });
   }
   else {
