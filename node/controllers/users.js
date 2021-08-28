@@ -1444,20 +1444,19 @@ async function add_stripe_card_while_payment(requests,user_detail,trip_details) 
       {
         var card_details = await stripe.customers.createSource(customer_id,{
           source: requests.token
-        }, async (err, card_details) => {
-          if (err) {
-            return {status:false,token:requests.token, type:"Error on saving stripe card"}
-          }
-          else {
-            var card_data = {}
-            card_data.card_id = card_details.id;
-            card_data.card_details = card_details;
-            card_data.user_id = requests.user_id;
-            let stripe_card_data = new StripeCards(card_data);
-            await stripe_card_data.save();
-            return {status:true,token:card_details.id, type:"saved_card"}
-          }
         })
+        if (!card_details.id) {
+          return {status:false,token:requests.token, type:"Error on saving stripe card"}
+        }
+        else {
+          var card_data = {}
+          card_data.card_id = card_details.id;
+          card_data.card_details = card_details;
+          card_data.user_id = requests.user_id;
+          let stripe_card_data = new StripeCards(card_data);
+          await stripe_card_data.save();
+          return {status:true,token:card_details.id, type:"saved_card"}
+        }
       }
       else
       {
