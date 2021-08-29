@@ -157,7 +157,7 @@ exports.get_user_detail = async (req, res) => {
     requests.id != "null"
   ) 
   {
-    var user_detail = await User.findOne({ _id: requests.id }).populate(['driver_status_detail','category_detail','default_category_detail']);
+    var user_detail = await User.findOne({ _id: requests.id }).populate(['driver_status_detail','default_category_detail']);
     var category_list = await Category.find();
     // get_default_category(user_detail,category_list).then(async(category_det) => {
       // var user_detail = await User.findOne({ _id: requests.id }).populate(['driver_status_detail','category_detail','default_category_detail']);
