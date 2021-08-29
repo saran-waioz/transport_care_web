@@ -1525,6 +1525,7 @@ async function make_payment(payment_data,trip_details,user_detail) {
   }
   else if(payment_mode=="wallet")
   {
+    console.log(parseFloat(user_detail.wallet_amount),parseFloat(payment_data.amount/100))
     if(parseFloat(user_detail.wallet_amount)<=parseFloat(payment_data.amount/100))
     {
       var updated_wallet_amount = (parseFloat(user_detail.wallet_amount)- parseFloat(payment_data.amount/100)).toFixed(2)
