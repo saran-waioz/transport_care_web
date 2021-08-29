@@ -160,7 +160,7 @@ exports.get_user_detail = async (req, res) => {
     var user_detail = await User.findOne({ _id: requests.id });
     var category_list = await Category.find();
     get_default_category(user_detail,category_list).then(async(category_det) => {
-      var user_detail = await User.findOne({ _id: requests.id }).populate(['driver_status_detail','category_detail','default_category_detail']);
+      var user_detail = await User.findOne({ _id: requests.id }).populate(['default_category_detail']);
       user_detail = JSON.parse(JSON.stringify(user_detail));
       user_detail.default_category_name = user_detail.default_category_detail.name
       var service_type = [
