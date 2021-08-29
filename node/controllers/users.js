@@ -175,8 +175,8 @@ exports.get_user_detail = async (req, res) => {
         service_type:trip_details.service_type,
         category_name : trip_details.category_detail.name,
         driver_name:trip_details.driver_detail.name,
-        format_date : trip_details.formattedCreatedAt,
-        amount:trip_details.priceDetail.total
+        format_date : trip_details.formatted_created_at,
+        amount:trip_details.price_detail.total
       }
       return res.apiResponse(true, "Success", { user_detail,service_type,category_list,last_trip_detail });
     })
