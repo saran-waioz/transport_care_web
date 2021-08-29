@@ -185,7 +185,7 @@ exports.get_user_detail = async (req, res) => {
     get_default_category(user_detail,category_list).then(async(category_det) => {
       var user_detail = await User.findOne({ _id: requests.id }).populate(user_populate);
       user_detail = JSON.parse(JSON.stringify(user_detail));
-      user_detail.default_category_name = user_detail.default_category_detail.name
+      user_detail.default_category_name = (user_detail.role==2)?"":user_detail.default_category_detail.name;
       var service_type = [
         { name: "Door to Door", image: commonHelper.getBaseurl() + "/media/assets/images/door_to_door_image.jpeg", is_care: true }, 
         { name: "Independent Trip", image: commonHelper.getBaseurl() + "/media/assets/images/independent_image.jpeg", is_care: false }, 
