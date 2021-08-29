@@ -157,12 +157,12 @@ exports.get_user_detail = async (req, res) => {
     requests.id != "null"
   ) 
   {
-    var user_detail = await User.findOne({ _id: requests.id }).populate(['driver_status_detail','default_category_detail']);
+    var user_detail = await User.findOne({ _id: requests.id });
     var category_list = await Category.find();
     // get_default_category(user_detail,category_list).then(async(category_det) => {
       // var user_detail = await User.findOne({ _id: requests.id }).populate(['driver_status_detail','category_detail','default_category_detail']);
-      user_detail = JSON.parse(JSON.stringify(user_detail));
-      user_detail.default_category_name = user_detail.default_category_detail.name
+      // user_detail = JSON.parse(JSON.stringify(user_detail));
+      // user_detail.default_category_name = ""
       var service_type = [
         { name: "Door to Door", image: commonHelper.getBaseurl() + "/media/assets/images/door_to_door_image.jpeg", is_care: true }, 
         { name: "Independent Trip", image: commonHelper.getBaseurl() + "/media/assets/images/independent_image.jpeg", is_care: false }, 
