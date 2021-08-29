@@ -168,25 +168,17 @@ exports.get_user_detail = async (req, res) => {
         { name: "Independent Trip", image: commonHelper.getBaseurl() + "/media/assets/images/independent_image.jpeg", is_care: false }, 
         { name: "Caregiver", image: commonHelper.getBaseurl() + "/media/assets/images/caregiver_image.jpeg", is_care: true }
       ];
-      var populate=['user_detail','caregiver_detail','driver_detail',
-      {
-        path:'user_rating',
-        match:{rating_type:'driver-user'}
-      },
-      {
-        path:'driver_rating',
-        match:{rating_type:'user-driver'}
-      },
-      {
-        path:'is_user_rated',
-        match:{rating_type:'driver-user'}
-      },
-      {
-        path:'is_driver_rated',
-        match:{rating_type:'user-driver'}
-      }];
-      var trip_details = await Trip.find({user_id:requests.id}).populate(populate).limit(1).sort({createdAt:-1});
-      return res.apiResponse(true, "Success", { user_detail,service_type,category_list,trip_details });
+      var populate=['driver_detail'];
+      var trip_details = await Trip.findOne({user_id:requests.id}).populate(populate).limit(1).sort({createdAt:-1});
+      var last_trip_detail = {
+        id:trip_details._id,
+        service_type:trip_details.service_type,
+        category_name : trip_details.category_detail.name,
+        driver_name:trip_details.driver_detail.name,
+        format_date : trip_details.formattedCreatedAt,
+        amount:trip_details.priceDetail.total
+      }
+      return res.apiResponse(true, "Success", { user_detail,service_type,category_list,last_trip_detail });
     })
   } else {
     return res.apiResponse(false, "Success");
