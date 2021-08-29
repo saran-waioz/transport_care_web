@@ -149,6 +149,7 @@ exports.get_wallet_data = async (req, res) => {
   }
 }
 exports.get_driver_status = async (req, res) => {
+  var requests = req.bodyParams;
   var user_detail = await User.findOne({ _id: requests.id }).populate(['driver_status_detail']);
   if(user_detail)
   {
