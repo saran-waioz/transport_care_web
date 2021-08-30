@@ -16,6 +16,27 @@ module.exports.respond = function(socket_io){
     socket_io.on('room_for_user', function(room) {
       socket_io.join(room);
     });
+    socket_io.on('get_trip',async(data)=>{
+      var trip_populate=['user_detail','caregiver_detail','driver_detail',
+      {
+        path:'user_rating',
+        match:{rating_type:'driver-user'}
+      },
+      {
+        path:'driver_rating',
+        match:{rating_type:'user-driver'}
+      },
+      {
+        path:'is_user_rated',
+        match:{rating_type:'driver-user'}
+      },
+      {
+        path:'is_driver_rated',
+        match:{rating_type:'user-driver'}
+      }];
+      var trip_detail = await Trip.findOne({ _id: data.trip_id}).populate(trip_populate);
+      global.io.in("trip_"+ trip_detail.id).emit('trip_detail', { trip_detail });
+    })
     socket_io.on('update_location', async(data) => {
       let location = {
         type: "Point",
