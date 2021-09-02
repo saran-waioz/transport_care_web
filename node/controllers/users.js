@@ -282,7 +282,8 @@ exports.get_logs = async (req, res, next) => {
   const options = {
     page: page,
     limit: per_page,
-    customLabels:myCustomLabels
+    customLabels:myCustomLabels,
+    sort:{createdAt:-1}
   };
   if (pagination == "true") {
       Log.paginate(match, options, function (err, notifications) {
@@ -290,7 +291,7 @@ exports.get_logs = async (req, res, next) => {
       });
   }
   else {
-      var notifications = await Log.find(match);
+      var notifications = await Log.find(match).sort({createdAt:-1});
       return res.apiResponse(true, "Success", { notifications })
   }
 }
@@ -1260,7 +1261,7 @@ exports.request_order = async(req, res, next) =>
     }
     else
     {
-      await caregiver_push_notifications(trip_detail);
+      // await caregiver_push_notifications(trip_detail);
       return res.apiResponse(true, "Trip request processing", { trip_detail } )
     }
   });
