@@ -1227,11 +1227,8 @@ exports.rate_driver = async(req, res) => {
 exports.request_order = async(req, res, next) => 
 {
   var requests = req.bodyParams;
-  console.log(requests.care_giver_id)
   if(!requests.care_giver_id)
   {
-    console.log("Sdf")
-    requests = JSON.parse(JSON.stringify(requests));
     delete requests.care_giver_id;
   }
   console.log(requests)
