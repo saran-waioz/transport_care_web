@@ -1261,7 +1261,7 @@ exports.request_order = async(req, res, next) =>
     }
     else
     {
-      // await caregiver_push_notifications(trip_detail);
+      await caregiver_push_notifications(trip_detail);
       return res.apiResponse(true, "Trip request processing", { trip_detail } )
     }
   });
@@ -1489,47 +1489,51 @@ async function add_stripe_card_while_payment(requests,user_detail,trip_details) 
   }
 }
 async function caregiver_push_notifications(trip_details) {
-  var caregiver_detail = await User.findOne({'_id':trip_details.care_giver_id});
-  var user_detail = await User.findOne({'_id':trip_details.user_id});
-  var driver_detail = await User.findOne({'_id':trip_details.driver_id});
-  if(user_detail && (user_detail.role==1 || user_detail.role=="1") && trip_details.care_giver_id)
+  if(trip_details.service_type!="Independent Trip")
   {
-    var message=""
-    // processing, accepted ,arrived, start_trip, end_trip, payment, rating, completed, cancelled
-    switch (trip_details.trip_status) {
-      case "processing":
-        message=trip_details.invoice_id+" - "+"Trying to reach your place, Requesting drivers now"
+    var caregiver_detail = await User.findOne({'_id':trip_details.care_giver_id});
+    var user_detail = await User.findOne({'_id':trip_details.user_id});
+    var driver_detail = await User.findOne({'_id':trip_details.driver_id});
+    if(user_detail && (user_detail.role==1 || user_detail.role=="1") && trip_details.care_giver_id)
+    {
+      var message=""
+      // processing, accepted ,arrived, start_trip, end_trip, payment, rating, completed, cancelled
+      switch (trip_details.trip_status) {
+        case "processing":
+          message=trip_details.invoice_id+" - "+"Trying to reach your place, Requesting drivers now"
+          break;
+        case "accepted":
+          message=trip_details.invoice_id+" - "+driver_detail.name+" accepted request";
+          commonHelper.put_logs(trip_details.care_giver_id,trip_details.invoice_id+" - Request accepted by "+trip_details.driver_detail.name);
+          break;
+        case "arrived":
+          message=trip_details.invoice_id+" - "+driver_detail.name+" reached undercare's location and ready to pickup";
+          break;
+        case "start_trip":
+          message=trip_details.invoice_id+" - "+" Trip Started, will be reach in "+trip_details.duration;
         break;
-      case "accepted":
-        message=trip_details.invoice_id+" - "+driver_detail.name+" accepted request";
-        commonHelper.put_logs(trip_details.care_giver_id,trip_details.invoice_id+" - Request accepted by "+trip_details.driver_detail.name);
+        case "end_trip":
+          message=trip_details.invoice_id+" - "+" Reached your location";
         break;
-      case "arrived":
-        message=trip_details.invoice_id+" - "+driver_detail.name+" reached undercare's location and ready to pickup";
+        case "cancelled":
+          message=trip_details.invoice_id+" - "+" Cancelled the appointment";
         break;
-      case "start_trip":
-        message=trip_details.invoice_id+" - "+" Trip Started, will be reach in "+trip_details.duration;
-      break;
-      case "end_trip":
-        message=trip_details.invoice_id+" - "+" Reached your location";
-      break;
-      case "cancelled":
-        message=trip_details.invoice_id+" - "+" Cancelled the appointment";
-      break;
-      default:
-        break;
-    }
-    commonHelper.put_logs(trip_details.care_giver_id,message);
-    if (caregiver_detail.device_id && caregiver_detail.device_id.length) {
-      for (let i = 0; i < caregiver_detail.device_id.length; ++i) {
-        Firebase.singleNotification(
-          caregiver_detail.device_id[i],
-          "Under Care ["+user_detail.name+"]",
-          message
-        );
+        default:
+          break;
+      }
+      commonHelper.put_logs(trip_details.care_giver_id,message);
+      if (caregiver_detail.device_id && caregiver_detail.device_id.length) {
+        for (let i = 0; i < caregiver_detail.device_id.length; ++i) {
+          Firebase.singleNotification(
+            caregiver_detail.device_id[i],
+            "Under Care ["+user_detail.name+"]",
+            message
+          );
+        }
       }
     }
   }
+  
 }
 async function make_payment(payment_data,trip_details,user_detail) {
   var payment_mode = trip_details.payment_mode;
