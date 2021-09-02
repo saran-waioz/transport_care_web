@@ -1231,6 +1231,7 @@ exports.request_order = async(req, res, next) =>
   {
     delete requests.care_giver_id;
   }
+  console.log(requests)
   var category_detail = await Category.findOne({ '_id': requests.category_id });
   category_detail = JSON.parse(JSON.stringify(category_detail));
   var price_detail = {}
