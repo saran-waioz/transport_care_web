@@ -1229,6 +1229,7 @@ exports.request_order = async(req, res, next) =>
   var requests = req.bodyParams;
   if(requests.care_giver_id && requests.care_giver_id=='')
   {
+    requests = JSON.parse(JSON.stringify(requests));
     delete requests.care_giver_id;
   }
   console.log(requests)
