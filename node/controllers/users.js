@@ -1489,7 +1489,7 @@ async function add_stripe_card_while_payment(requests,user_detail,trip_details) 
   }
 }
 async function caregiver_push_notifications(trip_details) {
-  if(trip_details.service_type!="Independent Trip")
+  if(trip_details && trip_details.service_type!="Independent Trip")
   {
     var caregiver_detail = await User.findOne({'_id':trip_details.care_giver_id});
     var user_detail = await User.findOne({'_id':trip_details.user_id});
