@@ -1496,11 +1496,14 @@ async function add_stripe_card_while_payment(requests,user_detail,trip_details) 
 async function caregiver_push_notifications(trip_details) {
   if(trip_details && trip_details.service_type!="Independent Trip")
   {
+    console.log("1499",trip_details)
     var caregiver_detail = await User.findOne({'_id':trip_details.care_giver_id});
     var user_detail = await User.findOne({'_id':trip_details.user_id});
     var driver_detail = await User.findOne({'_id':trip_details.driver_id});
+    console.log(caregiver_detail,"1503")
     if(user_detail && (user_detail.role==1 || user_detail.role=="1") && trip_details.care_giver_id)
     {
+      console.log("1505",trip_details)
       var message=""
       // processing, accepted ,arrived, start_trip, end_trip, payment, rating, completed, cancelled
       switch (trip_details.trip_status) {
