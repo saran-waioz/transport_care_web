@@ -4,7 +4,7 @@ import 'antd/dist/antd.css';
 import '../../../scss/template.scss';
 import  AdminSider from '../Layout/AdminSider';
 import  AdminHeader  from '../Layout/AdminHeader';
-import BookingTable from './Booking_Table';
+import TripTable from './TripTable';
 import CancelTable from './Cancel_Table';
 import { Layout, Tabs } from 'antd';
 import CompletedTable from "./Completed_Table";
@@ -32,13 +32,11 @@ class Booking extends React.Component {
                     <Content className="main_frame">
                         <Tabs>
                             <TabPane tab="Trip" key="1">
-                                <BookingTable />
+                                <TripTable />
                             </TabPane>
                             <TabPane tab="Trip Cancel" key="2">
-                                <CancelTable />
                             </TabPane>
                             <TabPane tab="Trip Completed" key="3">
-                                 <CompletedTable/>
                             </TabPane>
                         </Tabs>
                     </Content>

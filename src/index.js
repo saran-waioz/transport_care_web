@@ -59,6 +59,7 @@ import Driver_Edit from "./component/Admin/Driver/Driver_Edit";
 import Edit_Category from "./component/Admin/Category/Edit_Category";
 import Edit_Static from "./component/Admin/Static/Edit_static";
 import DriverLocation from "./component/Admin/DriverLocation/Driver_locat_table";
+import Caregiver_Edit from "./component/Admin/Cargiver/Caregiver_Edit";
 
 ReactDOM.render(
   <BrowserRouter>
@@ -67,10 +68,15 @@ ReactDOM.render(
       <Route exact path="/admin" component={LoginPage} />
       <Route path="/admin/admin-dashboard" component={Dashboard} />
       <Route path="/admin/admin-driver" component={Driver} exact />
+      <Route path="/admin/admin-driver/add" component={Driver_Edit} exact />
       <Route path="/admin/admin-driveredit/:id" component={Driver_Edit} exact />
       <Route path="/admin/admin-location" component={DriverLocation}/>
       <Route path="/admin/admin-user" component={User} exact />
+      <Route path="/admin/admin-user/add" component={Add_User} exact />
+      <Route path="/admin/admin-useredit/:id" component={Add_User} exact />
       <Route path="/admin/admin-caregiver" component={Caregiver} exact />
+      <Route path="/admin/admin-caregiver/add" component={Caregiver_Edit} exact />
+      <Route path="/admin/admin-caregiveredit/:id" component={Caregiver_Edit} exact />
       <Route path="/admin/admin-category" component={Category} exact />
       <Route path="/admin/admin-categories" component={Add_Category} exact />
       <Route path="/admin/admin-categories/:id" component={Edit_Category} exact />

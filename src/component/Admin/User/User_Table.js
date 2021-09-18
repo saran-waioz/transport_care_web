@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { withRouter } from "react-router-dom";
-// import { useHistory } from "react-router";
-import {Table,Button,Icon,Popconfirm} from "antd";
+import { useHistory } from "react-router";
+import { Table, Button, Icon, Popconfirm } from "antd";
 import { Alert_msg } from "../../Comman/alert_msg";
 import Search from "antd/lib/input/Search";
 import Apicall from "../../../Api/Api";
-import { values } from "lodash";
-
-const User = () => {
+const User = (props) => {
+  const history = useHistory();
   const [datas, setdata] = useState({
     role: "1",
     page: 1,
@@ -15,12 +14,12 @@ const User = () => {
     search: "",
     sort: "",
   });
-  const [loading,setloading]=useState(false)
+  const [loading, setloading] = useState(false);
   const [users, setusers] = useState([]);
   const [paginationInfo, setPaginationInfo] = useState({
     current: 1,
     pageSize: 10,
-    simple :true
+    simple: true,
   });
   const [serach, setsearch] = useState("");
 
@@ -29,11 +28,14 @@ const User = () => {
       ...datas,
       page: pagination.current || datas.page,
       search: serach,
-      pagination:"true"
+      pagination: "true",
     };
-    setloading(true)
+    if (props?.tab_option === "delete_user") {
+      pagiante["is_deleted"] = true;
+    }
+    setloading(true);
     await Apicall(pagiante, "/user/get_users").then((res) => {
-      setloading(false)
+      setloading(false);
       setusers(res.data.data.docs);
       setPaginationInfo({
         current: res.data.data.page,
@@ -41,7 +43,6 @@ const User = () => {
         total: res.data.data.totalDocs,
       });
     });
-
   };
 
   const onSearch = (value) => {
@@ -58,6 +59,14 @@ const User = () => {
     Apicall({ id }, "/user/delete_user").then((res) => {
       handlechange(datas);
     });
+  };
+
+  const Edituser = (id) => {
+    if (id) {
+      history.push(`/admin/admin-useredit/${id}`);
+    } else {
+      history.push(`/admin/admin-user/add`);
+    }
   };
 
   const columns = [
@@ -113,13 +122,14 @@ const User = () => {
     {
       title: "Action",
       dataIndex: "operation",
+      className: props?.tab_option === "delete_user" ? "d-none" : "",
       render: (text, record) =>
         users.length >= 1 ? (
           <span
             title="...."
             className="d-flex d-sm-inline justify-content-around"
           >
-            <span className="cursor_point">
+            <span className="cursor_point" onClick={() => Edituser(record._id)}>
               <Icon
                 type="edit"
                 theme="twoTone"
@@ -127,7 +137,10 @@ const User = () => {
                 className="mx-3 f_25"
               />
             </span>
-            <Popconfirm  title="Sure to delete the user ?" onConfirm={()=>deleteuser(record._id)}>
+            <Popconfirm
+              title="Sure to delete the user ?"
+              onConfirm={() => deleteuser(record._id)}
+            >
               <Icon
                 type="delete"
                 theme="twoTone"
@@ -142,8 +155,18 @@ const User = () => {
 
   return (
     <div>
-      <div className="mx-2 mx-sm-0 my-3">
-        <Button type="default" style={{backgroundColor:'#f7a400'}}>Add User</Button>
+      <div
+        className={
+          props?.tab_option === "delete_user" ? "d-none" : "mx-2 mx-sm-0 my-3"
+        }
+      >
+        <Button
+          type="default"
+          style={{ backgroundColor: "#f7a400" }}
+          onClick={() => Edituser()}
+        >
+          Add User
+        </Button>
         <Search
           className="mt-3"
           size="large"
@@ -156,7 +179,7 @@ const User = () => {
         <Table
           rowClassName={() => "editable-row"}
           className="table_shadow"
-          rowKey={record => record.id}
+          rowKey={(record) => record.id}
           dataSource={users}
           columns={columns}
           size="middle"

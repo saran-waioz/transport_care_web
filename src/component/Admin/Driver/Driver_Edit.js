@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useHistory } from "react-router";
 import {
   Layout,
   Form,
@@ -16,6 +17,7 @@ import "../../../scss/template.scss";
 import "../../../scss/Category.scss";
 import Apicall from "../../../Api/Api";
 import { useParams } from "react-router-dom";
+import { Alert_msg } from "../../Comman/alert_msg";
 const { Content } = Layout;
 const { Title } = Typography;
 const DriverStatus = {
@@ -25,26 +27,20 @@ const DriverStatus = {
   approved: "Reject and Update status to pending",
 };
 
-const Driver_Edit = () => {
+const Driver_Edit = (props) => {
+  const form = props.form;
+  const history = useHistory();
   const { id } = useParams();
   const [user, setuser] = useState([]);
-  const [values, setvalues] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    driver_status: "",
-  });
-  const { name, email, phone, driver_status } = values;
+
   const getdata = () => {
-    console.log("id: -----> ", id);
     Apicall({ id: id }, `/user/get_user_detail`).then((res) => {
       console.log("data=>>>>>", res.data.data.user_detail);
-      setuser(res.data.data.user_detail
-      );
+      setuser(res.data.data.user_detail);
     });
   };
+
   const updatestatus = () => {
-    console.log("id: -----> ", user);
     var status = "pending";
     switch (user.driver_status) {
       case "pending":
@@ -68,12 +64,39 @@ const Driver_Edit = () => {
     });
   };
   useEffect(() => {
-    getdata();
-  }, []);
+    if (id) {
+      getdata();
+    }
+  }, [id]);
 
-  const handlechange = (name) => (e) => {
-    const value = name === "photo" ? e.target.files[0] : e.target.value;
-    setvalues({ ...values, [name]: value });
+  const update_user = () => {
+    form.validateFields(async (err, values) => {
+      console.log(values);
+      console.log("update_user -> err", err);
+      if (!err) {
+        if (id) {
+          values["id"] = id;
+          Apicall(values, `/user/update_profile`).then((res) => {
+            Alert_msg(res.data);
+            getdata();
+          });
+        } else {
+          values["role"] = 2;
+          Apicall(values, `/auth/sign_up`).then((res) => {
+            Alert_msg(res.data);
+            if (res.status) {
+              history.push(`/admin/admin-user`);
+            }
+          });
+        }
+      }
+    });
+    // Apicall(
+    //   { id: id, driver_status: status },
+    //   `/user/update_driver_status`
+    // ).then((res) => {
+    //   getdata();
+    // });
   };
 
   return (
@@ -93,31 +116,50 @@ const Driver_Edit = () => {
                 <Row gutter={12}>
                   <Col span={12}>
                     <Form.Item label="User Name">
-                      <Input
-                        placeholder="Name"
-                        value={user.name}
-                        name="name"
-                        onChange={handlechange("name")}
-                      />
+                      {form.getFieldDecorator("name", {
+                        initialValue: user?.name,
+                        rules: [
+                          {
+                            required: true,
+                            message: "Please input your username!",
+                          },
+                        ],
+                      })(<Input placeholder="Name" name="name" />)}
                     </Form.Item>
                   </Col>
                   <Col className="" lg={12}>
                     <Form.Item label="Email">
-                      <Input placeholder="Email" value={user.email}/>
+                      {form.getFieldDecorator("email", {
+                        initialValue: user?.email,
+                        rules: [
+                          {
+                            required: true,
+                            message: "Please input your Email!",
+                          },
+                        ],
+                      })(<Input placeholder="Email" />)}
                     </Form.Item>
                   </Col>
                   <Col className="" lg={12}>
                     <Form.Item label="Phone">
-                      <Input placeholder="Phone" value={user.phone} />
+                      {form.getFieldDecorator("phone", {
+                        initialValue: user?.phone,
+                        rules: [
+                          {
+                            required: true,
+                            message: "Please input your phone number!",
+                          },
+                        ],
+                      })(<Input placeholder="Phone Number" />)}
                     </Form.Item>
                   </Col>
                   <Col className="" lg={12}>
                     <Form.Item label="Status">
                       <Input placeholder="Status" value={user.driver_status} />
                     </Form.Item>
-                    <Button onClick={updatestatus}>
-                    {DriverStatus[user.driver_status]}
-                      </Button>
+                    <Button className={id?"":"d-none"} onClick={updatestatus}>
+                      {DriverStatus[user.driver_status]}
+                    </Button>
                   </Col>
                 </Row>
 
@@ -128,7 +170,12 @@ const Driver_Edit = () => {
                         Submit
                       </Button>
                       {"  "} */}
-                      <Button style={{backgroundColor:'#f7a400'}} htmlType="submit">
+                      <Button
+                        style={{ backgroundColor: "#f7a400" }}
+                        onClick={() => {
+                          update_user();
+                        }}
+                      >
                         Update
                       </Button>
                     </Form.Item>
@@ -143,4 +190,4 @@ const Driver_Edit = () => {
   );
 };
 
-export default Driver_Edit;
+export default Form.create()(Driver_Edit);

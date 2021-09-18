@@ -75,11 +75,6 @@ class AdminSider extends React.Component {
               <span style={{margin:10}}>Driver Map</span>
               <Link to="/admin/admin-location" />
             </Menu.Item>
-            <Menu.Item key="/admin-request">
-              <Icon type="appstore" />
-              <span>Job Request</span>
-              {/* <Link to="/admin-request" /> */}
-            </Menu.Item>
             <h3 className="sidebarTitle">Notifications</h3>
             <Menu.Item key="/admin-booking">
               <FaTripadvisor style={{ fontSize: '1.2em' }} />
@@ -91,28 +86,12 @@ class AdminSider extends React.Component {
               <span>Reviews</span>
               {/* <Link to="/admin-review" /> */}
             </Menu.Item>
-            <Menu.Item key="/admin-payouts">
-              <Icon type="transaction" />
-              <span>Payouts</span>
-              {/* <Link to="/admin-payouts" /> */}
-            </Menu.Item>
             <h3 className="sidebarTitle">Settings</h3>
-            <Menu.Item key="/admin/admin-certificate">
-              <Icon type="file-unknown" />
-              <span>Certificates</span>
-              {/* <Link to="/admin-certificate" /> */}
-            </Menu.Item>
             <Menu.Item key="/admin/admin-static">
               <Icon type="book" />
               <span>Static Pages</span>
               <Link to="/admin/admin-static" />
             </Menu.Item>
-            <Menu.Item key="/admin/settings">
-              <Icon type="setting" />
-              <span>Settings</span>
-              <Link to="/admin/settings" />
-            </Menu.Item>
-            
           </Menu>
         </Sider>
       </div>

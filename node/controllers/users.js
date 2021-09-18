@@ -38,6 +38,9 @@ exports.get_users = async (req, res, next) => {
     role: requests.role,
     is_deleted: false,
   };
+  if(requests.is_deleted){
+    match['is_deleted']=true;
+  }
   if (typeof requests.search != "undefined" && requests.search != "") {
     match.$or = [
       { name: { $regex: ".*" + requests.search + ".*", $options: "i" } },

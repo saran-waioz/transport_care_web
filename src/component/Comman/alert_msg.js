@@ -1,9 +1,8 @@
 import { message } from 'antd';
 export const Alert_msg = (data) => {
-  console.log(data);
-  if (data.status === 'success') {
-    return (message.loading('Please Wait ....', 1).then(() => message.success(data.msg, [1])));
+  if (data.status) {
+    return (message.loading('Please Wait ....', 1).then(() => message.success(data.message, [1])));
   } else {
-    return (message.loading('Please Wait ....', 1).then(() => message.error(data.msg, [1])));
+    return (message.loading('Please Wait ....', 1).then(() => message.error(data.message, [1])));
   }
 };

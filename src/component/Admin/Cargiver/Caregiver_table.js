@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { withRouter } from "react-router-dom";
 import { useHistory } from "react-router";
-import {Table,Button,Icon,Popconfirm} from "antd";
+import { Table, Button, Icon, Popconfirm } from "antd";
 import { Alert_msg } from "../../Comman/alert_msg";
 import Search from "antd/lib/input/Search";
 import Apicall from "../../../Api/Api";
 
-const Caregiver_Table = () => {
-  const history=useHistory()
+const Caregiver_Table = (props) => {
+  const history = useHistory();
   const [datas, setdata] = useState({
     role: "3",
     page: 1,
@@ -16,11 +16,11 @@ const Caregiver_Table = () => {
     sort: "",
   });
   const [users, setusers] = useState([]);
-  const [loading,setloading]=useState(false)
+  const [loading, setloading] = useState(false);
   const [paginationInfo, setPaginationInfo] = useState({
     current: 1,
     pageSize: 10,
-    simple :true
+    simple: true,
   });
   const [serach, setsearch] = useState("");
 
@@ -30,9 +30,12 @@ const Caregiver_Table = () => {
       page: pagination.current || datas.page,
       search: serach,
     };
-    setloading(true)
+    if (props?.tab_option === "delete_user") {
+      pagiante["is_deleted"] = true;
+    }
+    setloading(true);
     await Apicall(pagiante, "/user/get_users").then((res) => {
-      setloading(false)
+      setloading(false);
       setusers(res.data.data.docs);
       setPaginationInfo({
         current: res.data.data.page,
@@ -56,7 +59,13 @@ const Caregiver_Table = () => {
       handlechange(datas);
     });
   };
-
+  const EditUser = (id) => {
+    if (id) {
+      history.push(`/admin/admin-caregiveredit/${id}`);
+    } else {
+      history.push(`/admin/admin-caregiver/add`);
+    }
+  };
   const columns = [
     {
       title: "Name",
@@ -100,13 +109,14 @@ const Caregiver_Table = () => {
     {
       title: "Action",
       dataIndex: "operation",
+      className: props?.tab_option === "delete_user" ? "d-none" : "",
       render: (text, record) =>
         users.length >= 1 ? (
           <span
             title="...."
             className="d-flex d-sm-inline justify-content-around"
           >
-            <span className="cursor_point">
+            <span className="cursor_point" onClick={() => EditUser(record._id)}>
               <Icon
                 type="edit"
                 theme="twoTone"
@@ -114,7 +124,10 @@ const Caregiver_Table = () => {
                 className="mx-3 f_25"
               />
             </span>
-            <Popconfirm  title="Sure to delete the user ?" onConfirm={()=>deleteuser(record._id)}>
+            <Popconfirm
+              title="Sure to delete the user ?"
+              onConfirm={() => deleteuser(record._id)}
+            >
               <Icon
                 type="delete"
                 theme="twoTone"
@@ -127,11 +140,19 @@ const Caregiver_Table = () => {
     },
   ];
 
-
   return (
     <div>
-      <div className="mx-2 mx-sm-0 my-3">
-        <Button  style={{backgroundColor:'#f7a400'}}>Add User</Button>
+      <div
+        className={
+          props?.tab_option === "delete_user" ? "d-none" : "mx-2 mx-sm-0 my-3"
+        }
+      >
+        <Button
+          style={{ backgroundColor: "#f7a400" }}
+          onClick={() => EditUser()}
+        >
+          Add Cargiver
+        </Button>
         <Search
           className="mt-3"
           size="large"
@@ -145,7 +166,7 @@ const Caregiver_Table = () => {
           rowClassName={() => "editable-row"}
           className="table_shadow"
           dataSource={users}
-          rowKey={record => record.id}
+          rowKey={(record) => record.id}
           columns={columns}
           size="middle"
           pagination={paginationInfo}
