@@ -109,6 +109,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "0"
     },
+    received_wallet:{
+        type: String,
+        default: "0"
+    },
+    
     // Driver attender details
     is_attender: String,//yes or no
     attender_age: String,

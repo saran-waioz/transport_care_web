@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { withRouter } from "react-router-dom";
 import { useHistory } from "react-router";
-import { Table, Button, Icon, Popconfirm } from "antd";
+import { Table, Button, Icon, Popconfirm,Switch  } from "antd";
 import { Alert_msg } from "../../Comman/alert_msg";
 import Search from "antd/lib/input/Search";
 import Apicall from "../../../Api/Api";
@@ -55,7 +55,10 @@ const Driver_Table = (props) => {
   useEffect(() => {
     handlechange(datas);
   }, [datas]);
-
+  const update_user = (checked,record) => {
+    Apicall({ user_id:record.id,trip_status:(checked)?'online':'offline' }, "/user/update_profile").then((res) => {
+    });
+  }
   const deleteuser = (id) => {
     console.log("----- here we are");
     Apicall({ id }, "/user/delete_user").then((res) => {
@@ -112,6 +115,20 @@ const Driver_Table = (props) => {
       render: (text, record) => {
         return <span title="Phone Number">{record.phone}</span>;
       },
+    },
+    {
+      title: "Status",
+      dataIndex: "operation",
+      className: props?.tab_option === "delete_user" ? "d-none" : "",
+      render: (text, record) =>
+        users.length >= 1 ? (
+          <Switch checkedChildren="Online" onChange={(c,e)=>{
+            record.trip_status = (c)?'online':'offline'
+            console.log(record.trip_status)
+            Apicall({ id:record.id,trip_status:(c)?'online':'offline' }, "/user/update_profile").then((res) => {
+            });
+          }} disabled={(record.trip_status=='offline' || record.trip_status=='online')?false:true} unCheckedChildren="Offline" defaultChecked={(record.trip_status!='offline')?true:false} />
+        ) : null,
     },
     {
       title: "Action",

@@ -91,6 +91,26 @@ exports.get_export_user = async (req, res) => {
     return res.apiResponse(true, "Success", result);
   }).populate(["store_detail"]);
 };
+async function initiate_driver_payout(user_detail,trip_detail)
+{
+  let current_user_wallet = 0
+  if(user_detail.wallet_amount && user_detail.wallet_amount !== 'NaN'){
+    current_user_wallet = user_detail.wallet_amount 
+  }  
+  
+  user_detail.wallet_amount = Number(parseFloat(current_user_wallet) + parseFloat(trip_detail.price_detail.driver_payout)).toFixed(2);
+  await user_detail.save();
+  var transaction_data = {}
+  transaction_data.amount = parseFloat(trip_detail.price_detail.driver_payout).toFixed(2);
+  transaction_data.orginal_amount = parseFloat(trip_detail.price_detail.driver_payout).toFixed(2);
+  transaction_data.user_id = user_detail._id;
+  transaction_data.type = 'wallet';
+  transaction_data.transaction_id = trip_detail.id;
+  transaction_data.payment_type = 'driver payout';
+  transaction_data.status = 'completed';
+  let transactions = new TransactionModel(transaction_data);
+  await transactions.save();
+}
 async function get_default_category(user_detail,category_list) {
   if(!user_detail.default_category_id && category_list.length)
   {
@@ -113,10 +133,13 @@ exports.get_wallet_data = async (req, res) => {
   var requests = req.bodyParams;
   var user_detail = await User.findOne({ _id: requests.user_id });
   var match={ user_id: requests.user_id }
-  match = {$or:[
-    {type:'wallet'},
-    {payment_type:'wallet_payment'}
-  ]}
+  match = {$and:
+    [
+    { user_id: requests.user_id },
+    {
+      $or:[{type:'wallet'},{payment_type:'wallet_payment'}]
+    }
+    ]}
   var page = requests.page || 1
   var per_page = requests.per_page || 10
   var pagination = requests.pagination || "false"
@@ -139,6 +162,7 @@ exports.get_wallet_data = async (req, res) => {
     TransactionModel.paginate(match, options, function (err, wallet_history) {
         var wallet_details={}
         wallet_details.wallet_amount = user_detail.wallet_amount
+        wallet_details.received_wallet = user_detail.received_wallet
         const c = Object.assign({}, wallet_history, {wallet_details});
         return res.apiResponse(true, "Success", c )
     });
@@ -147,6 +171,7 @@ exports.get_wallet_data = async (req, res) => {
     var wallet_history = await TransactionModel.find(match);
     var wallet_details={}
     wallet_details.wallet_amount = user_detail.wallet_amount
+    wallet_details.received_wallet = user_detail.received_wallet
     wallet_details.wallet_history = wallet_history
     return res.apiResponse(true, "Success", wallet_details)
   }
@@ -919,6 +944,7 @@ exports.update_trip_status = async (req, res, next) => {
       },
       { new: true }
     ).exec();
+    
     if(old_detail.driver_id && (requests.status == 'end_trip' || requests.status == 'cancelled')) {
       await User.findOneAndUpdate({ _id: old_detail.driver_id, role: 2 },
       { $set: 
@@ -1234,7 +1260,6 @@ exports.request_order = async(req, res, next) =>
   {
     delete requests.care_giver_id;
   }
-  console.log(requests)
   var category_detail = await Category.findOne({ '_id': requests.category_id });
   category_detail = JSON.parse(JSON.stringify(category_detail));
   var price_detail = {}
@@ -1243,6 +1268,10 @@ exports.request_order = async(req, res, next) =>
     requests.distances = JSON.parse(requests.distances);
   }
   price_detail.total = parseFloat(category_detail.price * (requests.distances.distanceValue/1000)).toFixed(2);
+  price_detail.commission = parseFloat(category_detail.commission * parseFloat(price_detail.total)/100).toFixed(2);
+  price_detail.driver_payout = price_detail.total - price_detail.commission;
+  
+
   var trip_detail = {
     user_id: requests.user_id,
     care_giver_id: requests.care_giver_id,
@@ -1283,6 +1312,7 @@ async function function_request_order(requests,trip_detail) {
         status: 'active'    
       }
     match['trip_status'] = 'online';
+    match['is_deleted'] = false;
     match['category_id'] = requests.category_id;
     match['location'] = { 
         $nearSphere: {
@@ -1586,6 +1616,7 @@ exports.trip_payment = async(req, res, next) =>
   if(trip_details)
   {
     var user_detail = await User.findOne({ "_id": requests.user_id });
+    var driver_detail = await User.findOne({ "_id": trip_details.driver_id });
     add_stripe_card_while_payment(requests,user_detail,trip_details).then(async(results) => {
       if(results.status)
       {
@@ -1613,6 +1644,7 @@ exports.trip_payment = async(req, res, next) =>
             transaction_data.status = 'completed';
             let transactions = new TransactionModel(transaction_data);
             await transactions.save();
+            initiate_driver_payout(driver_detail,trip_details)
             await Trip.findOneAndUpdate({ _id: requests.trip_id },{ $set: {'paid_at':moment(),'payment_status':'Paid','trip_status': 'rating'}},{ new: true },async(err,trip_detail)=>{
               var trip_populate=['user_detail','caregiver_detail','driver_detail',
               {

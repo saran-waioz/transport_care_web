@@ -41,15 +41,19 @@ module.exports.respond = function (socket_io) {
     global.io.in("trip_" + trip_detail.id).emit("trip_detail", { trip_detail });
   });
   socket_io.on("update_location", async (data) => {
-  console.log("module.exports.respond -> data", data)
-    let location = {
-      type: "Point",
-      coordinates: [data.latitude, data.longitude],
-    };
-    var update = {};
-    update.location = location;
-    update.bearing = data.bearing;
-    await User.findOneAndUpdate({ _id: data.user_id }, { $set: update }).exec();
+    console.log("module.exports.respond -> data", data)
+    try {
+      let location = {
+        type: "Point",
+        coordinates: [data.latitude, data.longitude],
+      };
+      var update = {};
+      update.location = location;
+      update.bearing = data.bearing;
+      await User.findOneAndUpdate({ _id: data.user_id }, { $set: update }).exec(); 
+    } catch (error) {
+      console.log("55")
+    }
     var user_detail = await User.findOne({ _id: data.user_id });
     if (
       user_detail &&
