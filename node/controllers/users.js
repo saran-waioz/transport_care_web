@@ -1476,6 +1476,7 @@ async function get_stripe_account_id(user_detail) {
     var account = await stripe.accounts.create({  // stripe payment start
       type: 'custom',
       email: user_detail.email,
+      country: 'US',
       capabilities: {
         card_payments: {requested: true},
         transfers: {requested: true},
