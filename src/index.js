@@ -80,12 +80,14 @@ ReactDOM.render(
       <Route path="/admin/admin-category" component={Category} exact />
       <Route path="/admin/admin-categories" component={Add_Category} exact />
       <Route path="/admin/admin-categories/:id" component={Edit_Category} exact />
+      
+      <Route path="/admin/admin-review" component={Review} exact />
       <Route path="/admin/settings" component={Settings} exact />
       <Route path="/admin/admin-static" component={Static} exact />
       <Route path="/admin/admin-statcs" component={Add_Static} exact />
       <Route path="/admin/admin-statics/:id" component={Edit_Static} exact />
       <Route path="/admin/admin-booking" component={Booking} />
-      <Route path="/admin/admin-booking-detail" component={Booking_Details} />
+      <Route path="/admin/admin-booking-detail/:id" component={Booking_Details} />
       <Route path="/admin/admin-booking-invoice/:id" component={Invoice} exact />
       <Route component={NotFound} />
     </Switch>

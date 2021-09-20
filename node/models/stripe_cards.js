@@ -16,6 +16,10 @@ var schemaOptions = {
 const StripeCardSchema = new mongoose.Schema({
     user_id: String,
     card_id: String,
+    card_type:{
+      type:String,
+      default:"normal" //normal and external - for transfer
+    },
     card_details: Object
 }, schemaOptions);
 StripeCardSchema.plugin(mongoosePaginate);

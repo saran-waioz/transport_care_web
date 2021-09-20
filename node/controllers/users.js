@@ -23,6 +23,35 @@ const { request } = require("express");
 const stripe = require('stripe')('sk_test_51JOl26GwzlPF3YojClmory2WxpKjuUsQZMTJJtvaYbZ6oDeitr0mOsDsrokLCy2zoN2dmlTbrvDq4cwu8r4F8aZ800Xf3bpd84');
 
 
+exports.get_reviews = async (req, res, next) => {
+  var requests = req.bodyParams;
+  //console.log("requests -> ", requests);
+  var page = requests.page || 1;
+  var per_page = requests.per_page || 10;
+  const options = {
+    page: page,
+    limit: per_page,
+    collation: { locale: "en" },
+    sort: { createdAt: -1 },
+    populate:['trip_detail']
+  };
+  const match = {
+  };
+  if(requests.is_deleted){
+    match['is_deleted']=true;
+  }
+  if (typeof requests.search != "undefined" && requests.search.trim() != "") {
+    var trip_ids = await Trip.find({invoice_id: requests.search }).distinct('_id');
+    match['trip_id']={$in:trip_ids}
+  }
+
+  console.log("match --> ", match)
+  console.log("options --> ", options)
+  Rating.paginate(match, options, function (err, result) {
+    //console.log(result);
+    return res.apiResponse(true, "Success", result);
+  });
+};
 exports.get_users = async (req, res, next) => {
   var requests = req.bodyParams;
   //console.log("requests -> ", requests);
@@ -104,9 +133,9 @@ async function initiate_driver_payout(user_detail,trip_detail)
   transaction_data.amount = parseFloat(trip_detail.price_detail.driver_payout).toFixed(2);
   transaction_data.orginal_amount = parseFloat(trip_detail.price_detail.driver_payout).toFixed(2);
   transaction_data.user_id = user_detail._id;
-  transaction_data.type = 'wallet';
+  transaction_data.type = 'driver_payout';
   transaction_data.transaction_id = trip_detail.id;
-  transaction_data.payment_type = 'driver payout';
+  transaction_data.payment_type = 'wallet_payment';
   transaction_data.status = 'completed';
   let transactions = new TransactionModel(transaction_data);
   await transactions.save();
@@ -158,11 +187,13 @@ exports.get_wallet_data = async (req, res) => {
     limit: per_page,
     customLabels:myCustomLabels
   };
+  var payout_card = await StripeCards.findOne({card_type:'external',user_id:requests.user_id});
   if (pagination == "true") {
     TransactionModel.paginate(match, options, function (err, wallet_history) {
         var wallet_details={}
         wallet_details.wallet_amount = user_detail.wallet_amount
         wallet_details.received_wallet = user_detail.received_wallet
+        wallet_details.payout_card = payout_card
         const c = Object.assign({}, wallet_history, {wallet_details});
         return res.apiResponse(true, "Success", c )
     });
@@ -173,6 +204,7 @@ exports.get_wallet_data = async (req, res) => {
     wallet_details.wallet_amount = user_detail.wallet_amount
     wallet_details.received_wallet = user_detail.received_wallet
     wallet_details.wallet_history = wallet_history
+    wallet_details.payout_card = payout_card
     return res.apiResponse(true, "Success", wallet_details)
   }
 }
@@ -1434,6 +1466,38 @@ async function get_stripe_customer_id(user_detail) {
     }
   }
 }
+async function get_stripe_account_id(user_detail) {
+  if(user_detail.stripe_account)
+  {
+    return user_detail.stripe_account;
+  }
+  else
+  {
+    var account = await stripe.accounts.create({  // stripe payment start
+      type: 'custom',
+      email: user_detail.email,
+      capabilities: {
+        card_payments: {requested: true},
+        transfers: {requested: true},
+      }
+    })
+    if(!account.id)
+    {
+      return false;
+    }
+    else{
+      await User.findOneAndUpdate({ _id: user_detail.id},
+        { $set: 
+          {
+          'stripe_account': account.id
+          }  
+        },
+        { new: true }
+      ).exec();
+      return account.id;
+    }
+  }
+}
 exports.add_stripe_card = async(req, res, next) => 
 {
   var requests = req.bodyParams;
@@ -1452,6 +1516,84 @@ exports.add_stripe_card = async(req, res, next) =>
           card_data.card_id = card_details.id;
           card_data.card_details = card_details;
           card_data.user_id = requests.user_id;
+          let stripe_card = new StripeCards(card_data);
+          await stripe_card.save();
+          return res.apiResponse(true, "Card added succesfully",{stripe_card})
+        }
+      })
+    }
+    else
+    {
+      return res.apiResponse(false, "Error on creating stripe customer")
+    }
+  })
+}
+
+exports.driver_payout = async(req, res, next) => 
+{
+  var requests = req.bodyParams;
+  var user_detail = await User.findOne({ "_id": requests.user_id });
+  if(parseFloat(user_detail.wallet_amount) >= parseFloat(requests.amount))
+  {
+    if(user_detail.stripe_account)
+    {
+      await stripe.transfers.create({
+        amount: parseFloat(requests.amount)*100,
+        currency: 'sgd',
+        description:"",
+        destination: user_detail.stripe_account,
+        transfer_group: 'ORDER_95',
+      }, async (err, transfer_details) => {
+        if (err) {
+          return res.apiResponse(false, "Failed", {err})
+        }
+        else {
+          var transaction_data = {}
+          transaction_data.amount = requests.amount;
+          transaction_data.orginal_amount = requests.amount;
+          transaction_data.user_id = requests.user_id;
+          transaction_data.type = 'driver_payout';
+          transaction_data.transaction_id = transfer_details.id;
+          transaction_data.payment_type = "stripe";
+          transaction_data.status = 'completed';
+          let transactions = new TransactionModel(transaction_data);
+          await transactions.save();
+
+          user_detail.wallet_amount = Number(parseFloat(user_detail.wallet_amount) - parseFloat(requests.amount)).toFixed(2);
+          user_detail.wallet_amount = Number(parseFloat(user_detail.received_wallet) + parseFloat(requests.amount)).toFixed(2);
+          await user_detail.save();
+        }
+      })
+    }
+    else
+    {
+      return res.apiResponse(false, "Need to create stripe account")
+    }    
+  }
+  else
+  {
+    return res.apiResponse(false, "Try to get more amount")
+  }
+}
+exports.add_stripe_external_card = async(req, res, next) => 
+{
+  var requests = req.bodyParams;
+  var user_detail = await User.findOne({ "_id": requests.user_id });
+  await get_stripe_account_id(user_detail).then(async(account_id) => {
+    if(account_id)
+    {
+      var card_details = await stripe.accounts.createExternalAccount(account_id,{
+        external_account: requests.token
+      }, async (err, card_details) => {
+        if (err) {
+          return res.apiResponse(false, "Failed", {err})
+        }
+        else {
+          var card_data = {}
+          card_data.card_id = card_details.id;
+          card_data.card_details = card_details;
+          card_data.user_id = requests.user_id;
+          card_data.card_type = "external";
           let stripe_card = new StripeCards(card_data);
           await stripe_card.save();
           return res.apiResponse(true, "Card added succesfully",{stripe_card})

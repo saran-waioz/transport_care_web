@@ -61,7 +61,7 @@ const TripTable = (props) => {
     });
   };
   const viewPage = (id) => {
-      history.push(`/admin/admin-booking_detail`);
+      history.push(`/admin/admin-booking-detail/`+id);
   };
   const columns = [
     {

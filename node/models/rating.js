@@ -42,5 +42,11 @@ RatingSchema.virtual('show_created').get(function () {
     return moment(utc).tz(process.env.TIME_ZONE).format('YYYY-MM-DD hh:mm A')
   }
 });
+RatingSchema.virtual('trip_detail', {
+  ref: 'Trip_details',
+  localField: 'trip_id',
+  foreignField: '_id',
+  justOne: true
+});
 RatingSchema.plugin(mongoosePaginate);
 module.exports = mongoose.model('Rating',RatingSchema);

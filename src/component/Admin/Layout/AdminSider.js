@@ -84,7 +84,7 @@ class AdminSider extends React.Component {
             <Menu.Item key="/admin-review">
               <Icon type="star" />
               <span>Reviews</span>
-              {/* <Link to="/admin-review" /> */}
+              <Link to="/admin/admin-review" />
             </Menu.Item>
             <h3 className="sidebarTitle">Settings</h3>
             <Menu.Item key="/admin/admin-static">

@@ -24,7 +24,7 @@ const transactionSchema = new  mongoose.Schema({
         ref: 'User'
     },
     order_id:String,
-    type:String,//wallet, order_payment, order_refund
+    type:String,//wallet,driver_payout, order_payment, order_refund
     payment_type: String,//wallet_payment, payment_gateway, cash etc..,
     amount:String,
     purpose:String,

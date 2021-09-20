@@ -29,14 +29,7 @@ class Review extends React.Component {
                 <Layout>
                     <AdminHeader />
                     <Content className="main_frame">
-                        <Tabs>
-                            <TabPane tab="Show Review" key="1">
-                                <ReviewTable />
-                            </TabPane>
-                            <TabPane tab="Hide Review" key="2">
-                                <HideReview_Table />
-                            </TabPane>
-                        </Tabs>
+                    <ReviewTable />
                     </Content>
                 </Layout>
             </Layout>

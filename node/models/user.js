@@ -135,6 +135,7 @@ const userSchema = new mongoose.Schema({
         default: false
     },
     stripe_customer: String,
+    stripe_account: String,
     bank_name:{
         type: String,
         default: ""

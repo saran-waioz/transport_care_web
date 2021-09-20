@@ -5,6 +5,7 @@ const CronJob = require('cron').CronJob;
 new CronJob('*/1 * * * *', Usercontroller.caregiver_reminder_cron, null, true);
 
 router.post('/get_users',Usercontroller.get_users)
+router.post('/get_reviews',Usercontroller.get_reviews)
 router.post('/export_get_user',Usercontroller.get_export_user)
 router.post('/get_user_detail',Usercontroller.get_user_detail)
 router.post('/delete_user',Usercontroller.delete_user)
@@ -35,6 +36,8 @@ router.post('/trip_payment', Usercontroller.trip_payment);
 router.post('/trip_update', Usercontroller.trip_update);
 router.post('/get_stripe_cards', Usercontroller.get_stripe_cards);
 router.post('/add_stripe_card', Usercontroller.add_stripe_card);
+router.post('/add_stripe_external_card', Usercontroller.add_stripe_external_card);
+router.post('/driver_payout', Usercontroller.driver_payout);
 router.post('/delete_stripe_card', Usercontroller.delete_stripe_card);
 router.post('/get_logs', Usercontroller.get_logs);
 router.post('/get_driver_status', Usercontroller.get_driver_status);
