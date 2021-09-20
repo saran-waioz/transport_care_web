@@ -41,7 +41,6 @@ module.exports.respond = function (socket_io) {
     global.io.in("trip_" + trip_detail.id).emit("trip_detail", { trip_detail });
   });
   socket_io.on("update_location", async (data) => {
-    console.log("module.exports.respond -> data", data)
     try {
       let location = {
         type: "Point",

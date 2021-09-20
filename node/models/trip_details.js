@@ -69,7 +69,7 @@ TripDetailSchema.virtual('user_detail', {
   ref: 'User',
   localField: 'user_id',
   foreignField: '_id',
-  justOne: true
+  justOne: false
 });
 TripDetailSchema.virtual('caregiver_detail', {
   ref: 'User',

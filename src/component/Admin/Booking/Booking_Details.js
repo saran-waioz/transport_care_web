@@ -135,6 +135,7 @@ const BookingDetail = (props) => {
                         </li>
                     </ul>
                 </div>
+                {trip?.is_care_giver ? 
                 <div className="card mt-3">
                     <p className="font-weight-bold p-2 m-0 border-bottom">Caregiver Detail</p>
                     <ul className="list-group p-2">
@@ -152,6 +153,8 @@ const BookingDetail = (props) => {
                         </li>
                     </ul>
                 </div>
+                : <></>
+                }
                 <div className="card mt-3">
                     <p className="font-weight-bold p-2 m-0 border-bottom">Driver Detail</p>
                     <ul className="list-group p-2">
@@ -169,6 +172,7 @@ const BookingDetail = (props) => {
                         </li>
                     </ul>
                 </div>
+                
                 <div className="card mt-3">
                     <p className="font-weight-bold p-2 m-0 border-bottom">Driver Payout</p>
                     <ul className="list-group p-2">
