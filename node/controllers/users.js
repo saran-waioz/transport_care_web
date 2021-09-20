@@ -25,7 +25,6 @@ const stripe = require('stripe')('sk_test_51JOl26GwzlPF3YojClmory2WxpKjuUsQZMTJJ
 
 exports.get_reviews = async (req, res, next) => {
   var requests = req.bodyParams;
-  //console.log("requests -> ", requests);
   var page = requests.page || 1;
   var per_page = requests.per_page || 10;
   const options = {
@@ -45,16 +44,12 @@ exports.get_reviews = async (req, res, next) => {
     match['trip_id']={$in:trip_ids}
   }
 
-  console.log("match --> ", match)
-  console.log("options --> ", options)
   Rating.paginate(match, options, function (err, result) {
-    //console.log(result);
     return res.apiResponse(true, "Success", result);
   });
 };
 exports.get_users = async (req, res, next) => {
   var requests = req.bodyParams;
-  //console.log("requests -> ", requests);
   var page = requests.page || 1;
   var per_page = requests.per_page || 10;
   const options = {
@@ -95,10 +90,8 @@ exports.get_users = async (req, res, next) => {
     sort_option["createdAt"] = "desc";
     options.sort = sort_option;
   }
-  console.log("match --> ", match)
-  console.log("options --> ", options)
+
   User.paginate(match, options, function (err, result) {
-    //console.log(result);
     return res.apiResponse(true, "Success", result);
   });
 };
@@ -273,7 +266,6 @@ exports.get_user_detail = async (req, res) => {
 };
 
 exports.delete_user = async (req, res, next) => {
-  console.log("delete_user: ")
   var requests = req.bodyParams;
   await User.findOneAndUpdate(
     { _id: requests.id },
@@ -538,7 +530,6 @@ exports.add_user_caregiver = async (req, res, next) => {
 
 exports.delete_user_caregiver = async (req, res, next) => {
   var requests = req.bodyParams;
-  console.log(requests);
   await UserCareGiver.findOne({ user_id: requests.user_id, care_giver_id: requests.care_giver_id}, async (err, user_caregiver) => {
     if (user_caregiver) {
       await user_caregiver.remove();
@@ -701,7 +692,6 @@ exports.get_driver_attender = async (req, res, next) => {
 
 exports.add_user_feedback = async (req, res, next) => {
   var requests = req.bodyParams;
-  console.log(requests);
 
   var check_user = await User.find({ _id: requests.user_id });
   if(check_user.length) {
@@ -1672,14 +1662,11 @@ async function add_stripe_card_while_payment(requests,user_detail,trip_details) 
 async function caregiver_push_notifications(trip_details) {
   if(trip_details && trip_details.service_type!="Independent Trip")
   {
-    console.log("1499",trip_details)
     var caregiver_detail = await User.findOne({'_id':trip_details.care_giver_id});
     var user_detail = await User.findOne({'_id':trip_details.user_id});
     var driver_detail = await User.findOne({'_id':trip_details.driver_id});
-    console.log(caregiver_detail,"1503")
     if(user_detail && (user_detail.role==1 || user_detail.role=="1") && trip_details.care_giver_id)
     {
-      console.log("1505",trip_details)
       var message=""
       // processing, accepted ,arrived, start_trip, end_trip, payment, rating, completed, cancelled
       switch (trip_details.trip_status) {
