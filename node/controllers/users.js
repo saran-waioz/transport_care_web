@@ -187,7 +187,7 @@ exports.get_wallet_data = async (req, res) => {
     limit: per_page,
     customLabels:myCustomLabels
   };
-  var payout_card = await StripeCards.findOne({card_type:'external',user_id:requests.user_id});
+  var payout_card = await StripeCards.find({card_type:'external',user_id:requests.user_id});
   if (pagination == "true") {
     TransactionModel.paginate(match, options, function (err, wallet_history) {
         var wallet_details={}
