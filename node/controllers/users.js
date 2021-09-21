@@ -802,7 +802,12 @@ exports.get_home_page_details = async (req, res, next) => {
             }
         }
     }
-    nearby_drivers = await User.find(matches);
+    try {
+      nearby_drivers = await User.find(matches);
+
+    } catch (error) {
+      
+    }
     caregivers = await UserCareGiver.find(match).sort({is_default:-1}).populate([
       {
         path: 'caregiver_detail',
