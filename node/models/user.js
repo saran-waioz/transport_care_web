@@ -241,6 +241,7 @@ userSchema.methods.comparePassword = function (password) {
 };
 //Virtuals  - basically used for appends, these virutals commes when calling data using schema
 
-userSchema.index({ location: "2dsphere" });
+// userSchema.index({ location: "2dsphere" });
+userSchema.ensureIndex({ "location.coordinates":"2d"});
 userSchema.plugin(mongoosePaginate);
 module.exports = mongoose.model('User', userSchema);

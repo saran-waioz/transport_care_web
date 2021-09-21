@@ -44,7 +44,7 @@ module.exports.respond = function (socket_io) {
     try {
       let location = {
         type: "Point",
-        coordinates: [data.longitude,data.latitude],
+        coordinates: [data.latitude,data.longitude],
       };
       var update = {};
       update.location = location;
