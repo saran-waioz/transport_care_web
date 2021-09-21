@@ -788,9 +788,6 @@ exports.get_home_page_details = async (req, res, next) => {
     }
     
     var origin = requests.current_location.split(",");
-    origin[0]=Number(parseFloat(origin[0]).toFixed(7))
-    origin[1]=Number(parseFloat(origin[1]).toFixed(7))
-    console.log(origin);
     var matches = {
       role: 2,
       status: 'active'
