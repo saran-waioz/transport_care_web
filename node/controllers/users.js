@@ -846,7 +846,7 @@ exports.calculate_fare_estimation = async (req, res, next) => {
             $maxDistance: 20 * 1000,
             $geometry: {
                 type: "Point",
-                coordinates: origin
+                coordinates: [origin[1],origin[0]]
             }
         }
     }

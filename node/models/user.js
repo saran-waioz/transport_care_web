@@ -46,15 +46,8 @@ const userSchema = new mongoose.Schema({
         default:"Physiotherapist"
     },
     location: {
-        type: {
-          type: String,
-          enum: ['Point'],
-          default: 'Point',
-        },
-        coordinates: {
-          type: [Number],
-          default: [0, 0],
-        }
+        type: { type: String },
+        coordinates: []
     },
     bearing: {
         type: String,
