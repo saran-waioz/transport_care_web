@@ -447,14 +447,30 @@ exports.get_trips = async (req, res, next) => {
       customLabels:myCustomLabels,
       populate:populate
     };
+    var start_day = moment().utcOffset(process.env.utcOffset).startOf('day');
+    var end_day = moment().utcOffset(process.env.utcOffset).endOf('day');
+    var start_week = moment().utcOffset(process.env.utcOffset).startOf('week');
+    var end_week = moment().utcOffset(process.env.utcOffset).endOf('week');
+    var start_last_week = moment().utcOffset(process.env.utcOffset).startOf('week').subtract(7,'days');
+    var end_last_week = moment().utcOffset(process.env.utcOffset).endOf('week').subtract(7,'days');
+    var get_daily_trip = await Trip.find({ trip_status: {$in:['completed','rating']}, createdAt: { $gte: start_day, $lt: end_day } });
+    var get_weekly_trip = await Trip.find({ trip_status: {$in:['completed','rating']}, createdAt: { $gte: start_week, $lt: end_week } });
+    var get_last_week_trip = await Trip.find({ trip_status: {$in:['completed','rating']}, createdAt: { $gte: start_last_week, $lt: end_last_week } });
+    
     var extra_detail = {
-      trips_last_week:"23",
-      trips_current_week:"5",
-      trips_per_day:"5",
+      trips_last_week:get_last_week_trip.length,
+      trips_current_week:get_weekly_trip.length,
+      trips_per_day:get_daily_trip.length,
       earnings_last_week:"$85",
       earnings_current_week:"$15",
       earnings_per_day:"$5"
     }
+    var earnings_per_day = _.sumBy(get_daily_trip, function(o) { return parseFloat(o.price_detail.driver_payout); });
+    extra_detail['earnings_per_day'] = earnings_per_day.toFixed(2).toString();
+    var earnings_current_week = _.sumBy(get_weekly_trip, function(o) { return parseFloat(o.price_detail.driver_payout); });
+    extra_detail['earnings_current_week'] = earnings_current_week.toFixed(2).toString();
+    var earnings_last_week = _.sumBy(get_last_week_trip, function(o) { return parseFloat(o.price_detail.driver_payout); });
+    extra_detail['earnings_last_week'] = earnings_last_week.toFixed(2).toString();
     if (pagination == "true") {
         Trip.paginate(match, options, function (err, trip_details) {
           const c = Object.assign({}, trip_details, {extra_detail});
@@ -823,10 +839,32 @@ exports.get_home_page_details = async (req, res, next) => {
   {
     var user_detail = await User.findOne({_id:requests.driver_id});
     var current_trip_detail = await Trip.find({ driver_id: requests.driver_id, is_deleted: false, trip_status:{$in:['pending', 'arrived','accepted' , 'start_trip','end_trip']} }).populate(trip_populate);
+    var current_request_detail = await RequestDetail.findOne({ 'driver_id': requests.driver_id,'request_status':'Requesting' });
+    var response_time={
+      start:0,
+      end:10,
+      duration:10,
+      angle:0,
+      status:false
+    }
+    var requesting_trip_detail = {}
+    if(current_request_detail)
+    {
+      requesting_trip_detail = await Trip.findOne({'_id':current_request_detail.trip_id}).populate(trip_populate);
+      
+      var a = moment();
+      var b = moment(requesting_trip_detail.updatedAt);
+      var diff_duration =  a.diff(b, 'seconds') // 1
+      if(diff_duration>0)
+      {
+        response_time.duration = parseInt(diff_duration);
+        response_time.status = true
+      }
+    }
   }
   var category_list = await Category.find();
 
-  return res.apiResponse(true, "Success", { category_list,user_detail, caregivers, service_type, current_trip_detail, nearby_drivers });
+  return res.apiResponse(true, "Success", { category_list,user_detail, caregivers, service_type, current_trip_detail, nearby_drivers,requesting_trip_detail, response_time });
 } 
 
 exports.calculate_fare_estimation = async (req, res, next) => {
@@ -1326,7 +1364,6 @@ exports.request_order = async(req, res, next) =>
     }
     else
     {
-      await caregiver_push_notifications(trip_detail);
       return res.apiResponse(true, "Trip request processing", { trip_detail } )
     }
   });
@@ -1439,27 +1476,28 @@ async function get_stripe_customer_id(user_detail) {
   }
   else
   {
-    var customer = await stripe.customers.create({  // stripe payment start
+    await stripe.customers.create({  // stripe payment start
       name:  user_detail.name,
       email:  user_detail.email,
       phone:  user_detail.phone,
       description:  "Transport Care Customer "+user_detail.email
+    }, async (err, customer) => {
+      if (err) {
+        return false;
+      }
+      else
+      {
+        await User.findOneAndUpdate({ _id: user_detail.id},
+          { $set: 
+            {
+            'stripe_customer': customer.id
+            }  
+          },
+          { new: true }
+        ).exec();
+        return customer.id;
+      }
     })
-    if(!customer.id)
-    {
-      return false;
-    }
-    else{
-      await User.findOneAndUpdate({ _id: user_detail.id},
-        { $set: 
-          {
-          'stripe_customer': customer.id
-          }  
-        },
-        { new: true }
-      ).exec();
-      return customer.id;
-    }
   }
 }
 async function get_stripe_account_id(user_detail) {
@@ -1495,6 +1533,21 @@ async function get_stripe_account_id(user_detail) {
     }
   }
 }
+
+exports.create_bank = async(req, res, next) => {
+  var requests = req.bodyParams;
+  var customer = await stripe.tokens.create({  // stripe payment start
+    bank_account: {
+      country: 'SG',
+      currency: 'sgd',
+      account_holder_name: 'Jenny Rosen',
+      account_holder_type: 'individual',
+      routing_number: '1100-000',
+      account_number: '000123456',
+    }
+  })
+  return res.apiResponse(true, "Success", {customer})
+}
 exports.add_stripe_card = async(req, res, next) => 
 {
   var requests = req.bodyParams;
@@ -1502,7 +1555,7 @@ exports.add_stripe_card = async(req, res, next) =>
   await get_stripe_customer_id(user_detail).then(async(customer_id) => {
     if(customer_id)
     {
-      var card_details = await stripe.customers.createSource(customer_id,{
+      await stripe.customers.createSource(customer_id,{
         source: requests.token
       }, async (err, card_details) => {
         if (err) {
@@ -1579,7 +1632,7 @@ exports.add_stripe_external_card = async(req, res, next) =>
   await get_stripe_account_id(user_detail).then(async(account_id) => {
     if(account_id)
     {
-      var card_details = await stripe.accounts.createExternalAccount(account_id,{
+      await stripe.accounts.createExternalAccount(account_id,{
         external_account: requests.token
       }, async (err, card_details) => {
         if (err) {
@@ -1641,19 +1694,22 @@ async function add_stripe_card_while_payment(requests,user_detail,trip_details) 
     {
       var card_details = await stripe.customers.createSource(customer_id,{
         source: requests.token
+      }, async (err, card_details) => {
+        if(err)
+        {
+          return {status:false,token:requests.token, type:"Error on saving stripe card"}
+        }
+        else
+        {
+          var card_data = {}
+          card_data.card_id = card_details.id;
+          card_data.card_details = card_details;
+          card_data.user_id = requests.user_id;
+          let stripe_card_data = new StripeCards(card_data);
+          await stripe_card_data.save();
+          return {status:true,token:card_details.id, type:"saved_card"}
+        }
       })
-      if (!card_details.id) {
-        return {status:false,token:requests.token, type:"Error on saving stripe card"}
-      }
-      else {
-        var card_data = {}
-        card_data.card_id = card_details.id;
-        card_data.card_details = card_details;
-        card_data.user_id = requests.user_id;
-        let stripe_card_data = new StripeCards(card_data);
-        await stripe_card_data.save();
-        return {status:true,token:card_details.id, type:"saved_card"}
-      }
     }
     else
     {
@@ -1716,13 +1772,16 @@ async function make_payment(payment_data,trip_details,user_detail) {
   var payment_mode = trip_details.payment_mode;
   if(payment_mode=="card")
   {
-    var charge = await stripe.charges.create(payment_data);
-    if (charge.id) {
-      return {status:true,message:charge.id,payment_type:"payment_gateway"}
-    }
-    else {
-      return {status:false,message:"Payment Failed"}
-    }
+    var charge = await stripe.charges.create(payment_data, async (err, transfer_details) => {
+      if(err)
+      {
+        return {status:false,message:"Payment Failed"}
+      }
+      else
+      {
+        return {status:true,message:charge.id,payment_type:"payment_gateway"}
+      }
+    });
   }
   else if(payment_mode=="wallet")
   {
