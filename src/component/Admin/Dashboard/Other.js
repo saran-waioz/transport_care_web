@@ -5,6 +5,7 @@ import {  Card } from 'antd';
 import { FaUsers, FaRedRiver,FaUserMd } from "react-icons/fa";
 import { GiTakeMyMoney,GiMoneyStack } from "react-icons/gi";
 
+import Apicall from "../../../Api/Api";
 
 class Others extends React.Component {
     constructor(props) {
@@ -29,13 +30,8 @@ class Others extends React.Component {
 
     fetch_data = (option) => {
         this.setState({ load: 1 });
-        client.query({
-            query: OTHERS_CHART,
-            variables: { option },
-            fetchPolicy: 'no-cache',
-        }).then(result => {
-            console.log(result);
-            this.setState({ data:result.data.get_others_chart })
+        Apicall({ option }, "/user/get_others_chart").then((res) => {
+            this.setState({ data:res.data.data.get_others_chart })
         });
     }
 
@@ -75,7 +71,7 @@ class Others extends React.Component {
                                Drivers
                             </div>
                             <div className="d-flex justify-content-end">
-                                {data[0] ? data[0].provider : 0}
+                                {data[0] ? data[0].driver : 0}
                             </div>
                         </div>
                     </div>
@@ -93,7 +89,7 @@ class Others extends React.Component {
                                 Caregivers
                             </div>
                             <div className="d-flex justify-content-end">
-                                20
+                            {data[0] ? data[0].caregiver : 0}
                             </div>
                         </div>
                     </div>

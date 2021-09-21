@@ -160,13 +160,7 @@ const User = (props) => {
           props?.tab_option === "delete_user" ? "d-none" : "mx-2 mx-sm-0 my-3"
         }
       >
-        <Button
-          type="default"
-          style={{ backgroundColor: "#f7a400" }}
-          onClick={() => Edituser()}
-        >
-          Add User
-        </Button>
+        
         <Search
           className="mt-3"
           size="large"

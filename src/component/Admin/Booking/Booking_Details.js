@@ -30,11 +30,17 @@ const BookingDetail = (props) => {
   const history = useHistory();
   const { id } = useParams();
   const [trip, settrip] = useState([]);
+  const [user_detail, set_user_detail] = useState([]);
+  const [caregiver_detail, set_caregiver_detail] = useState([]);
+  const [driver_detail, set_driver_detail] = useState([]);
 
 
   const getdata = () => {
     Apicall({ id: id }, `/user/get_trips`).then((res) => {
       settrip(res.data.data.trip_detail);
+      set_user_detail(res.data.data.trip_detail.user_detail[0])
+      set_caregiver_detail(res.data.data.trip_detail.caregiver_detail[0])
+      set_driver_detail(res.data.data.trip_detail.driver_detail[0])
     });
   };
   
@@ -123,15 +129,15 @@ const BookingDetail = (props) => {
                     <ul className="list-group p-2">
                         <li className="d-flex list-group-item">
                             <span>Name</span>
-                            <span className="ml-auto">{trip?.user_detail?.name}</span>
+                            <span className="ml-auto">{user_detail?.name}</span>
                         </li>
                         <li className="d-flex list-group-item">
                             <span>Email</span>
-                            <span className="ml-auto">{trip?.user_detail?.email}</span>
+                            <span className="ml-auto">{user_detail?.email}</span>
                         </li>
                         <li className="d-flex list-group-item">
                             <span>Phone</span>
-                            <span className="ml-auto">{trip?.user_detail?.phone}</span>
+                            <span className="ml-auto">{user_detail?.phone}</span>
                         </li>
                     </ul>
                 </div>
@@ -141,15 +147,15 @@ const BookingDetail = (props) => {
                     <ul className="list-group p-2">
                         <li className="d-flex list-group-item">
                             <span>Name</span>
-                            <span className="ml-auto">{trip?.user_detail?.name}</span>
+                            <span className="ml-auto">{caregiver_detail?.name}</span>
                         </li>
                         <li className="d-flex list-group-item">
                             <span>Email</span>
-                            <span className="ml-auto">{trip?.user_detail?.email}</span>
+                            <span className="ml-auto">{caregiver_detail?.email}</span>
                         </li>
                         <li className="d-flex list-group-item">
                             <span>Phone</span>
-                            <span className="ml-auto">{trip?.user_detail?.phone}</span>
+                            <span className="ml-auto">{caregiver_detail?.phone}</span>
                         </li>
                     </ul>
                 </div>
@@ -160,15 +166,15 @@ const BookingDetail = (props) => {
                     <ul className="list-group p-2">
                         <li className="d-flex list-group-item">
                             <span>Name</span>
-                            <span className="ml-auto">{trip?.driver_detail?.name}</span>
+                            <span className="ml-auto">{driver_detail?.name}</span>
                         </li>
                         <li className="d-flex list-group-item">
                             <span>Email</span>
-                            <span className="ml-auto">{trip?.driver_detail?.email}</span>
+                            <span className="ml-auto">{driver_detail?.email}</span>
                         </li>
                         <li className="d-flex list-group-item">
                             <span>Phone</span>
-                            <span className="ml-auto">{trip?.driver_detail?.phone}</span>
+                            <span className="ml-auto">{driver_detail?.phone}</span>
                         </li>
                     </ul>
                 </div>

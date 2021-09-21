@@ -68,7 +68,8 @@ const TripTable = (props) => {
       title: "Name",
       width: "15%",
       render: (text, record) => {
-        return <span title="Name">{record.user_detail?.name}</span>;
+        return <span title="Name">
+          {record.user_detail[0] ? record.user_detail[0].name : 0}</span>;
       },
     },
     {
@@ -85,7 +86,7 @@ const TripTable = (props) => {
       render: (text, record) => {
         return (
           <span title="Email" style={{ wordBreak: "keep-all" }}>
-            {record.user_detail?.email}
+            {record.user_detail[0] ? record.user_detail[0].email : 0}
           </span>
         );
       },

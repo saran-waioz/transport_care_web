@@ -1,4 +1,4 @@
-let type = 1;
+let type = 0;
 export const API = type
   ? "http://3.138.149.12:8990/api"
   : "http://localhost:8990/api";

@@ -64,14 +64,14 @@ const Edit_Category = () => {
     formData.append("id", id );
     formData.append("file", selectedFile);
     await Apicallcopy(formData, "/category/update_category");
-    history.push("/admin-category");
+    history.push("/admin/admin-category");
   };
   useEffect(() => {
     preload();
   }, []);
 
   const openCategory = () => {
-    history.push("/category");
+    history.push("/admin-category");
   };
   const handlechange = (name) => (e) => {
     const value = name === "photo" ? e.target.files[0] : e.target.value;

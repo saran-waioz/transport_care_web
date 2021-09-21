@@ -42,7 +42,9 @@ router.post('/delete_stripe_card', Usercontroller.delete_stripe_card);
 router.post('/get_logs', Usercontroller.get_logs);
 router.post('/get_driver_status', Usercontroller.get_driver_status);
 router.post('/create_bank',Usercontroller.create_bank)
+router.post('/get_others_chart',Usercontroller.get_others_chart)
+router.post('/get_earnings_chart',Usercontroller.get_earnings_chart)
+router.post('/get_booking_chart',Usercontroller.get_booking_chart)
 // router.post('/get_users',Usercontroller.get_users)
-
 
 module.exports = router;

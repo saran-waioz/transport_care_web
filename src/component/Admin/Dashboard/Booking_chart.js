@@ -3,6 +3,8 @@ import { Chart, Geom, Axis,  Legend } from 'bizcharts';
 import { BOOKING_CHART } from '../../../graphql/Admin/dashboard';
 import { client } from "../../../apollo";
 import { Select, Card } from 'antd';
+import Apicall from "../../../Api/Api";
+
 const { Option } = Select;
 
 class BookingChart extends React.Component {
@@ -28,31 +30,12 @@ class BookingChart extends React.Component {
 
   fetch_data = (option) => {
     this.setState({load:1});
-    client.query({
-      query: BOOKING_CHART,
-      variables: { option },
-      fetchPolicy: 'no-cache',
-    }).then(result => {
-      console.log(result);
+    Apicall({option}, "/user/get_booking_chart").then((res) => {
       var data = [];
-      if (result.data.get_booking_chart.length > 0) {
-        for (let i = 0; i < result.data.get_booking_chart.length; i++) {
-          if (result.data.get_booking_chart[i]._id === 10) {
-            let option = { genre: 'On Going', sold: result.data.get_booking_chart[i].count };
-            data.push(option);
-          }
-          if (result.data.get_booking_chart[i]._id === 4) {
-            let option = { genre: 'Start', sold: result.data.get_booking_chart[i].count };
-            data.push(option);
-          }
-          if (result.data.get_booking_chart[i]._id === 13) {
-            let option = { genre: 'End', sold: result.data.get_booking_chart[i].count };
-            data.push(option);
-          }
-          if (result.data.get_booking_chart[i]._id === 14) {
-            let option = { genre: 'Complete', sold: result.data.get_booking_chart[i].count };
-            data.push(option);
-          }
+      if (res.data.data.get_booking_chart.length > 0) {
+        for (let i = 0; i < res.data.data.get_booking_chart.length; i++) {
+          let option = { genre: res.data.data.get_booking_chart[i].text, sold: res.data.data.get_booking_chart[i].count };
+          data.push(option);
         }
       }
       this.setState({ data,load:0,option })

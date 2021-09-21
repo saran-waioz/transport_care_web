@@ -181,12 +181,7 @@ const Driver_Table = (props) => {
           props?.tab_option === "delete_user" ? "d-none" : "mx-2 mx-sm-0 my-3"
         }
       >
-        <Button
-          style={{ backgroundColor: "#f7a400", borderRadius: 10 }}
-          onClick={() => Editdriver()}
-        >
-          Add Driver
-        </Button>
+        
         <Search
           className="mt-3"
           size="large"

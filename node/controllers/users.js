@@ -465,11 +465,11 @@ exports.get_trips = async (req, res, next) => {
       earnings_current_week:"S$15",
       earnings_per_day:"S$5"
     }
-    var earnings_per_day = _.sumBy(get_daily_trip, function(o) { return parseFloat(o.price_detail.driver_payout); });
+    var earnings_per_day = _.sumBy(get_daily_trip, function(o) { return (o.price_detail.driver_payout>0)?parseFloat(o.price_detail.driver_payout):0; });
     extra_detail['earnings_per_day'] = "S$"+earnings_per_day.toFixed(2).toString();
-    var earnings_current_week = _.sumBy(get_weekly_trip, function(o) { return parseFloat(o.price_detail.driver_payout); });
+    var earnings_current_week = _.sumBy(get_weekly_trip, function(o) { return (o.price_detail.driver_payout>0)?parseFloat(o.price_detail.driver_payout):0; });
     extra_detail['earnings_current_week'] = "S$"+earnings_current_week.toFixed(2).toString();
-    var earnings_last_week = _.sumBy(get_last_week_trip, function(o) { return parseFloat(o.price_detail.driver_payout); });
+    var earnings_last_week = _.sumBy(get_last_week_trip, function(o) { return (o.price_detail.driver_payout>0)?parseFloat(o.price_detail.driver_payout):0; });
     extra_detail['earnings_last_week'] = "S$"+earnings_last_week.toFixed(2).toString();
     if (pagination == "true") {
         Trip.paginate(match, options, function (err, trip_details) {
@@ -1916,4 +1916,86 @@ exports.add_wallet = async(req, res, next) =>
       return res.apiResponse(true, "Amount added", {user_detail})
     }
   })
+}
+exports.get_earnings_chart = async(req, res, next) => {
+  var get_earnings_chart = []
+  for (var i = 0; i < 12; ++i) {
+      var start = moment().utcOffset(process.env.utcOffset).startOf('month').month(i);
+      var end = moment().utcOffset(process.env.utcOffset).endOf('month').month(i);
+      var get_yearly_orders = await Trip.find({ status: 'completed', createdAt: { $gte: start, $lt: end } });
+      get_earnings_chart.push({"__typename": "Dashboard",_id:i,total:_.sumBy(get_yearly_orders, function(o) { return parseFloat(o.price_detail.commission); })});
+  }
+  return res.apiResponse(true, "success", {get_earnings_chart})
+}
+exports.get_others_chart = async(req, res, next) => {
+  var get_users = await User.find(); 
+  var get_orders = await Trip.find({trip_status:{$in:['rating','completed']}});
+  var earning = _.sumBy(get_orders, function(o) { return (o.price_detail.commission>0)?parseFloat(o.price_detail.commission):0; });
+  var revenue = _.sumBy(get_orders, function(o) { return parseFloat(o.price_detail.total); });
+  console.log(earning)
+  var get_others_chart = [
+    {
+      "revenue": parseFloat(revenue).toFixed(2),
+      "earning": parseFloat(earning).toFixed(2),
+      "user": _.countBy(get_users, o => (o.role==1)).true,
+      "driver": _.countBy(get_users, o => (o.role==2)).true,
+      "caregiver": _.countBy(get_users, o => (o.role==3)).true,
+      "__typename": "Dashboard"
+    }
+  ]
+  return res.apiResponse(true, "success", {get_others_chart})
+}
+exports.get_booking_chart = async(req, res, next) => {
+  var start_day = moment().utcOffset(process.env.utcOffset).startOf('day');
+  var end_day = moment().utcOffset(process.env.utcOffset).endOf('day');
+  var start_week = moment().utcOffset(process.env.utcOffset).startOf('week');
+  var end_week = moment().utcOffset(process.env.utcOffset).endOf('week');
+  var start_month = moment().utcOffset(process.env.utcOffset).startOf('month');
+  var end_month = moment().utcOffset(process.env.utcOffset).endOf('month');
+  var start_year = moment().utcOffset(process.env.utcOffset).startOf('year');
+  var end_year = moment().utcOffset(process.env.utcOffset).endOf('year');
+  var requests = req.bodyParams;
+  switch (requests.option) {
+    case 1:
+      //daily
+      var get_orders = await Trip.find({ createdAt: { $gte: start_day, $lt: end_day } });    
+      break;
+    case 2:
+      //week
+      var get_orders = await Trip.find({ createdAt: { $gte: start_week, $lt: end_week } });    
+      break;
+    case 3:
+      //month
+      var get_orders = await Trip.find({ createdAt: { $gte: start_month, $lt: end_month } });    
+      break;
+    case 4:
+      //year
+      var get_orders = await Trip.find({ createdAt: { $gte: start_year, $lt: end_year } });    
+      break;
+    default:
+      break;
+  }
+  var get_booking_chart = [
+    {
+      "text": "Waiting for Driver",
+      "count": _.countBy(get_orders, o => (o.trip_status=='accepted')).true,
+      "__typename": "Dashboard"
+    },
+    {
+      "text": "Trip Travelling",
+      "count": _.countBy(get_orders, o => (o.trip_status=='arrived' || o.trip_status=='start_trip' || o.trip_status=='end_trip')).true,
+      "__typename": "Dashboard"
+    },
+    {
+      "text": "Completed",
+      "count": _.countBy(get_orders, o => (o.trip_status=='rating' || o.trip_status=='completed')).true,
+      "__typename": "Dashboard"
+    },
+    {
+      "text": "Cancelled",
+      "count": _.countBy(get_orders, o => (o.trip_status=='cancelled')).true,
+      "__typename": "Dashboard"
+    }
+  ]
+  return res.apiResponse(true, "success", {get_booking_chart})
 }

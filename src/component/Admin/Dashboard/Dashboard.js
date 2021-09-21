@@ -44,14 +44,10 @@ class Dashboard extends React.Component {
                         </Row>
 
                         <Row gutter={[12, 24]} className="mt-3">
-                            <Col lg={12} md={24}>
-                                    <BookingChart />
-                            </Col>
-                            <Col lg={12} md={24}>
-                                    <CancelChart />
+                            <Col lg={24} md={24}>
+                                <BookingChart />
                             </Col>
                         </Row>
-
                     </Content>
                 </Layout>
             </Layout>

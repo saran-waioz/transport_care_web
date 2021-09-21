@@ -34,10 +34,7 @@ class Booking extends React.Component {
                             <TabPane tab="Trip" key="1">
                                 <TripTable />
                             </TabPane>
-                            <TabPane tab="Trip Cancel" key="2">
-                            </TabPane>
-                            <TabPane tab="Trip Completed" key="3">
-                            </TabPane>
+
                         </Tabs>
                     </Content>
                 </Layout>

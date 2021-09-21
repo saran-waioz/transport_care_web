@@ -1,11 +1,11 @@
 import React from 'react';
 import * as bizUtil from 'bizcharts/lib/core';
+import Apicall from "../../../Api/Api";
 import {
     Chart,
     Geom,
     Axis,
-    Tooltip,
-   
+    Tooltip
 } from "bizcharts";
 import {  EARNINGS_CHART } from '../../../graphql/Admin/dashboard';
 import { client } from "../../../apollo";
@@ -37,20 +37,17 @@ class EarningChart extends React.Component {
 
     fetch_data = () => {
         this.setState({ load: 1 });
-        client.query({
-            query: EARNINGS_CHART,
-            fetchPolicy: 'no-cache',
-        }).then(result => {
-            console.log(result);
+        Apicall({}, "/user/get_earnings_chart").then((res) => {
             var dataSource = [];
-            if (result.data.get_earnings_chart.length > 0) {
-                for (let i = 0; i < result.data.get_earnings_chart.length; i++) {
-                    let option = { year: moment.months(result.data.get_earnings_chart[i]._id - 1), value: result.data.get_earnings_chart[i].total };
+            if (res.data.data.get_earnings_chart.length > 0) {
+                for (let i = 0; i < res.data.data.get_earnings_chart.length; i++) {
+                    let option = { year: moment.months(res.data.data.get_earnings_chart[i]._id), value: res.data.data.get_earnings_chart[i].total };
                     dataSource.push(option);
                 }
             }
             this.setState({ dataSource, load: 0 })
         });
+        
     }
     render() {
         const { dataSource, cols } = this.state;

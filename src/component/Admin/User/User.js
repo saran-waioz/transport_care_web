@@ -28,9 +28,7 @@ class User extends React.Component {
               <TabPane tab="Current User" key="1">
                 <UserTable />
               </TabPane>
-              <TabPane tab="Deleted User" key="2">
-                <UserTable tab_option="delete_user"/>
-              </TabPane>
+              
             </Tabs>
           </Content>
         </Layout>
