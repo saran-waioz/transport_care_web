@@ -799,7 +799,7 @@ exports.get_home_page_details = async (req, res, next) => {
             $maxDistance: 20 * 1000,
             $geometry: {
                 type: "Point",
-                coordinates: origin
+                coordinates: [origin[1],origin[0]]
             }
         }
     }
@@ -1347,11 +1347,11 @@ async function function_request_order(requests,trip_detail) {
             $maxDistance: 20 * 1000,
             $geometry: {
                 type: "Point",
-                coordinates: orgin
+                coordinates: [orgin[1],orgin[0]]
             }
         }
     }
-    match['email']={$in:["hey@gmail.com"]};
+    // match['email']={$in:["hey@gmail.com"]};
     var get_drivers = await User.find(match);
     console.log("nearest drivers",get_drivers.length)
     if (get_drivers.length) {

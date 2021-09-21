@@ -46,8 +46,15 @@ const userSchema = new mongoose.Schema({
         default:"Physiotherapist"
     },
     location: {
-        type: { type: String },
-        coordinates: []
+        type: {
+          type: String,
+          enum: ['Point'],
+          default: 'Point',
+        },
+        coordinates: {
+          type: [Number],
+          default: [0, 0],
+        }
     },
     bearing: {
         type: String,
@@ -241,7 +248,6 @@ userSchema.methods.comparePassword = function (password) {
 };
 //Virtuals  - basically used for appends, these virutals commes when calling data using schema
 
-// userSchema.index({ location: "2dsphere" });
-userSchema.index({ "location.coordinates":"2d"});
+userSchema.index({ location: "2dsphere" });
 userSchema.plugin(mongoosePaginate);
 module.exports = mongoose.model('User', userSchema);
