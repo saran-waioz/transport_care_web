@@ -51,7 +51,7 @@ module.exports.respond = function (socket_io) {
       update.bearing = data.bearing;
       await User.findOneAndUpdate({ _id: data.user_id }, { $set: update }).exec(); 
     } catch (error) {
-      console.log("55")
+      console.log("55",error)
     }
     var user_detail = await User.findOne({ _id: data.user_id });
     if (
