@@ -461,16 +461,16 @@ exports.get_trips = async (req, res, next) => {
       trips_last_week:get_last_week_trip.length,
       trips_current_week:get_weekly_trip.length,
       trips_per_day:get_daily_trip.length,
-      earnings_last_week:"$85",
-      earnings_current_week:"$15",
-      earnings_per_day:"$5"
+      earnings_last_week:"S$85",
+      earnings_current_week:"S$15",
+      earnings_per_day:"S$5"
     }
     var earnings_per_day = _.sumBy(get_daily_trip, function(o) { return parseFloat(o.price_detail.driver_payout); });
-    extra_detail['earnings_per_day'] = earnings_per_day.toFixed(2).toString();
+    extra_detail['earnings_per_day'] = "S$"+earnings_per_day.toFixed(2).toString();
     var earnings_current_week = _.sumBy(get_weekly_trip, function(o) { return parseFloat(o.price_detail.driver_payout); });
-    extra_detail['earnings_current_week'] = earnings_current_week.toFixed(2).toString();
+    extra_detail['earnings_current_week'] = "S$"+earnings_current_week.toFixed(2).toString();
     var earnings_last_week = _.sumBy(get_last_week_trip, function(o) { return parseFloat(o.price_detail.driver_payout); });
-    extra_detail['earnings_last_week'] = earnings_last_week.toFixed(2).toString();
+    extra_detail['earnings_last_week'] = "S$"+earnings_last_week.toFixed(2).toString();
     if (pagination == "true") {
         Trip.paginate(match, options, function (err, trip_details) {
           const c = Object.assign({}, trip_details, {extra_detail});
