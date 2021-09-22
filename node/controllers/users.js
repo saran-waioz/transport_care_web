@@ -1477,28 +1477,27 @@ async function get_stripe_customer_id(user_detail) {
   }
   else
   {
-    await stripe.customers.create({  // stripe payment start
+    var customer = await stripe.customers.create({  // stripe payment start
       name:  user_detail.name,
       email:  user_detail.email,
       phone:  user_detail.phone,
       description:  "Transport Care Customer "+user_detail.email
-    }, async (err, customer) => {
-      if (err) {
-        return false;
-      }
-      else
-      {
-        await User.findOneAndUpdate({ _id: user_detail.id},
-          { $set: 
-            {
-            'stripe_customer': customer.id
-            }  
-          },
-          { new: true }
-        ).exec();
-        return customer.id;
-      }
     })
+    if (customer) {
+      await User.findOneAndUpdate({ _id: user_detail.id},
+        { $set: 
+          {
+          'stripe_customer': customer.id
+          }  
+        },
+        { new: true }
+      ).exec();
+      return customer.id;
+    }
+    else
+    {
+      return false;
+    }
   }
 }
 async function get_stripe_account_id(user_detail) {
@@ -1556,13 +1555,11 @@ exports.add_stripe_card = async(req, res, next) =>
   await get_stripe_customer_id(user_detail).then(async(customer_id) => {
     if(customer_id)
     {
-      await stripe.customers.createSource(customer_id,{
-        source: requests.token
-      }, async (err, card_details) => {
-        if (err) {
-          return res.apiResponse(false, "Failed", {err})
-        }
-        else {
+      try {
+        var card_details = await stripe.customers.createSource(customer_id,{
+          source: requests.token
+        })
+        if (card_details) {
           var card_data = {}
           card_data.card_id = card_details.id;
           card_data.card_details = card_details;
@@ -1571,7 +1568,12 @@ exports.add_stripe_card = async(req, res, next) =>
           await stripe_card.save();
           return res.apiResponse(true, "Card added succesfully",{stripe_card})
         }
-      })
+        else {
+          return res.apiResponse(false, "Failed")
+        }
+      } catch (error) {
+        return res.apiResponse(false, "Failed", {error})
+      }
     }
     else
     {
@@ -1812,7 +1814,6 @@ exports.trip_payment = async(req, res, next) =>
     var user_detail = await User.findOne({ "_id": requests.user_id });
     var driver_detail = await User.findOne({ "_id": trip_details.driver_id });
     add_stripe_card_while_payment(requests,user_detail,trip_details).then(async(results) => {
-      console.log("1817",results)
       if(results.status)
       {
         var payment_amount = Math.round(parseFloat(trip_details.price_detail.total));
@@ -1827,7 +1828,6 @@ exports.trip_payment = async(req, res, next) =>
           payment_data.customer = user_detail.stripe_customer
         }
         make_payment(payment_data,trip_details,user_detail).then(async(payment_results) => {
-          console.log("1832",payment_results)
           if(payment_results.status)
           {
             var transaction_data = {}
@@ -1888,35 +1888,34 @@ exports.add_wallet = async(req, res, next) =>
     amount:  Math.round(parseInt(requests.total_amount)*100),
     currency: 'sgd',
     source: requests.token
-  }, async (err, charge) => {
-    if (err) {
-      return res.apiResponse(false, "Failed", {err})
-    }
-    else {
-      var user_detail = await User.findOne({ "_id": requests.user_id });
-      let current_user_wallet = 0
-      if(user_detail.wallet_amount && user_detail.wallet_amount !== 'NaN'){
-          current_user_wallet = user_detail.wallet_amount 
-      }
-      user_detail.wallet_amount = Number(parseFloat(current_user_wallet) + parseFloat(requests.total_amount)).toFixed(2);
-      await user_detail.save();
-      var transaction_data = {}
-      transaction_data.amount = charge.amount;
-      transaction_data.orginal_amount = requests.total_amount;
-      transaction_data.user_id = requests.user_id;
-      transaction_data.type = 'wallet';
-      transaction_data.transaction_id = charge.id;
-      transaction_data.payment_type = 'payment gateway';
-      transaction_data.status = 'completed';
-      /**
-       * @info send email using through nodemailer after payment *(booking confirmatin)
-       */
-      commonHelper.send_mail_nodemailer(user_detail.email,"booking_confirmation",{});
-      let transactions = new TransactionModel(transaction_data);
-      await transactions.save();
-      return res.apiResponse(true, "Amount added", {user_detail})
-    }
   })
+  if (!charge) {
+    return res.apiResponse(false, "Failed")
+  }
+  else {
+    var user_detail = await User.findOne({ "_id": requests.user_id });
+    let current_user_wallet = 0
+    if(user_detail.wallet_amount && user_detail.wallet_amount !== 'NaN'){
+        current_user_wallet = user_detail.wallet_amount 
+    }
+    user_detail.wallet_amount = Number(parseFloat(current_user_wallet) + parseFloat(requests.total_amount)).toFixed(2);
+    await user_detail.save();
+    var transaction_data = {}
+    transaction_data.amount = charge.amount;
+    transaction_data.orginal_amount = requests.total_amount;
+    transaction_data.user_id = requests.user_id;
+    transaction_data.type = 'wallet';
+    transaction_data.transaction_id = charge.id;
+    transaction_data.payment_type = 'payment gateway';
+    transaction_data.status = 'completed';
+    /**
+     * @info send email using through nodemailer after payment *(booking confirmatin)
+     */
+    commonHelper.send_mail_nodemailer(user_detail.email,"booking_confirmation",{});
+    let transactions = new TransactionModel(transaction_data);
+    await transactions.save();
+    return res.apiResponse(true, "Amount added", {user_detail})
+  }
 }
 exports.get_earnings_chart = async(req, res, next) => {
   var get_earnings_chart = []
@@ -1933,7 +1932,6 @@ exports.get_others_chart = async(req, res, next) => {
   var get_orders = await Trip.find({trip_status:{$in:['rating','completed']}});
   var earning = _.sumBy(get_orders, function(o) { return (o.price_detail.commission>0)?parseFloat(o.price_detail.commission):0; });
   var revenue = _.sumBy(get_orders, function(o) { return parseFloat(o.price_detail.total); });
-  console.log(earning)
   var get_others_chart = [
     {
       "revenue": parseFloat(revenue).toFixed(2),
