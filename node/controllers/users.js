@@ -1922,7 +1922,7 @@ exports.get_earnings_chart = async(req, res, next) => {
   for (var i = 0; i < 12; ++i) {
       var start = moment().utcOffset(process.env.utcOffset).startOf('month').month(i);
       var end = moment().utcOffset(process.env.utcOffset).endOf('month').month(i);
-      var get_yearly_orders = await Trip.find({ status: 'completed', createdAt: { $gte: start, $lt: end } });
+      var get_yearly_orders = await Trip.find({ trip_status:{$in:['rating','completed']}, createdAt: { $gte: start, $lt: end } });
       get_earnings_chart.push({"__typename": "Dashboard",_id:i,total:_.sumBy(get_yearly_orders, function(o) { return (o.price_detail.commission>0)?parseFloat(o.price_detail.commission):0; })});
   }
   return res.apiResponse(true, "success", {get_earnings_chart})
