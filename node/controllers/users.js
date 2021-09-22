@@ -1772,17 +1772,15 @@ async function make_payment(payment_data,trip_details,user_detail) {
   var payment_mode = trip_details.payment_mode;
   if(payment_mode=="card")
   {
-    await stripe.charges.create(payment_data, async (err, charge) => {
-      console.log("1777",err,charge)
-      if(err)
-      {
-        return {status:false,message:"Payment Failed"}
-      }
-      else
-      {
-        return {status:true,message:charge.id,payment_type:"payment_gateway"}
-      }
-    });
+    var charge = await stripe.charges.create(payment_data);
+    if(charge)
+    {
+      return {status:true,message:charge.id,payment_type:"payment_gateway"}
+    }
+    else
+    {
+      return {status:false,message:"Payment Failed"}
+    }
   }
   else if(payment_mode=="wallet")
   {
