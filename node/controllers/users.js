@@ -877,7 +877,8 @@ exports.calculate_fare_estimation = async (req, res, next) => {
     var match = {
       role: 2,
       status: 'active',
-      trip_status: 'online'
+      trip_status: 'online',
+      is_deleted:false
     };
     match['location'] = { 
         $nearSphere: {
