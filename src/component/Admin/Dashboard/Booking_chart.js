@@ -53,7 +53,7 @@ class BookingChart extends React.Component {
             <Option value="3">Month</Option>
             <Option value="4">Year</Option>
           </Select>}>
-          <Chart width={600} height={400} data={data} scale={cols}>
+          <Chart  height={400} data={data} scale={cols} forceFit>
             <Axis name="genre" title />
             <Axis name="sold" title />
             <Legend position="top" dy={-20} />

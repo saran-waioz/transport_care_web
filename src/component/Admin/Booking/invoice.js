@@ -32,11 +32,16 @@ const BookingInvoice = (props) => {
   const history = useHistory();
   const { id } = useParams();
   const [trip, settrip] = useState([]);
-
+  const [user_detail, set_user_detail] = useState([]);
+  const [caregiver_detail, set_caregiver_detail] = useState([]);
+  const [driver_detail, set_driver_detail] = useState([]);
 
   const getdata = () => {
     Apicall({ id: id }, `/user/get_trips`).then((res) => {
       settrip(res.data.data.trip_detail);
+      set_user_detail(res.data.data.trip_detail.user_detail[0])
+      set_caregiver_detail(res.data.data.trip_detail.caregiver_detail[0])
+      set_driver_detail(res.data.data.trip_detail.driver_detail[0])
     });
   };
   
@@ -64,7 +69,7 @@ const BookingInvoice = (props) => {
                             </div>
                         </div>
                         <div className="user_batch mx-3 ">
-                            <p className="mt-3">{trip?.user_detail?.name}</p>
+                            <p className="mt-3">{user_detail?.name}</p>
                             <p>Thanks for using Transportcare</p>
                         </div>
                         <div className="total_fare">
@@ -131,54 +136,57 @@ const BookingInvoice = (props) => {
                             </li>
                         </ul>
                     </div>
-                    <div className="card">
+                    <div className="card mt-3">
                         <p className="font-weight-bold p-2 m-0 border-bottom">User Detail</p>
                         <ul className="list-group p-2">
                             <li className="d-flex list-group-item">
                                 <span>Name</span>
-                                <span className="ml-auto">{trip?.user_detail?.name}</span>
+                                <span className="ml-auto">{user_detail?.name}</span>
                             </li>
                             <li className="d-flex list-group-item">
                                 <span>Email</span>
-                                <span className="ml-auto">{trip?.user_detail?.email}</span>
+                                <span className="ml-auto">{user_detail?.email}</span>
                             </li>
                             <li className="d-flex list-group-item">
                                 <span>Phone</span>
-                                <span className="ml-auto">{trip?.user_detail?.phone}</span>
+                                <span className="ml-auto">{user_detail?.phone}</span>
                             </li>
                         </ul>
                     </div>
+                    {trip?.is_care_giver ? 
                     <div className="card mt-3">
                         <p className="font-weight-bold p-2 m-0 border-bottom">Caregiver Detail</p>
                         <ul className="list-group p-2">
                             <li className="d-flex list-group-item">
                                 <span>Name</span>
-                                <span className="ml-auto">{trip?.user_detail?.name}</span>
+                                <span className="ml-auto">{caregiver_detail?.name}</span>
                             </li>
                             <li className="d-flex list-group-item">
                                 <span>Email</span>
-                                <span className="ml-auto">{trip?.user_detail?.email}</span>
+                                <span className="ml-auto">{caregiver_detail?.email}</span>
                             </li>
                             <li className="d-flex list-group-item">
                                 <span>Phone</span>
-                                <span className="ml-auto">{trip?.user_detail?.phone}</span>
+                                <span className="ml-auto">{caregiver_detail?.phone}</span>
                             </li>
                         </ul>
                     </div>
+                    : <></>
+                    }
                     <div className="card mt-3">
                         <p className="font-weight-bold p-2 m-0 border-bottom">Driver Detail</p>
                         <ul className="list-group p-2">
                             <li className="d-flex list-group-item">
                                 <span>Name</span>
-                                <span className="ml-auto">{trip?.driver_detail?.name}</span>
+                                <span className="ml-auto">{driver_detail?.name}</span>
                             </li>
                             <li className="d-flex list-group-item">
                                 <span>Email</span>
-                                <span className="ml-auto">{trip?.driver_detail?.email}</span>
+                                <span className="ml-auto">{driver_detail?.email}</span>
                             </li>
                             <li className="d-flex list-group-item">
                                 <span>Phone</span>
-                                <span className="ml-auto">{trip?.driver_detail?.phone}</span>
+                                <span className="ml-auto">{driver_detail?.phone}</span>
                             </li>
                         </ul>
                     </div>
