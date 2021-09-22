@@ -1693,9 +1693,10 @@ async function add_stripe_card_while_payment(requests,user_detail,trip_details) 
     var customer_id = await get_stripe_customer_id(user_detail);
     if(customer_id)
     {
-      var card_details = await stripe.customers.createSource(customer_id,{
+      await stripe.customers.createSource(customer_id,{
         source: requests.token
       }, async (err, card_details) => {
+        console.log("1699",err,card_details)
         if(err)
         {
           return {status:false,token:requests.token, type:"Error on saving stripe card"}
