@@ -1335,7 +1335,7 @@ exports.request_order = async(req, res, next) =>
   }
   price_detail.total = parseFloat(category_detail.price * (requests.distances.distanceValue/1000)).toFixed(2);
   price_detail.commission = parseFloat(category_detail.commission * parseFloat(price_detail.total)/100).toFixed(2);
-  price_detail.driver_payout = price_detail.total - price_detail.commission;
+  price_detail.driver_payout = parseFloat(price_detail.total - price_detail.commission).toFixed(2);
   
 
   var trip_detail = {
@@ -1400,7 +1400,7 @@ async function function_request_order(requests,trip_detail) {
 
         for (let i = 0; i < get_drivers.length; ++i) {
           var already_requested_driver = await RequestDetail.find({ 'driver_id': get_drivers[i]._id });
-          var distance = geolib.getDistance({ latitude: get_drivers[i].location.coordinates[0], longitude: get_drivers[i].location.coordinates[1] }, { latitude: orgin[0], longitude: orgin[1] })
+          var distance = geolib.getDistance({ latitude: get_drivers[i].location.coordinates[1], longitude: get_drivers[i].location.coordinates[0] }, { latitude: orgin[1], longitude: orgin[0] })
             var km = "1";
             if (distance >= 1000) {
                 km = parseFloat(parseFloat(distance) / 1000).toFixed(2);
