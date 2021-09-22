@@ -1773,7 +1773,7 @@ async function make_payment(payment_data,trip_details,user_detail) {
   var payment_mode = trip_details.payment_mode;
   if(payment_mode=="card")
   {
-    var charge = await stripe.charges.create(payment_data, async (err, transfer_details) => {
+    await stripe.charges.create(payment_data, async (err, charge) => {
       if(err)
       {
         return {status:false,message:"Payment Failed"}
@@ -1814,6 +1814,7 @@ exports.trip_payment = async(req, res, next) =>
     var user_detail = await User.findOne({ "_id": requests.user_id });
     var driver_detail = await User.findOne({ "_id": trip_details.driver_id });
     add_stripe_card_while_payment(requests,user_detail,trip_details).then(async(results) => {
+      console.log("1831",results)
       if(results.status)
       {
         var payment_amount = Math.round(parseFloat(trip_details.price_detail.total));
@@ -1828,6 +1829,7 @@ exports.trip_payment = async(req, res, next) =>
           payment_data.customer = user_detail.stripe_customer
         }
         make_payment(payment_data,trip_details,user_detail).then(async(payment_results) => {
+          console.log("1831",payment_results)
           if(payment_results.status)
           {
             var transaction_data = {}
