@@ -1534,7 +1534,7 @@ async function get_stripe_account_id(user_detail) {
   }
 }
 
-exports.create_bank = async(req, res, next) => {
+exports.create_stripe_bank = async(req, res, next) => {
   var requests = req.bodyParams;
   var customer = await stripe.tokens.create({  // stripe payment start
     bank_account: {
@@ -1774,14 +1774,18 @@ async function make_payment(payment_data,trip_details,user_detail) {
   var payment_mode = trip_details.payment_mode;
   if(payment_mode=="card")
   {
-    var charge = await stripe.charges.create(payment_data);
-    if(charge)
-    {
-      return {status:true,message:charge.id,payment_type:"payment_gateway"}
-    }
-    else
-    {
-      return {status:false,message:"Payment Failed"}
+    try {
+      var charge = await stripe.charges.create(payment_data);
+      if(charge)
+      {
+        return {status:true,message:charge.id,payment_type:"payment_gateway"}
+      }
+      else
+      {
+        return {status:false,message:"Payment Failed"}
+      } 
+    } catch (error) {
+      return {status:false,message:error.type+"-"+error.message,error:error}
     }
   }
   else if(payment_mode=="wallet")
@@ -1823,7 +1827,7 @@ exports.trip_payment = async(req, res, next) =>
           source: results.token,
           receipt_email:user_detail.email
         }
-        if(user_detail.stripe_customer)
+        if(user_detail.stripe_customer && requests.card_type!="new")
         {
           payment_data.customer = user_detail.stripe_customer
         }
@@ -1884,38 +1888,43 @@ exports.trip_payment = async(req, res, next) =>
 exports.add_wallet = async(req, res, next) => 
 {
   var requests = req.bodyParams;
-  var charge = await stripe.charges.create({  // stripe payment start
-    amount:  Math.round(parseInt(requests.total_amount)*100),
-    currency: 'sgd',
-    source: requests.token
-  })
-  if (!charge) {
-    return res.apiResponse(false, "Failed")
-  }
-  else {
-    var user_detail = await User.findOne({ "_id": requests.user_id });
-    let current_user_wallet = 0
-    if(user_detail.wallet_amount && user_detail.wallet_amount !== 'NaN'){
-        current_user_wallet = user_detail.wallet_amount 
+  try {
+    var charge = await stripe.charges.create({  // stripe payment start
+      amount:  Math.round(parseInt(requests.total_amount)*100),
+      currency: 'sgd',
+      source: requests.token
+    })
+    if (!charge) {
+      return res.apiResponse(false, "Failed")
     }
-    user_detail.wallet_amount = Number(parseFloat(current_user_wallet) + parseFloat(requests.total_amount)).toFixed(2);
-    await user_detail.save();
-    var transaction_data = {}
-    transaction_data.amount = charge.amount;
-    transaction_data.orginal_amount = requests.total_amount;
-    transaction_data.user_id = requests.user_id;
-    transaction_data.type = 'wallet';
-    transaction_data.transaction_id = charge.id;
-    transaction_data.payment_type = 'payment gateway';
-    transaction_data.status = 'completed';
-    /**
-     * @info send email using through nodemailer after payment *(booking confirmatin)
-     */
-    commonHelper.send_mail_nodemailer(user_detail.email,"booking_confirmation",{});
-    let transactions = new TransactionModel(transaction_data);
-    await transactions.save();
-    return res.apiResponse(true, "Amount added", {user_detail})
+    else {
+      var user_detail = await User.findOne({ "_id": requests.user_id });
+      let current_user_wallet = 0
+      if(user_detail.wallet_amount && user_detail.wallet_amount !== 'NaN'){
+          current_user_wallet = user_detail.wallet_amount 
+      }
+      user_detail.wallet_amount = Number(parseFloat(current_user_wallet) + parseFloat(requests.total_amount)).toFixed(2);
+      await user_detail.save();
+      var transaction_data = {}
+      transaction_data.amount = charge.amount;
+      transaction_data.orginal_amount = requests.total_amount;
+      transaction_data.user_id = requests.user_id;
+      transaction_data.type = 'wallet';
+      transaction_data.transaction_id = charge.id;
+      transaction_data.payment_type = 'payment gateway';
+      transaction_data.status = 'completed';
+      /**
+       * @info send email using through nodemailer after payment *(booking confirmatin)
+       */
+      commonHelper.send_mail_nodemailer(user_detail.email,"booking_confirmation",{});
+      let transactions = new TransactionModel(transaction_data);
+      await transactions.save();
+      return res.apiResponse(true, "Amount added", {user_detail})
+    }
+  } catch (error) {
+    return {status:false,message:error.type+"-"+error.message,error:error}
   }
+
 }
 exports.get_earnings_chart = async(req, res, next) => {
   var get_earnings_chart = []
