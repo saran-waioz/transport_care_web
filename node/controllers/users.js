@@ -1096,17 +1096,22 @@ exports.accept_request = async (req, res, next) => {
   var trip_detail = await Trip.findOne({_id:requests.trip_id});
   if(trip_detail.trip_status=="processing")
   {
+    var update_data={
+      'driver_id': requests.driver_id,
+      'trip_status': 'accepted',
+      'is_deleted': false,
+      'accepted_at':moment(),
+      'duration':request_detail.duration
+    }
+    if(trip_detail.request_type=="schedule")
+    {
+      update_data.trip_status = "schedule_accepted";
+      update_data.schedule_accepted_at = moment();
+      update_data.schedule_status="accepted";
+    }
     await Trip.findOneAndUpdate(
       { _id: requests.trip_id },
-      { $set: 
-        {
-        'driver_id': requests.driver_id,
-        'trip_status': 'accepted',
-        'is_deleted': false,
-        'accepted_at':moment(),
-        'duration':request_detail.duration
-        }  
-      },
+      { $set: update_data},
       { new: true }
     ).exec();
 
@@ -1337,13 +1342,21 @@ exports.request_order = async(req, res, next) =>
   price_detail.total = parseFloat(category_detail.price * (requests.distances.distanceValue/1000)).toFixed(2);
   price_detail.commission = parseFloat(category_detail.commission * parseFloat(price_detail.total)/100).toFixed(2);
   price_detail.driver_payout = parseFloat(price_detail.total - price_detail.commission).toFixed(2);
-  
-
+  var request_type="now";
+  var scheduled_utc = new Date();
+  if(requests.request_type && requests.request_type!="")
+  {
+    request_type = requests.request_type
+    scheduled_utc = new Date(requests.scheduled_at);
+  }
   var trip_detail = {
     user_id: requests.user_id,
     care_giver_id: requests.care_giver_id,
     service_type: requests.service_type,
     category_detail: category_detail,
+    request_type:request_type,
+    booking_type:request_type,
+    schedule_date_time : moment(scheduled_utc),
     distances: requests.distances,
     payment_mode: requests.payment_mode,
     price_detail:price_detail,
@@ -1407,6 +1420,13 @@ async function function_request_order(requests,trip_detail) {
                 km = parseFloat(parseFloat(distance) / 1000).toFixed(2);
             }
             var duration = Number(Math.round(parseInt(km)/50 * 60)).toString()+" mins";
+            var request_type="now";
+            var scheduled_utc = new Date();
+            if(requests.request_type && requests.request_type!="")
+            {
+              request_type = requests.request_type
+              scheduled_utc = new Date(requests.scheduled_at);
+            }
             if (already_requested_driver.length) {
               var new_request_data = {
                 user_id: requests.user_id,
@@ -1431,6 +1451,9 @@ async function function_request_order(requests,trip_detail) {
                 is_deleted:false
               }
             }
+            new_request_data.request_type=request_type;
+            new_request_data.booking_type=request_type;
+            new_request_data.schedule_date_time = moment(scheduled_utc);
             var new_request = new RequestDetail(new_request_data);
             await new_request.save();
         }
@@ -1932,7 +1955,9 @@ exports.get_earnings_chart = async(req, res, next) => {
       var start = moment().utcOffset(process.env.utcOffset).startOf('month').month(i);
       var end = moment().utcOffset(process.env.utcOffset).endOf('month').month(i);
       var get_yearly_orders = await Trip.find({ trip_status:{$in:['rating','completed']}, createdAt: { $gte: start, $lt: end } });
-      get_earnings_chart.push({"__typename": "Dashboard",_id:i,total:_.sumBy(get_yearly_orders, function(o) { return (o.price_detail.commission>0)?parseFloat(o.price_detail.commission):0; })});
+      var total = _.sumBy(get_yearly_orders, function(o) { return (o.price_detail.commission>0)?parseFloat(o.price_detail.commission):0; })
+      total = parseFloat(total).toFixed(2);
+      get_earnings_chart.push({"__typename": "Dashboard",_id:i,total:total});
   }
   return res.apiResponse(true, "success", {get_earnings_chart})
 }
@@ -2006,4 +2031,89 @@ exports.get_booking_chart = async(req, res, next) => {
     }
   ]
   return res.apiResponse(true, "success", {get_booking_chart})
+}
+async function func_schedule_cron() {
+  const today = moment().startOf('day')
+  var orders = await Trip.find({booking_type:'schedule',
+  trip_status:'schedule_accepted',schedule_status:'accepted',schedule_date_time: {
+      $gte: today.toDate(),
+      $lte: moment(today).endOf('day').toDate()
+  }});
+  if(orders.length)
+  {
+    for(var i=0; i<orders.length;i++)
+    {
+      if(moment(orders[i].schedule_date_time).isSameOrAfter())
+      {
+        var a = moment();//now
+        var b = moment(orders[i].schedule_date_time);
+        var driver_detail = await User.findOne({ '_id': orders[i].driver_id });
+        var user_detail = await User.findOne({ '_id': orders[i].user_id });
+        var trip_detail = await Trip.findOne({ "_id": orders[i]._id });
+        if(b.diff(a, 'minutes')==60)
+        {
+          var update_order= {}
+          update_order.schedule_reminded_first=moment()
+          await Trip.findOneAndUpdate({ "_id": orders[i]._id }, { "$set": update_order }, { new: true }).exec();
+          if (driver_detail.device_id.length) {
+            var driver_message = user_detail.name+"'s ride in 1 hour. Be prepare for the ride";
+            for (let i = 0; i < driver_detail.device_id.length; ++i) {
+                Firebase.singleNotification(driver_detail.device_id[i], "Trip "+trip_detail.invoice_id, driver_message);
+            }
+          }
+          if (user_detail.device_id.length) {
+            var user_message = "Ride in 1 hour. Be prepare for the ride";
+            for (let i = 0; i < user_detail.device_id.length; ++i) {
+                Firebase.singleNotification(user_detail.device_id[i], "Trip "+trip_detail.invoice_id, user_message);
+            }
+          }
+        }
+        if(b.diff(a, 'minutes')==15)
+        {
+          var update_order= {}
+          update_order.schedule_reminded_second=moment()
+          await Trip.findOneAndUpdate({ "_id": orders[i]._id }, { "$set": update_order }, { new: true }).exec();
+          if (driver_detail.device_id.length) {
+            var driver_message = user_detail.name+"'s ride in 15 minutes. Get ready to ride";
+            for (let i = 0; i < driver_detail.device_id.length; ++i) {
+                Firebase.singleNotification(driver_detail.device_id[i], "Trip "+trip_detail.invoice_id, driver_message);
+            }
+          }
+          if (user_detail.device_id.length) {
+            var user_message = driver_detail.name+" starts ride in 15 minutes. Get ready to ride";
+            for (let i = 0; i < user_detail.device_id.length; ++i) {
+                Firebase.singleNotification(user_detail.device_id[i], "Trip "+trip_detail.invoice_id, user_message);
+            }
+          }
+        }
+      }
+    }
+  }
+  return orders;
+}
+exports.schedule_cron = async(req,res,next)=>{
+  await func_schedule_cron().then(async(data) => {
+      if(req)
+      {
+          return res.apiResponse(true, "Order updated Successfully",data)
+      }
+  });
+}
+exports.start_schedule_ride = async(req,res,next)=>{
+  var requests = req.bodyParams;
+  var update_data={
+    booking_type:"now",
+    trip_status:"accepted"
+  }
+  await Trip.findOneAndUpdate({ "_id": requests.trip_id }, { "$set": update_data }, { new: true }).exec();
+  var trip_detail = await Trip.findOne({ "_id": requests.trip_id });
+  var user_detail = await User.findOne({ '_id': trip_detail.user_id });
+  var driver_detail = await User.findOne({ '_id': trip_detail.driver_id });
+  if (user_detail.device_id.length) {
+    var user_message = driver_detail.name+" started a ride. Will reach you in few minutes. Get Ready";
+    for (let i = 0; i < user_detail.device_id.length; ++i) {
+        Firebase.singleNotification(user_detail.device_id[i], "Trip "+trip_detail.invoice_id, user_message);
+    }
+  }
+  return res.apiResponse(true, "Trip Started")
 }

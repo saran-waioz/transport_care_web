@@ -20,10 +20,23 @@ const requestDetailSchema = new mongoose.Schema({
     care_giver_id: String,
     driver_id: String,
     trip_id: String,
-    request_status: { //Requesting, Accepted, Cancelled
+    request_status: { //Requesting, Accepted, Cancelled, schedule_accepted
       type: String,
       default: "Pending"
     },
+    booking_type: {
+      type: String,
+      default: "now"
+    },//now, schedule
+    request_type: {
+      type: String,
+      default: "now"
+    },//now, schedule
+    schedule_status: {
+      type:String,
+      default:"pending"
+    },//pending, approved, rejected
+    schedule_date_time:Date,
     duration:String,
     sort: Number,
     is_deleted: {

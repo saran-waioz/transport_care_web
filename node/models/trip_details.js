@@ -35,15 +35,28 @@ const TripDetailSchema = new mongoose.Schema({
       type: String,
       default: "Not Paid"  //Not Paid, Paid
     },
+    // booking_type and request_type are same, but we keeping the both for some purpose
+    // request_type can't change || booking_type will change after schedule ride started
+    // maintain these things for condition purposes so please keep both fields
     booking_type: {
       type: String,
       default: "now"  //now, schdeule
-    },              
+    },    
+    request_type: {
+      type: String,
+      default: "now"
+    },//now, schedule
+    schedule_status: {
+      type:String,
+      default:"pending"
+    },//pending, approved, rejected
+    schedule_date_time:Date,          
     trip_status: {      
       type: String,
-      default: "pending"  //processing, accepted ,arrived, start_trip, end_trip, payment, rating, completed, cancelled
+      default: "pending"  //processing, schedule_accepted, accepted ,arrived, start_trip, end_trip, payment, rating, completed, cancelled
     },
     accepted_at:Date,
+    schedule_accepted_at:Date,
     arrived_at:Date,
     started_at:Date,
     ended_at:Date,
@@ -57,6 +70,8 @@ const TripDetailSchema = new mongoose.Schema({
       type:Boolean,
       default:false
     },
+    schedule_reminded_first: Date,
+    schedule_reminded_second: Date,
     duration:String,
     invoice_id:Number,
     is_deleted: {
@@ -113,6 +128,10 @@ TripDetailSchema.virtual('show_created_at').get(function () {
 });
 TripDetailSchema.virtual('show_arrived_at').get(function () {
   var utc = moment.utc(this.arrived_at);
+  return moment(utc).utcOffset(env.utcOffset).format('YYYY-MM-DD hh:mm A')
+});
+TripDetailSchema.virtual('show_scheduled_at').get(function () {
+  var utc = moment.utc(this.schedule_date_time);
   return moment(utc).utcOffset(env.utcOffset).format('YYYY-MM-DD hh:mm A')
 });
 TripDetailSchema.virtual('pickup_time').get(function () {

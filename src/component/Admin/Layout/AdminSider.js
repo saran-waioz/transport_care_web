@@ -43,7 +43,7 @@ class AdminSider extends React.Component {
             selectedKeys={[this.props.location.pathname]}
             mode="inline"
           >
-            <h3 className="sidebarTitle">Dashboard</h3>
+
             <Menu.Item key="/admin/admin-dashboard">
               <Icon type="dashboard" />
               <span>Dashboard</span>
@@ -64,18 +64,12 @@ class AdminSider extends React.Component {
             <span style={{margin:10}}>Caregivers</span>
               <Link to="/admin/admin-caregiver" />
             </Menu.Item>
-            <h3 className="sidebarTitle">Quick Menu</h3>
             <Menu.Item key="/admin/admin-category">
               <Icon type="deployment-unit" />
               <span>Categories</span>
               <Link to="/admin/admin-category" />
-            </Menu.Item>            
-            <Menu.Item key="/admin-location">
-              <FaMapMarkerAlt style={{ fontSize: '1.2em' }} />
-              <span style={{margin:10}}>Driver Map</span>
-              <Link to="/admin/admin-location" />
-            </Menu.Item>
-            <h3 className="sidebarTitle">Notifications</h3>
+            </Menu.Item> 
+            
             <Menu.Item key="/admin-booking">
               <FaTripadvisor style={{ fontSize: '1.2em' }} />
               <span style={{margin:10}}>Trip</span>
@@ -86,7 +80,7 @@ class AdminSider extends React.Component {
               <span>Reviews</span>
               <Link to="/admin/admin-review" />
             </Menu.Item>
-            <h3 className="sidebarTitle">Settings</h3>
+            
             <Menu.Item key="/admin/admin-static">
               <Icon type="book" />
               <span>Static Pages</span>

@@ -3,6 +3,7 @@ const router=express.Router();
 const Usercontroller=require('../controllers/users')
 const CronJob = require('cron').CronJob;
 new CronJob('*/1 * * * *', Usercontroller.caregiver_reminder_cron, null, true);
+new CronJob('*/1 * * * *', Usercontroller.schedule_cron, null, true);
 
 router.post('/get_users',Usercontroller.get_users)
 router.post('/get_reviews',Usercontroller.get_reviews)
@@ -24,6 +25,7 @@ router.post('/get_home_page_detail', Usercontroller.get_home_page_details);
 router.post('/calculate_fare_estimation', Usercontroller.calculate_fare_estimation);
 router.post('/update_trip_status', Usercontroller.update_trip_status);
 router.post('/accept_request', Usercontroller.accept_request);
+router.post('/start_schedule_ride', Usercontroller.start_schedule_ride);
 router.post('/cancel_request', Usercontroller.cancel_request);
 router.post('/request_order', Usercontroller.request_order);
 router.post('/get_trips', Usercontroller.get_trips);
