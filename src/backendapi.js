@@ -1,6 +1,6 @@
 let type = 1;
 export const API = type
-  ? "http://3.138.149.12:8990/api"
-  : "http://localhost:8990/api";
-const SOCKET = type ? "http://3.138.149.12:8990" : "http://localhost:8990";
+  ? "https://tryout.waioz.com:8990/api"
+  : "https://localhost:8990/api";
+const SOCKET = type ? "https://tryout.waioz.com:8990" : "http://localhost:8990";
 export default SOCKET;
